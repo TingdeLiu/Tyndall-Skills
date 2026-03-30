@@ -16,8 +16,8 @@ Extract subtitles from Bilibili or YouTube videos and save as plain `.txt` files
 
 ## Script
 
-```
-python C:\Users\tingd\.claude\skills\video-subtitle-extractor\scripts\extract_subtitles.py <URL> [--output-dir <dir>] [--lang <code>]
+```bash
+python video-subtitle-extractor/scripts/extract_subtitles.py <URL> [--output-dir <dir>] [--lang <code>]
 ```
 
 **Arguments:**
@@ -34,13 +34,13 @@ python C:\Users\tingd\.claude\skills\video-subtitle-extractor\scripts\extract_su
 
 ```bash
 # Bilibili (auto-detect language)
-python ...extract_subtitles.py "https://www.bilibili.com/video/BV1xx411c7mD"
+python video-subtitle-extractor/scripts/extract_subtitles.py "https://www.bilibili.com/video/BV1xx411c7mD"
 
 # YouTube, save to Downloads
-python ...extract_subtitles.py "https://youtu.be/dQw4w9WgXcQ" --output-dir "C:/Users/tingd/Downloads"
+python video-subtitle-extractor/scripts/extract_subtitles.py "https://youtu.be/dQw4w9WgXcQ" --output-dir "downloads"
 
 # Force English
-python ...extract_subtitles.py "https://www.youtube.com/watch?v=abc" --lang en
+python video-subtitle-extractor/scripts/extract_subtitles.py "https://www.youtube.com/watch?v=abc" --lang en
 ```
 
 ## Authentication (cookies)
@@ -50,10 +50,10 @@ YouTube and some Bilibili videos require login. Export cookies from your browser
 extension, then pass the file:
 
 ```bash
-python ...extract_subtitles.py "<URL>" --cookies "C:/path/to/cookies.txt"
+python video-subtitle-extractor/scripts/extract_subtitles.py "<URL>" --cookies "path/to/cookies.txt"
 ```
 
-Store the cookies file at a stable path (e.g. `C:\Users\tingd\.claude\skills\video-subtitle-extractor\cookies\www.youtube.com_cookies.txt`) and reuse it.
+Store the cookies file in the `video-subtitle-extractor/cookies/` directory (e.g. `video-subtitle-extractor/cookies/www.youtube.com_cookies.txt`) and it will be automatically detected by the script.
 
 > **Note:** `--cookies-from-browser chrome` fails when Chrome is running (database locked).
 > `--cookies-from-browser edge` fails on Windows due to DPAPI encryption. Use a cookies.txt file instead.

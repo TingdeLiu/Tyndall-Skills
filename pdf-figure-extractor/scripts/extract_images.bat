@@ -32,13 +32,10 @@ echo Output: %OUTPUT_DIR%
 echo Types:  %TYPES%
 echo ==========================================================
 
-REM Change to parent directory (skill root)
-cd /d "%~dp0.."
-
 if "%PAGES%"=="" (
-    C:\Users\tingd\miniconda3\envs\TF-ID\python.exe scripts\extract_images.py "%PDF_PATH%" -o "%OUTPUT_DIR%" -t %TYPES%
+    python "%~dp0extract_images.py" "%PDF_PATH%" -o "%OUTPUT_DIR%" -t %TYPES%
 ) else (
-    C:\Users\tingd\miniconda3\envs\TF-ID\python.exe scripts\extract_images.py "%PDF_PATH%" -o "%OUTPUT_DIR%" -t %TYPES% --pages "%PAGES%"
+    python "%~dp0extract_images.py" "%PDF_PATH%" -o "%OUTPUT_DIR%" -t %TYPES% --pages "%PAGES%"
 )
 
 if %errorlevel% neq 0 (

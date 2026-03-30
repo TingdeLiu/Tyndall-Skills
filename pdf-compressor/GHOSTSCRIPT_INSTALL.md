@@ -57,7 +57,7 @@ gs -version
 **Windows:**
 - Check if Ghostscript is in your PATH
 - The installer usually adds it automatically
-- If not, add manually: `C:\Program Files\gs\gs10.xx.x\bin`
+- If not, add the `bin` directory of your Ghostscript installation to your PATH (e.g. `C:\Program Files\gs\gs10.xx.x\bin`)
 
 **macOS/Linux:**
 - Ensure Homebrew or package manager completed successfully
