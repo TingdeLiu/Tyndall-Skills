@@ -1,6 +1,6 @@
 # Tyndall-Skills
 
-A collection of custom Claude Code skills (SKILL.md templates) and scripts designed to enhance AI capabilities for document processing and media extraction.
+A curated collection of custom Claude Code skills (SKILL.md templates) and automation scripts designed to extend AI capabilities and streamline complex development and productivity workflows.
 
 ## Available Skills
 
@@ -74,4 +74,4 @@ Once registered, you can use natural language to trigger the workflows:
 4. **Result:** The processed files (compressed PDFs, extracted images, or subtitle text) will be saved to the specified directory.
 
 ---
-*Created and maintained by [tingd](https://github.com/tingd).*
+*Created and maintained by [Tingde Liu](https://github.com/TingdeLiu).*
