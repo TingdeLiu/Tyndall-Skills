@@ -14,7 +14,7 @@ Automatically compresses large PDF files using Ghostscript to ensure they fit wi
 - **Dependencies:** [Ghostscript](https://ghostscript.com/releases/gsdnld.html).
 
 ### 2. PDF Figure Extractor (`pdf-figure-extractor`)
-Extracts figures and tables from PDF documents using the TF-ID (Florence2-based) object detection model.
+Extracts figures and tables from PDF documents using the [TF-ID](https://github.com/ai8hyf/TF-ID) (Florence2-based) object detection model.
 - **Triggers:** Triggered by requests like "extract all figures from this PDF" or "get the tables from paper.pdf".
 - **Key Features:**
   - High-accuracy detection of academic paper layout elements.
@@ -23,7 +23,7 @@ Extracts figures and tables from PDF documents using the TF-ID (Florence2-based)
 - **Dependencies:** Conda environment `TF-ID`, `pdf2image`, `transformers`, `pillow`.
 
 ### 3. Video Subtitle Extractor (`video-subtitle-extractor`)
-Extracts and saves subtitles from Bilibili (B站) and YouTube videos as plain `.txt` files.
+Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` files.
 - **Triggers:** Triggered when a video URL is provided with a request for subtitles, captions, or transcripts.
 - **Key Features:**
   - Supports both Bilibili and YouTube.
@@ -31,9 +31,9 @@ Extracts and saves subtitles from Bilibili (B站) and YouTube videos as plain `.
   - Support for login-gated videos via `cookies.txt`.
 - **Dependencies:** `yt-dlp`.
 
-## Setup & Usage | 安装与使用
+## Setup & Usage
 
-### 1. Prerequisites | 环境准备
+### 1. Prerequisites
 Ensure you have the core dependencies installed for each skill:
 - **PDF Compressor:** [Ghostscript](https://ghostscript.com/releases/gsdnld.html)
 - **PDF Figure Extractor:** Requires a specific Conda environment and system-level `poppler`:
@@ -49,7 +49,7 @@ Ensure you have the core dependencies installed for each skill:
      ```
 - **Video Subtitle Extractor:** `pip install yt-dlp`
 
-### 2. Add to Claude Code | 注册到 Claude Code
+### 2. Add to Claude Code
 To let Claude Code "learn" these skills, you have two options:
 
 **Option A: Global Registration (Recommended)**
@@ -65,7 +65,7 @@ cp -r ./pdf-compressor ~/.claude/skills/
 If you don't want to install them globally, simply reference the `SKILL.md` file in your chat:
 > "Help me compress this file based on @pdf-compressor/SKILL.md"
 
-### 3. Usage Steps | 使用步骤
+### 3. Usage Steps
 Once registered, you can use natural language to trigger the workflows:
 
 1. **Invoke:** Type a command like "Compress report.pdf" or "Extract subtitles from this YouTube link: [URL]".
