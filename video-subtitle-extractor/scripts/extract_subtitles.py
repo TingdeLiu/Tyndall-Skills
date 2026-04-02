@@ -135,11 +135,27 @@ COOKIES_CANDIDATES = {
 }
 
 def find_default_cookies(platform: str) -> str | None:
-    """Return the first matching cookies file for the platform, or None."""
+    """Return the first matching cookies file for the platform, or any .txt file in the dir."""
+    if not os.path.isdir(COOKIES_DIR):
+        return None
+        
+    # 1. Try specific candidates first
     for name in COOKIES_CANDIDATES.get(platform, []):
         path = os.path.join(COOKIES_DIR, name)
         if os.path.isfile(path):
             return path
+            
+    # 2. Search for any .txt file that contains the platform name
+    all_files = os.listdir(COOKIES_DIR)
+    for f in all_files:
+        if f.endswith(".txt") and platform.lower() in f.lower():
+            return os.path.join(COOKIES_DIR, f)
+            
+    # 3. If only one .txt file exists in the directory, use it as a fallback
+    txt_files = [f for f in all_files if f.endswith(".txt")]
+    if len(txt_files) == 1:
+        return os.path.join(COOKIES_DIR, txt_files[0])
+        
     return None
 
 
