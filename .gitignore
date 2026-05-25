@@ -1,0 +1,15 @@
+# Cookies (may contain login credentials)
+**/cookies/*.txt
+**/cookies/*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

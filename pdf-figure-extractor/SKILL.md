@@ -16,27 +16,31 @@ Extract figures and tables from PDF files using TF-ID (Florence2-based) object d
 
 ### Windows (recommended — avoids encoding issues)
 
+Invoke the bundled `.bat` from this skill's `scripts/` directory:
+
 ```bash
-cmd //c "pdf-figure-extractor\scripts\extract_images.bat" "<pdf_path>" "<pages>"
+cmd /c "scripts\extract_images.bat" "<pdf_path>" "<pages>"
 ```
 
 Examples:
 ```bash
 # Extract all pages
-cmd //c "pdf-figure-extractor\scripts\extract_images.bat" "paper.pdf" ""
+cmd /c "scripts\extract_images.bat" "paper.pdf" ""
 
 # Extract specific pages
-cmd //c "pdf-figure-extractor\scripts\extract_images.bat" "paper.pdf" "2,5,10,11"
+cmd /c "scripts\extract_images.bat" "paper.pdf" "2,5,10,11"
 
 # Extract page range
-cmd //c "pdf-figure-extractor\scripts\extract_images.bat" "paper.pdf" "3-7,10"
+cmd /c "scripts\extract_images.bat" "paper.pdf" "3-7,10"
 ```
 
 ### Direct Python (cross-platform)
 
 ```bash
-conda run -n TF-ID python pdf-figure-extractor/scripts/extract_images.py <pdf_path> -o <output_dir> -t figure table --pages <pages>
+conda run -n TF-ID python scripts/extract_images.py <pdf_path> -o <output_dir> -t figure table --pages <pages>
 ```
+
+> Paths above are relative to this skill's directory. When the skill is installed under `~/.claude/skills/pdf-figure-extractor/`, run the commands from that directory, or prepend the full skill path.
 
 ## Parameters
 
