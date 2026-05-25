@@ -8,7 +8,7 @@ English | [中文](README_CN.md)
 - [PDF Compressor](#1-pdf-compressor-pdf-compressor)
 - [PDF Figure Extractor](#2-pdf-figure-extractor-pdf-figure-extractor)
 - [Video Subtitle Extractor](#3-video-subtitle-extractor-video-subtitle-extractor)
-- [Windows Statusline](#4-windows-statusline-windows-statusline)
+- [Claude Code Statusline](#4-claude-code-statusline-windows-statusline)
 - [Project Summary](#5-project-summary-project-summary)
 - [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -63,7 +63,7 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
     2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
   - Ensure `yt-dlp` is accessible in your environment.
 
-### 4. Windows Statusline (`windows-statusline`)
+### 4. Claude Code Statusline (`windows-statusline`)
 A ready-to-use Python script that powers a Claude Code custom status line on Windows, sidestepping the missing-`jq` and cp1252 Unicode pitfalls that break the default bash/jq snippets.
 
 ![Claude Code status line on Windows](images/claude-status.png)
@@ -86,6 +86,26 @@ Analyzes a GitHub project (URL or local path) and generates a comprehensive `arc
   - Width-adaptive ASCII diagrams (80 / 120 columns) with CJK double-width alignment rules.
   - Produces a structured `architecture.md` covering tech stack, components, data flow, and design decisions.
 - **Setup & Prerequisites:** None — uses only Claude Code's built-in file and shell tools.
+- **Example output (excerpt):**
+
+  ```
+  ┌─────────────────────────────────────┐
+  │            主应用入口                │
+  │           main.py / index.js         │
+  └──────┬──────────────┬───────────────┘
+         │              │
+         ▼              ▼
+  ┌──────────┐    ┌──────────┐
+  │  模块 A  │    │  模块 B  │
+  │  auth/   │    │  api/    │
+  └────┬─────┘    └────┬─────┘
+       │               │
+       ▼               ▼
+  ┌──────────┐    ┌──────────┐
+  │  工具库  │    │  数据库  │
+  │  utils/  │    │   db/    │
+  └──────────┘    └──────────┘
+  ```
 
 ---
 

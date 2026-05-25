@@ -8,7 +8,7 @@
 - [PDF 压缩器](#1-pdf-压缩器-pdf-compressor)
 - [PDF 图表提取器](#2-pdf-图表提取器-pdf-figure-extractor)
 - [视频字幕提取器](#3-视频字幕提取器-video-subtitle-extractor)
-- [Windows 状态栏](#4-windows-状态栏-windows-statusline)
+- [Claude Code 状态栏](#4-claude-code-状态栏-windows-statusline)
 - [项目架构摘要](#5-项目架构摘要-project-summary)
 - [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -63,7 +63,7 @@
     2. 将下载好的 Cookie 文件直接放入 `video-subtitle-extractor/cookies` 文件夹即可（无需改名）。
   - 确保 `yt-dlp` 在你的环境中可以访问。
 
-### 4. Windows 状态栏 (`windows-statusline`)
+### 4. Claude Code 状态栏 (`windows-statusline`)
 为 Windows 上的 Claude Code 提供一个开箱即用的 Python 状态栏脚本，规避默认 bash/jq 方案在 Windows 上常见的 `jq` 缺失与 cp1252 Unicode 编码错误问题。
 
 ![Windows 下 Claude Code 状态栏效果](images/claude-status.png)
@@ -86,6 +86,26 @@
   - ASCII 图宽度自适应（80 / 120 列），并处理中英文字符双倍宽对齐。
   - 输出结构化的 `architecture.md`，涵盖技术栈、核心组件、数据流与关键设计决策。
 - **设置与前提条件：** 无 —— 仅使用 Claude Code 内置的文件与 Shell 工具。
+- **示例输出（节选）：**
+
+  ```
+  ┌─────────────────────────────────────┐
+  │            主应用入口                │
+  │           main.py / index.js         │
+  └──────┬──────────────┬───────────────┘
+         │              │
+         ▼              ▼
+  ┌──────────┐    ┌──────────┐
+  │  模块 A  │    │  模块 B  │
+  │  auth/   │    │  api/    │
+  └────┬─────┘    └────┬─────┘
+       │               │
+       ▼               ▼
+  ┌──────────┐    ┌──────────┐
+  │  工具库  │    │  数据库  │
+  │  utils/  │    │   db/    │
+  └──────────┘    └──────────┘
+  ```
 
 ---
 
