@@ -75,7 +75,7 @@
   - 附带说明 Claude Code 传给状态栏命令的 JSON 字段。
 - **设置与前提条件：**
   - 系统 PATH 中需要可用的 Python（Miniconda 或系统 Python 均可）。
-  - 将 `scripts/statusline.py` 拷贝到 `~/.claude/statusline.py`，并在 `settings.json` 中引用（详见该技能的 `SKILL.md`）。
+  - 将该技能安装到 `~/.claude/skills/windows-statusline/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后直接对 Claude 说一句 **"帮我配置 Claude Code 状态栏"**——它会读取 `SKILL.md`，自动完成 `statusline.py` 的拷贝和 `settings.json` 的配置。
 
 ### 5. 项目架构摘要 (`project-summary`)
 分析 GitHub 项目（远程仓库 URL 或本地路径），自动生成中文版 `architecture.md`，并配套自动选型的 ASCII 架构图。

@@ -74,8 +74,8 @@ A ready-to-use Python script that powers a Claude Code custom status line on Win
   - Pure-Python — no `jq` dependency, no Unicode encoding errors.
   - Documents the JSON fields Claude Code pipes to the statusline command.
 - **Setup & Prerequisites:**
-  - Python in PATH (Miniconda or system Python works).
-  - Copy `scripts/statusline.py` to `~/.claude/statusline.py` and reference it from `settings.json` (see the skill's `SKILL.md`).
+  - Python available in PATH (Miniconda or system Python works).
+  - Install the skill into `~/.claude/skills/windows-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then just ask Claude **"set up my Claude Code statusline"** — it'll read `SKILL.md` and wire up `statusline.py` + `settings.json` for you.
 
 ### 5. Project Summary (`project-summary`)
 Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
