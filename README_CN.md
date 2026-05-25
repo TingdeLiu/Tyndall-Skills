@@ -8,6 +8,8 @@
 - [PDF 压缩器](#1-pdf-压缩器-pdf-compressor)
 - [PDF 图表提取器](#2-pdf-图表提取器-pdf-figure-extractor)
 - [视频字幕提取器](#3-视频字幕提取器-video-subtitle-extractor)
+- [Windows 状态栏](#4-windows-状态栏-windows-statusline)
+- [项目架构摘要](#5-项目架构摘要-project-summary)
 - [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
 ---
@@ -60,6 +62,28 @@
     1. 使用浏览器扩展（如“Get cookies.txt LOCALLY”）导出你的 Cookie。
     2. 将下载好的 Cookie 文件直接放入 `video-subtitle-extractor/cookies` 文件夹即可（无需改名）。
   - 确保 `yt-dlp` 在你的环境中可以访问。
+
+### 4. Windows 状态栏 (`windows-statusline`)
+为 Windows 上的 Claude Code 提供一个开箱即用的 Python 状态栏脚本，规避默认 bash/jq 方案在 Windows 上常见的 `jq` 缺失与 cp1252 Unicode 编码错误问题。
+
+- **触发条件：** “在 Windows 上配置 statusline”、“配置 Claude Code 状态栏”，或在 bash/jq 状态栏脚本失败时使用。
+- **核心功能：**
+  - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
+  - 纯 Python 实现 —— 不依赖 `jq`，不会出现 Unicode 编码错误。
+  - 附带说明 Claude Code 传给状态栏命令的 JSON 字段。
+- **设置与前提条件：**
+  - 系统 PATH 中需要可用的 Python（Miniconda 或系统 Python 均可）。
+  - 将 `scripts/statusline.py` 拷贝到 `~/.claude/statusline.py`，并在 `settings.json` 中引用（详见该技能的 `SKILL.md`）。
+
+### 5. 项目架构摘要 (`project-summary`)
+分析 GitHub 项目（远程仓库 URL 或本地路径），自动生成中文版 `architecture.md`，并配套自动选型的 ASCII 架构图。
+
+- **触发条件：** “分析这个 GitHub 项目”、“生成 architecture.md”、“总结项目结构”。
+- **核心功能：**
+  - 通过决策树自动选择架构图类型（线性流水线 / 分层架构 / 模块依赖树 / 微服务交互 / 请求处理流 / 嵌套组件）。
+  - ASCII 图宽度自适应（80 / 120 列），并处理中英文字符双倍宽对齐。
+  - 输出结构化的 `architecture.md`，涵盖技术栈、核心组件、数据流与关键设计决策。
+- **设置与前提条件：** 无 —— 仅使用 Claude Code 内置的文件与 Shell 工具。
 
 ---
 

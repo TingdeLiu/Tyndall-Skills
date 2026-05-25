@@ -8,6 +8,8 @@ English | [中文](README_CN.md)
 - [PDF Compressor](#1-pdf-compressor-pdf-compressor)
 - [PDF Figure Extractor](#2-pdf-figure-extractor-pdf-figure-extractor)
 - [Video Subtitle Extractor](#3-video-subtitle-extractor-video-subtitle-extractor)
+- [Windows Statusline](#4-windows-statusline-windows-statusline)
+- [Project Summary](#5-project-summary-project-summary)
 - [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
 ---
@@ -60,6 +62,28 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
     1. Use a browser extension (e.g., "Get cookies.txt LOCALLY") to export your cookies.
     2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
   - Ensure `yt-dlp` is accessible in your environment.
+
+### 4. Windows Statusline (`windows-statusline`)
+A ready-to-use Python script that powers a Claude Code custom status line on Windows, sidestepping the missing-`jq` and cp1252 Unicode pitfalls that break the default bash/jq snippets.
+
+- **Triggers:** "Set up a statusline on Windows", "Configure Claude Code statusLine", or failures of bash/jq-based statusline scripts.
+- **Key Features:**
+  - Shows model name, color-coded context-usage bar, session cost (USD), and 5h/7d rate-limit percentages.
+  - Pure-Python — no `jq` dependency, no Unicode encoding errors.
+  - Documents the JSON fields Claude Code pipes to the statusline command.
+- **Setup & Prerequisites:**
+  - Python in PATH (Miniconda or system Python works).
+  - Copy `scripts/statusline.py` to `~/.claude/statusline.py` and reference it from `settings.json` (see the skill's `SKILL.md`).
+
+### 5. Project Summary (`project-summary`)
+Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
+
+- **Triggers:** "Analyze this GitHub project", "Generate architecture.md", "Summarize project structure".
+- **Key Features:**
+  - Auto-selects diagram style (pipeline / layered / dependency tree / microservices / request flow / nested components) via a decision tree.
+  - Width-adaptive ASCII diagrams (80 / 120 columns) with CJK double-width alignment rules.
+  - Produces a structured `architecture.md` covering tech stack, components, data flow, and design decisions.
+- **Setup & Prerequisites:** None — uses only Claude Code's built-in file and shell tools.
 
 ---
 
