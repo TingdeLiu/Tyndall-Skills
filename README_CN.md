@@ -66,6 +66,8 @@
 ### 4. Windows 状态栏 (`windows-statusline`)
 为 Windows 上的 Claude Code 提供一个开箱即用的 Python 状态栏脚本，规避默认 bash/jq 方案在 Windows 上常见的 `jq` 缺失与 cp1252 Unicode 编码错误问题。
 
+![Windows 下 Claude Code 状态栏效果](images/claude-status.png)
+
 - **触发条件：** “在 Windows 上配置 statusline”、“配置 Claude Code 状态栏”，或在 bash/jq 状态栏脚本失败时使用。
 - **核心功能：**
   - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。

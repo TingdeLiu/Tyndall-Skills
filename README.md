@@ -66,6 +66,8 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
 ### 4. Windows Statusline (`windows-statusline`)
 A ready-to-use Python script that powers a Claude Code custom status line on Windows, sidestepping the missing-`jq` and cp1252 Unicode pitfalls that break the default bash/jq snippets.
 
+![Claude Code status line on Windows](images/claude-status.png)
+
 - **Triggers:** "Set up a statusline on Windows", "Configure Claude Code statusLine", or failures of bash/jq-based statusline scripts.
 - **Key Features:**
   - Shows model name, color-coded context-usage bar, session cost (USD), and 5h/7d rate-limit percentages.
