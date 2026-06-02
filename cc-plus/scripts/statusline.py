@@ -23,6 +23,7 @@ CYAN  = "\033[36m"
 GREEN = "\033[32m"
 YELL  = "\033[33m"
 RED   = "\033[31m"
+BLUE  = "\033[34m"
 W = 16
 
 def col(p):
@@ -35,13 +36,13 @@ def bar(p):
 def countdown(ts):
     if not ts: return ""
     secs = int(ts) - int(time.time())
-    if secs <= 0: return f"{DIM}↺now{R}"
+    if secs <= 0: return f" {DIM}↺:{BLUE}now{R}"
     d, rem = divmod(secs, 86400)
     h, rem = divmod(rem, 3600)
     m = rem // 60
-    if d > 0: return f"{DIM}↺{d}d{h}h{R}"
-    if h > 0: return f"{DIM}↺{h}h{m}m{R}"
-    return f"{DIM}↺{m}m{R}"
+    if d > 0: return f" {DIM}↺:{BLUE}{d}d{h}h{R}"
+    if h > 0: return f" {DIM}↺:{BLUE}{h}h{m}m{R}"
+    return f" {DIM}↺:{BLUE}{m}m{R}"
 
 ctx = (f"[{bar(used)}] {DIM}{round(used)}%{R}" if used is not None
        else f"[{DIM}{'░' * W}{R}]")
