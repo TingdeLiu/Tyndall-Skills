@@ -18,7 +18,7 @@ process.stdin.on('end', () => {
   const d7r   = (rl.seven_day  || {}).resets_at;
 
   const R = '\x1b[0m', BOLD = '\x1b[1m', DIM = '\x1b[2m';
-  const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m', BLUE = '\x1b[34m';
+  const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m';
   const W = 16;
 
   const col = p => p < WARN ? GREEN : p < DANGER ? YELLOW : RED;
@@ -31,13 +31,13 @@ process.stdin.on('end', () => {
   const countdown = ts => {
     if (!ts) return '';
     const secs = ts - Math.floor(Date.now() / 1000);
-    if (secs <= 0) return ` ${DIM}↺:${BLUE}now${R}`;
+    if (secs <= 0) return ` ${DIM}↺:${YELLOW}now${R}`;
     const d = (secs / 86400) | 0;
     const h = ((secs % 86400) / 3600) | 0;
     const m = ((secs % 3600) / 60) | 0;
-    if (d > 0) return ` ${DIM}↺:${BLUE}${d}d${h}h${R}`;
-    if (h > 0) return ` ${DIM}↺:${BLUE}${h}h${m}m${R}`;
-    return ` ${DIM}↺:${BLUE}${m}m${R}`;
+    if (d > 0) return ` ${DIM}↺:${YELLOW}${d}d${h}h${R}`;
+    if (h > 0) return ` ${DIM}↺:${YELLOW}${h}h${m}m${R}`;
+    return ` ${DIM}↺:${YELLOW}${m}m${R}`;
   };
 
   const ctx = used != null
