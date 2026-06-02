@@ -8,7 +8,7 @@
 - [PDF 压缩器](#1-pdf-压缩器-pdf-compressor)
 - [PDF 图表提取器](#2-pdf-图表提取器-pdf-figure-extractor)
 - [视频字幕提取器](#3-视频字幕提取器-video-subtitle-extractor)
-- [Claude Code 状态栏](#4-claude-code-状态栏-windows-statusline)
+- [Claude Code 状态栏](#4-claude-code-状态栏-cc-plus)
 - [项目架构摘要](#5-项目架构摘要-project-summary)
 - [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -63,19 +63,20 @@
     2. 将下载好的 Cookie 文件直接放入 `video-subtitle-extractor/cookies` 文件夹即可（无需改名）。
   - 确保 `yt-dlp` 在你的环境中可以访问。
 
-### 4. Claude Code 状态栏 (`windows-statusline`)
-为 Windows 上的 Claude Code 提供一个开箱即用的 Python 状态栏脚本，规避默认 bash/jq 方案在 Windows 上常见的 `jq` 缺失与 cp1252 Unicode 编码错误问题。
+### 4. Claude Code 状态栏 (`cc-plus`)
+跨平台的 Claude Code 增强技能，为 Windows 和 macOS 同时提供自定义状态栏与响应完成提示音。
 
-![Windows 下 Claude Code 状态栏效果](images/claude-status.png)
+![Claude Code 状态栏效果](images/claude-status.png)
 
-- **触发条件：** “在 Windows 上配置 statusline”、“配置 Claude Code 状态栏”，或在 bash/jq 状态栏脚本失败时使用。
+- **触发条件：** “配置 Claude Code 状态栏”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
 - **核心功能：**
   - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
-  - 纯 Python 实现 —— 不依赖 `jq`，不会出现 Unicode 编码错误。
-  - 附带说明 Claude Code 传给状态栏命令的 JSON 字段。
+  - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
+  - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
+  - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
 - **设置与前提条件：**
-  - 系统 PATH 中需要可用的 Python（Miniconda 或系统 Python 均可）。
-  - 将该技能安装到 `~/.claude/skills/windows-statusline/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后直接对 Claude 说一句 **"帮我配置 Claude Code 状态栏"**——它会读取 `SKILL.md`，自动完成 `statusline.py` 的拷贝和 `settings.json` 的配置。
+  - 系统 PATH 中需要 Python 3 或 Node.js。
+  - 将该技能安装到 `~/.claude/skills/cc-plus/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
 
 ### 5. 项目架构摘要 (`project-summary`)
 分析 GitHub 项目（远程仓库 URL 或本地路径），自动生成中文版 `architecture.md`，并配套自动选型的 ASCII 架构图。

@@ -8,7 +8,7 @@ English | [中文](README_CN.md)
 - [PDF Compressor](#1-pdf-compressor-pdf-compressor)
 - [PDF Figure Extractor](#2-pdf-figure-extractor-pdf-figure-extractor)
 - [Video Subtitle Extractor](#3-video-subtitle-extractor-video-subtitle-extractor)
-- [Claude Code Statusline](#4-claude-code-statusline-windows-statusline)
+- [Claude Code Statusline](#4-claude-code-statusline-cc-plus)
 - [Project Summary](#5-project-summary-project-summary)
 - [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -63,19 +63,20 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
     2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
   - Ensure `yt-dlp` is accessible in your environment.
 
-### 4. Claude Code Statusline (`windows-statusline`)
-A ready-to-use Python script that powers a Claude Code custom status line on Windows, sidestepping the missing-`jq` and cp1252 Unicode pitfalls that break the default bash/jq snippets.
+### 4. Claude Code Statusline (`cc-plus`)
+A cross-platform Claude Code enhancement that adds a custom status line and a completion notification sound on Windows and macOS.
 
-![Claude Code status line on Windows](images/claude-status.png)
+![Claude Code status line](images/claude-status.png)
 
-- **Triggers:** "Set up a statusline on Windows", "Configure Claude Code statusLine", or failures of bash/jq-based statusline scripts.
+- **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", or failures of bash/jq-based statusline scripts.
 - **Key Features:**
   - Shows model name, color-coded context-usage bar, session cost (USD), and 5h/7d rate-limit percentages.
-  - Pure-Python — no `jq` dependency, no Unicode encoding errors.
-  - Documents the JSON fields Claude Code pipes to the statusline command.
+  - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
+  - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
+  - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
 - **Setup & Prerequisites:**
-  - Python available in PATH (Miniconda or system Python works).
-  - Install the skill into `~/.claude/skills/windows-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then just ask Claude **"set up my Claude Code statusline"** — it'll read `SKILL.md` and wire up `statusline.py` + `settings.json` for you.
+  - Python 3 or Node.js available in PATH.
+  - Install the skill into `~/.claude/skills/cc-plus/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
 
 ### 5. Project Summary (`project-summary`)
 Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
