@@ -155,7 +155,9 @@ Color coding (using chosen thresholds):
 | `context_window.used_percentage` | 0–100 float |
 | `cost.total_cost_usd` | Session cumulative cost USD |
 | `rate_limits.five_hour.used_percentage` | 5-hour API quota % used |
+| `rate_limits.five_hour.resets_at` | Unix timestamp (seconds) when 5-hour window resets |
 | `rate_limits.seven_day.used_percentage` | 7-day API quota % used |
+| `rate_limits.seven_day.resets_at` | Unix timestamp (seconds) when 7-day window resets |
 
 ## Debugging: Dump Raw JSON
 
