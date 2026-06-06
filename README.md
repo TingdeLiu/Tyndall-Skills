@@ -32,6 +32,41 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
   - Python 3 or Node.js available in PATH.
   - Install the skill into `~/.claude/skills/cc-plus/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
 
+#### 🐣 Meet your buddy — the golden capybara
+
+Tucked at the end of the status line lives a tiny golden capybara, ported from Claude Code's internal companion easter-egg. It's a single line of text, but it's *alive*: every status-bar refresh re-samples the wall clock and your session state, so the little guy keeps fidgeting and reacting.
+
+**Idle animation** (time-driven — changes between refreshes)
+- Chewing: `(^oo^)` → `(^Oo^)` → `(^oO^)`
+- Blinking: every so often a quick `(-oo-)`
+
+**Mood** — the eyes follow your context usage:
+
+| Context | Eyes | State |
+|---|---|---|
+| < 50% | `^` | happy — `(^oo^)` |
+| 50 – WARN | `·` | awake — `(·oo·)` |
+| WARN – DANGER | `-` | tired — `(-oo-)` |
+| ≥ DANGER | `×` | exhausted — `(×oo×)` |
+
+**Occasional emotes** — now and then a symbol + a warm/silly quip pops out; the quip rotates through a pool so it's never quite the same twice:
+
+| Symbol | When | Sample quips |
+|---|---|---|
+| `♥♥♥` | context is roomy | you got this · proud of you · we're vibing |
+| `~~~` | random | la la la~ · just chillin' · doot doot doot |
+| `zzz` | context ≥ WARN | 5 more minutes · so very sleepy · ok... carry on |
+| `$$$` | cost ≥ $1 | worth every cent · treat yourself · ooh, fancy |
+| `!!!` | rate limit ≥ 90% | breathe, you ok? · ease up soon · take a lil break |
+
+So you'll catch things like `(^oo^) ♥♥♥ you got this` or `(×oo×) !!! breathe, you ok?`.
+
+**Under the hood**
+- **0 tokens, fully local** — it's computed by the statusline script and drawn in your terminal; nothing is ever sent to the model.
+- The symbol is bold gold, the quip is dimmed, so it never crowds the rest of the bar.
+- Want different lines? Edit the `QUIPS` table in `statusline.py` / `statusline.js`.
+- Fails silent — if anything ever goes wrong the buddy just hides, the rest of the status line is untouched.
+
 ### 2. PDF Compressor (`pdf-compressor`)
 Automatically compresses large PDF files using Ghostscript to ensure they fit within API limits or to optimize processing speed.
 

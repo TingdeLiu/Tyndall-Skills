@@ -32,6 +32,41 @@
   - 系统 PATH 中需要 Python 3 或 Node.js。
   - 将该技能安装到 `~/.claude/skills/cc-plus/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
 
+#### 🐣 认识你的宠物 —— 金色卡皮巴拉
+
+状态栏行尾住着一只金色的小卡皮巴拉，移植自 Claude Code 内置的 companion 彩蛋。它只是一行文字，却是**活的**：每次状态栏刷新都会重新读取当前时间和会话状态，所以这小家伙会不停地动、不停地对你的状态做出反应。
+
+**待机动画**（时间驱动，刷新之间持续变化）
+- 嚼东西：`(^oo^)` → `(^Oo^)` → `(^oO^)`
+- 眨眼：偶尔快速 `(-oo-)` 一下
+
+**心情** —— 眼睛随上下文用量变化：
+
+| 上下文 | 眼睛 | 状态 |
+|---|---|---|
+| < 50% | `^` | 开心 —— `(^oo^)` |
+| 50 – WARN | `·` | 清醒 —— `(·oo·)` |
+| WARN – DANGER | `-` | 疲惫 —— `(-oo-)` |
+| ≥ DANGER | `×` | 累瘫 —— `(×oo×)` |
+
+**偶发反应** —— 时不时冒出一个符号 + 一句暖心/俏皮的话；话语从短语池里随时间轮换，所以每次都不太一样：
+
+| 符号 | 触发条件 | 短语示例（卡皮巴拉淡定治愈风） |
+|---|---|---|
+| `♥♥♥` | ctx 宽裕时 | you got this · proud of you · we're vibing |
+| `~~~` | 随机 | la la la~ · just chillin' · doot doot doot |
+| `zzz` | ctx ≥ WARN | 5 more minutes · so very sleepy · ok... carry on |
+| `$$$` | 花费 ≥ $1 | worth every cent · treat yourself · ooh, fancy |
+| `!!!` | 限额 ≥ 90% | breathe, you ok? · ease up soon · take a lil break |
+
+所以你会时不时看到 `(^oo^) ♥♥♥ you got this` 或 `(×oo×) !!! breathe, you ok?` 这样的画面。
+
+**技术原理**
+- **0 token，纯本地** —— 它由状态栏脚本本地计算、画在你的终端里，**任何内容都不会发给模型**。
+- 符号是金色加粗，话语用暗色柔和呈现，不抢状态栏其它信息。
+- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `QUIPS` 表即可。
+- 容错设计 —— 一旦出错宠物就静默隐藏，状态栏其余部分完全不受影响。
+
 ### 2. PDF 压缩器 (`pdf-compressor`)
 使用 Ghostscript 自动压缩大型 PDF 文件，确保它们符合 API 限制或优化处理速度。
 
