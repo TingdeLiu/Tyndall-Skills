@@ -5,10 +5,10 @@
 [English](README.md) | 中文
 
 ## 技能快速跳转
-- [PDF 压缩器](#1-pdf-压缩器-pdf-compressor)
-- [PDF 图表提取器](#2-pdf-图表提取器-pdf-figure-extractor)
-- [视频字幕提取器](#3-视频字幕提取器-video-subtitle-extractor)
-- [Claude Code 状态栏](#4-claude-code-状态栏-cc-plus)
+- [Claude Code 状态栏](#1-claude-code-状态栏-cc-plus)
+- [PDF 压缩器](#2-pdf-压缩器-pdf-compressor)
+- [PDF 图表提取器](#3-pdf-图表提取器-pdf-figure-extractor)
+- [视频字幕提取器](#4-视频字幕提取器-video-subtitle-extractor)
 - [项目架构摘要](#5-项目架构摘要-project-summary)
 - [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -16,7 +16,23 @@
 
 ## 可用技能
 
-### 1. PDF 压缩器 (`pdf-compressor`)
+### 1. Claude Code 状态栏 (`cc-plus`)
+跨平台的 Claude Code 增强技能，为 Windows 和 macOS 同时提供自定义状态栏与响应完成提示音。
+
+![Claude Code 状态栏效果](images/claude-status.png)
+
+- **触发条件：** “配置 Claude Code 状态栏”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
+- **核心功能：**
+  - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
+  - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
+  - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
+  - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
+  - **彩蛋宠物 🐣：** 状态栏行尾住着一只可选的金色卡皮巴拉 `(^oo^)` —— 它会在刷新之间做待机动画（嚼东西、眨眼），并根据上下文用量 / 花费 / 速率限制冒出小表情（`♥♥♥` `zzz` `!!!`）。纯本地运行，**0 token 消耗**。
+- **设置与前提条件：**
+  - 系统 PATH 中需要 Python 3 或 Node.js。
+  - 将该技能安装到 `~/.claude/skills/cc-plus/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
+
+### 2. PDF 压缩器 (`pdf-compressor`)
 使用 Ghostscript 自动压缩大型 PDF 文件，确保它们符合 API 限制或优化处理速度。
 
 - **触发条件：** “压缩 report.pdf”、“减小 PDF 大小”，或在文件 > 10MB 时自动激活。
@@ -28,7 +44,7 @@
   - **依赖项：** [Ghostscript](https://ghostscript.com/releases/gsdnld.html)。
   - 确保 `gswin64c` (Windows) 或 `gs` (Linux/macOS) 已添加到系统 PATH。
 
-### 2. PDF 图表提取器 (`pdf-figure-extractor`)
+### 3. PDF 图表提取器 (`pdf-figure-extractor`)
 使用 [TF-ID](https://github.com/ai8hyf/TF-ID)（基于 Florence2）目标检测模型从 PDF 文档中提取图表和表格。
 
 - **触发条件：** “提取此 PDF 中的所有图表”、“获取 paper.pdf 中的表格”。
@@ -48,7 +64,7 @@
      pip install torch torchvision transformers timm einops pillow opencv-python pdf2image accelerate
      ```
 
-### 3. 视频字幕提取器 (`video-subtitle-extractor`)
+### 4. 视频字幕提取器 (`video-subtitle-extractor`)
 从 Bilibili 和 YouTube 视频中提取字幕并保存为纯 `.txt` 文件。
 
 - **触发条件：** “从这个 YouTube 链接提取字幕：[URL]”、“获取 Bilibili 视频的字幕”。
@@ -62,21 +78,6 @@
     1. 使用浏览器扩展（如“Get cookies.txt LOCALLY”）导出你的 Cookie。
     2. 将下载好的 Cookie 文件直接放入 `video-subtitle-extractor/cookies` 文件夹即可（无需改名）。
   - 确保 `yt-dlp` 在你的环境中可以访问。
-
-### 4. Claude Code 状态栏 (`cc-plus`)
-跨平台的 Claude Code 增强技能，为 Windows 和 macOS 同时提供自定义状态栏与响应完成提示音。
-
-![Claude Code 状态栏效果](images/claude-status.png)
-
-- **触发条件：** “配置 Claude Code 状态栏”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
-- **核心功能：**
-  - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
-  - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
-  - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
-  - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
-- **设置与前提条件：**
-  - 系统 PATH 中需要 Python 3 或 Node.js。
-  - 将该技能安装到 `~/.claude/skills/cc-plus/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
 
 ### 5. 项目架构摘要 (`project-summary`)
 分析 GitHub 项目（远程仓库 URL 或本地路径），自动生成中文版 `architecture.md`，并配套自动选型的 ASCII 架构图。
@@ -112,9 +113,9 @@
 
 ## 如何将技能添加到 Claude Code
 
-要让 Claude Code “学习”这些技能，你有两个选择：
+有三种方式让 Claude Code “学习”这些技能，挑最方便的即可。
 
-### 选项 A：全局注册（推荐）
+### 选项 A：全局注册（重复使用推荐）
 将技能文件夹复制到本地 Claude Code 技能目录。这使得该技能在你所有的项目中都可用。
 ```bash
 # Windows (将 'skill-folder-name' 替换为例如 'pdf-compressor')
@@ -127,6 +128,10 @@ cp -r ./skill-folder-name ~/.claude/skills/
 ### 选项 B：上下文引用
 如果你不想全局安装它们，只需在对话中引用 `SKILL.md` 文件：
 > “请根据 @pdf-compressor/SKILL.md 帮我压缩这个文件”
+
+### 选项 C：直接把链接丢给 Claude（最方便）
+最省事的方式：把本仓库链接粘贴给 Claude Code，剩下的交给它 —— 它会自己读取仓库、找到你需要的技能，并帮你安装或直接运行，无需手动复制、无需折腾路径。
+> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 cc-plus 状态栏技能。”
 
 ---
 *由 [Tingde Liu](https://github.com/TingdeLiu) 创建并维护。*

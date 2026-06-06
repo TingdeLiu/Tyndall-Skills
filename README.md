@@ -5,10 +5,10 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 English | [中文](README_CN.md)
 
 ## Skills Quick Link
-- [PDF Compressor](#1-pdf-compressor-pdf-compressor)
-- [PDF Figure Extractor](#2-pdf-figure-extractor-pdf-figure-extractor)
-- [Video Subtitle Extractor](#3-video-subtitle-extractor-video-subtitle-extractor)
-- [Claude Code Statusline](#4-claude-code-statusline-cc-plus)
+- [Claude Code Statusline](#1-claude-code-statusline-cc-plus)
+- [PDF Compressor](#2-pdf-compressor-pdf-compressor)
+- [PDF Figure Extractor](#3-pdf-figure-extractor-pdf-figure-extractor)
+- [Video Subtitle Extractor](#4-video-subtitle-extractor-video-subtitle-extractor)
 - [Project Summary](#5-project-summary-project-summary)
 - [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -16,7 +16,23 @@ English | [中文](README_CN.md)
 
 ## Available Skills
 
-### 1. PDF Compressor (`pdf-compressor`)
+### 1. Claude Code Statusline (`cc-plus`)
+A cross-platform Claude Code enhancement that adds a custom status line and a completion notification sound on Windows and macOS.
+
+![Claude Code status line](images/claude-status.png)
+
+- **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", or failures of bash/jq-based statusline scripts.
+- **Key Features:**
+  - Shows model name, color-coded context-usage bar, session cost (USD), and 5h/7d rate-limit percentages.
+  - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
+  - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
+  - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
+  - **Easter-egg buddy 🐣:** an optional golden capybara `(^oo^)` lives at the end of the status line — it idle-animates between refreshes (chews, blinks) and reacts to your context / cost / rate-limit state with little emotes (`♥♥♥` `zzz` `!!!`). Fully local, **0 tokens**.
+- **Setup & Prerequisites:**
+  - Python 3 or Node.js available in PATH.
+  - Install the skill into `~/.claude/skills/cc-plus/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
+
+### 2. PDF Compressor (`pdf-compressor`)
 Automatically compresses large PDF files using Ghostscript to ensure they fit within API limits or to optimize processing speed.
 
 - **Triggers:** "Compress report.pdf", "Reduce size of PDF", or automatically for files > 10MB.
@@ -28,7 +44,7 @@ Automatically compresses large PDF files using Ghostscript to ensure they fit wi
   - **Dependency:** [Ghostscript](https://ghostscript.com/releases/gsdnld.html).
   - Ensure `gswin64c` (Windows) or `gs` (Linux/macOS) is in your PATH.
 
-### 2. PDF Figure Extractor (`pdf-figure-extractor`)
+### 3. PDF Figure Extractor (`pdf-figure-extractor`)
 Extracts figures and tables from PDF documents using the [TF-ID](https://github.com/ai8hyf/TF-ID) (Florence2-based) object detection model.
 
 - **Triggers:** "Extract all figures from this PDF", "Get the tables from paper.pdf".
@@ -48,7 +64,7 @@ Extracts figures and tables from PDF documents using the [TF-ID](https://github.
      pip install torch torchvision transformers timm einops pillow opencv-python pdf2image accelerate
      ```
 
-### 3. Video Subtitle Extractor (`video-subtitle-extractor`)
+### 4. Video Subtitle Extractor (`video-subtitle-extractor`)
 Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` files.
 
 - **Triggers:** "Extract subtitles from this YouTube link: [URL]", "Get captions from Bilibili video".
@@ -62,21 +78,6 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
     1. Use a browser extension (e.g., "Get cookies.txt LOCALLY") to export your cookies.
     2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
   - Ensure `yt-dlp` is accessible in your environment.
-
-### 4. Claude Code Statusline (`cc-plus`)
-A cross-platform Claude Code enhancement that adds a custom status line and a completion notification sound on Windows and macOS.
-
-![Claude Code status line](images/claude-status.png)
-
-- **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", or failures of bash/jq-based statusline scripts.
-- **Key Features:**
-  - Shows model name, color-coded context-usage bar, session cost (USD), and 5h/7d rate-limit percentages.
-  - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
-  - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
-  - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-- **Setup & Prerequisites:**
-  - Python 3 or Node.js available in PATH.
-  - Install the skill into `~/.claude/skills/cc-plus/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
 
 ### 5. Project Summary (`project-summary`)
 Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
@@ -112,9 +113,9 @@ Analyzes a GitHub project (URL or local path) and generates a comprehensive `arc
 
 ## How to Add Skills to Claude Code
 
-To let Claude Code "learn" these skills, you have two options:
+There are three ways to let Claude Code "learn" these skills — pick whichever is most convenient.
 
-### Option A: Global Registration (Recommended)
+### Option A: Global Registration (Recommended for repeated use)
 Copy the skill folder to your local Claude Code skills directory. This makes the skill available in all your projects.
 ```bash
 # Windows (Replace 'skill-folder-name' with e.g., 'pdf-compressor')
@@ -127,6 +128,10 @@ cp -r ./skill-folder-name ~/.claude/skills/
 ### Option B: Contextual Reference
 If you don't want to install them globally, simply reference the `SKILL.md` file in your chat:
 > "Help me compress this file based on @pdf-compressor/SKILL.md"
+
+### Option C: Just Hand Claude the Link (Easiest)
+The least-effort path: paste this repo's URL into Claude Code and let it do the rest — it will read the repo, find the skill you need, and install or run it for you. No manual copying, no path juggling.
+> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `cc-plus` statusline skill for me."
 
 ---
 *Created and maintained by [Tingde Liu](https://github.com/TingdeLiu).*
