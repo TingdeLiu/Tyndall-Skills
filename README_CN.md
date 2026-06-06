@@ -150,7 +150,11 @@
 
 有三种方式让 Claude Code “学习”这些技能，挑最方便的即可。
 
-### 选项 A：全局注册（重复使用推荐）
+### 选项 A：直接把链接丢给 Claude（最推荐，最省事）
+最省事的方式：把本仓库链接粘贴给 Claude Code，剩下的交给它 —— 它会自己读取仓库、找到你需要的技能，并帮你安装或直接运行，无需手动复制、无需折腾路径。
+> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 cc-plus 状态栏技能。”
+
+### 选项 B：全局注册
 将技能文件夹复制到本地 Claude Code 技能目录。这使得该技能在你所有的项目中都可用。
 ```bash
 # Windows (将 'skill-folder-name' 替换为例如 'pdf-compressor')
@@ -160,13 +164,9 @@ xcopy /E /I .\skill-folder-name %USERPROFILE%\.claude\skills\skill-folder-name
 cp -r ./skill-folder-name ~/.claude/skills/
 ```
 
-### 选项 B：上下文引用
+### 选项 C：上下文引用
 如果你不想全局安装它们，只需在对话中引用 `SKILL.md` 文件：
 > “请根据 @pdf-compressor/SKILL.md 帮我压缩这个文件”
-
-### 选项 C：直接把链接丢给 Claude（最方便）
-最省事的方式：把本仓库链接粘贴给 Claude Code，剩下的交给它 —— 它会自己读取仓库、找到你需要的技能，并帮你安装或直接运行，无需手动复制、无需折腾路径。
-> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 cc-plus 状态栏技能。”
 
 ---
 *由 [Tingde Liu](https://github.com/TingdeLiu) 创建并维护。*

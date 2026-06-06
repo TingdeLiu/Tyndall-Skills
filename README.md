@@ -150,7 +150,11 @@ Analyzes a GitHub project (URL or local path) and generates a comprehensive `arc
 
 There are three ways to let Claude Code "learn" these skills — pick whichever is most convenient.
 
-### Option A: Global Registration (Recommended for repeated use)
+### Option A: Just Hand Claude the Link (Recommended — Easiest)
+The least-effort path: paste this repo's URL into Claude Code and let it do the rest — it will read the repo, find the skill you need, and install or run it for you. No manual copying, no path juggling.
+> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `cc-plus` statusline skill for me."
+
+### Option B: Global Registration
 Copy the skill folder to your local Claude Code skills directory. This makes the skill available in all your projects.
 ```bash
 # Windows (Replace 'skill-folder-name' with e.g., 'pdf-compressor')
@@ -160,13 +164,9 @@ xcopy /E /I .\skill-folder-name %USERPROFILE%\.claude\skills\skill-folder-name
 cp -r ./skill-folder-name ~/.claude/skills/
 ```
 
-### Option B: Contextual Reference
+### Option C: Contextual Reference
 If you don't want to install them globally, simply reference the `SKILL.md` file in your chat:
 > "Help me compress this file based on @pdf-compressor/SKILL.md"
-
-### Option C: Just Hand Claude the Link (Easiest)
-The least-effort path: paste this repo's URL into Claude Code and let it do the rest — it will read the repo, find the skill you need, and install or run it for you. No manual copying, no path juggling.
-> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `cc-plus` statusline skill for me."
 
 ---
 *Created and maintained by [Tingde Liu](https://github.com/TingdeLiu).*
