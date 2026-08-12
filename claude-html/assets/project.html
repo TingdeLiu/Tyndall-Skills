@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>具身导航系统 · 架构与进度</title>
+
+<!-- 整页文档才可以用 Web 字体；artifact 片段必须删掉这一行 -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,300..500&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="claude.css">
+<style>
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #FAF9F5; }
+  @media (prefers-color-scheme: dark) { body { background: #141413; } }
+  :root[data-theme="dark"] body { background: #141413; }
+  :root[data-theme="light"] body { background: #FAF9F5; }
+  .ch { background: transparent; }
+  .ch {
+    --sans: "Hanken Grotesk", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    --serif: "Newsreader", "Noto Serif SC", ui-serif, Georgia, "Songti SC", serif;
+  }
+</style>
+</head>
+<body>
+<div class="ch">
+
+<header>
+  <div class="eyebrow">具身导航 · 架构与进度</div>
+  <h1 class="title">NavAgent 系统现状<span class="sub">拓扑记忆接入后 val-unseen SR 从 41.0% 提升到 46.2%，剩余瓶颈在长指令的指代消解。</span></h1>
+  <div class="meta">
+    <span><span class="dot ok"></span>2 条 change 在途</span>
+    <span>任务完成度 <b>3/7</b></span>
+    <span>数据截止 <b>2026-08-01</b></span>
+    <span>OpenSpec 收割于 <b>21:17</b></span>
+  </div>
+</header>
+
+<!-- ===== 指标概览 ===== -->
+<section>
+  <div class="sec-head"><h2>评测现状</h2><span class="hint">R2R-CE val-unseen</span></div>
+  <div class="stats">
+    <div class="stat"><div class="s-label">SR</div><div class="s-value">46.2<span style="font-size:18px;color:var(--text-3)">%</span></div><div class="s-sub"><span class="pos">+5.2pt</span> vs baseline</div></div>
+    <div class="stat"><div class="s-label">SPL</div><div class="s-value">41.8<span style="font-size:18px;color:var(--text-3)">%</span></div><div class="s-sub"><span class="pos">+3.9pt</span></div></div>
+    <div class="stat"><div class="s-label">NE</div><div class="s-value">5.84<span style="font-size:18px;color:var(--text-3)">m</span></div><div class="s-sub"><span class="pos">−0.71m</span></div></div>
+    <div class="stat"><div class="s-label">回溯率</div><div class="s-value">12.4<span style="font-size:18px;color:var(--text-3)">%</span></div><div class="s-sub"><span class="pos">−9.1pt</span> 记忆生效</div></div>
+    <div class="stat"><div class="s-label">推理延迟</div><div class="s-value">86<span style="font-size:18px;color:var(--text-3)">ms</span></div><div class="s-sub">RTX 4090 · batch 1</div></div>
+  </div>
+</section>
+
+<!-- ===== 1. 系统管线 ===== -->
+<section>
+  <div class="sec-head"><h2>系统管线</h2><span class="hint">传感器 → 控制，标注实际运行频率</span></div>
+  <div class="pipeline">
+    <div class="stage">
+      <div class="stage-label">感知输入</div>
+      <div class="node">RGB-D<span class="node-meta">30 Hz · 640×480</span></div>
+      <div class="node">Odometry<span class="node-meta">100 Hz</span></div>
+      <div class="node">指令文本<span class="node-meta">episode 级</span></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="stage">
+      <div class="stage-label">感知</div>
+      <div class="node">深度补全<span class="node-meta">15 Hz</span></div>
+      <div class="node">语义分割<span class="node-meta">10 Hz</span></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="stage">
+      <div class="stage-label">记忆</div>
+      <div class="node accent">拓扑记忆<span class="node-meta">10 Hz · 新增</span></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="stage">
+      <div class="stage-label">决策</div>
+      <div class="node accent">VLN 策略<span class="node-meta">10 Hz · 86ms</span></div>
+    </div>
+    <div class="arrow"></div>
+    <div class="stage">
+      <div class="stage-label">执行</div>
+      <div class="node">局部规划<span class="node-meta">20 Hz</span></div>
+      <div class="node">底盘控制<span class="node-meta">50 Hz</span></div>
+    </div>
+  </div>
+  <div class="callout">整链路端到端延迟 138ms，瓶颈在语义分割（10 Hz）。策略以 10 Hz 运行时上游深度补全会丢帧，已在 <code>fix-qos-mismatch</code> 里跟进。</div>
+</section>
+
+<!-- ===== 2. 模型内部分层 ===== -->
+<section>
+  <div class="sec-head"><h2>策略网络结构</h2><span class="hint">虚线框 = 冻结，橙色 = 本次新增</span></div>
+  <div class="layers">
+    <div class="layer frozen">
+      <div class="layer-name">Vision Encoder<span class="layer-sub">ViT-B/16 · frozen · 86M</span></div>
+      <div class="layer-dim">B×T×196×768</div>
+    </div>
+    <div class="flow"></div>
+    <div class="layer frozen">
+      <div class="layer-name">Language Encoder<span class="layer-sub">RoBERTa-base · frozen · 125M</span></div>
+      <div class="layer-dim">B×L×768</div>
+    </div>
+    <div class="flow"></div>
+    <div class="layer accent">
+      <div class="layer-name">Memory Token 注入<span class="layer-sub">拓扑图节点 → 可学习 token · 新增</span></div>
+      <div class="layer-dim">B×K×768 (K≤32)</div>
+    </div>
+    <div class="flow"></div>
+    <div class="layer">
+      <div class="layer-name">Cross-Modal Transformer<span class="layer-sub">6 层 · 12 heads · 43M</span></div>
+      <div class="layer-dim">B×(T+L+K)×768</div>
+    </div>
+    <div class="flow"></div>
+    <div class="layer">
+      <div class="layer-name">Action Head<span class="layer-sub">MLP · 离散 4 动作 + stop</span></div>
+      <div class="layer-dim">B×5</div>
+    </div>
+  </div>
+  <div class="callout warn">Memory Token 数量 K 目前硬编码上限 32，长 episode 会截断早期节点——消融实验要覆盖这一项。</div>
+</section>
+
+<!-- ===== 3. 模块依赖 ===== -->
+<section>
+  <div class="sec-head"><h2>ROS 2 节点与话题</h2><span class="hint">4 个自研节点</span></div>
+  <div class="modules">
+    <div class="module">
+      <div><span class="module-name">depth_completion</span><span class="module-kind">node</span></div>
+      <div class="module-desc">补全 RGB-D 空洞，输出稠密深度</div>
+      <div class="ports">
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/camera/depth/raw</span></div>
+        <div class="port"><span class="port-dir out">out</span><span class="port-name">/perception/depth_dense</span></div>
+      </div>
+    </div>
+    <div class="module">
+      <div><span class="module-name">semantic_seg</span><span class="module-kind">node · GPU</span></div>
+      <div class="module-desc">语义分割，20 类室内标签</div>
+      <div class="ports">
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/camera/rgb</span></div>
+        <div class="port"><span class="port-dir out">out</span><span class="port-name">/perception/semantic</span></div>
+      </div>
+    </div>
+    <div class="module">
+      <div><span class="module-name">topo_memory</span><span class="module-kind">node · 新增</span></div>
+      <div class="module-desc">维护稀疏拓扑图，跨 episode 保留空间记忆与访问计数</div>
+      <div class="ports">
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/odom</span></div>
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/perception/semantic</span></div>
+        <div class="port"><span class="port-dir out">out</span><span class="port-name">/memory/topo_graph</span></div>
+      </div>
+    </div>
+    <div class="module">
+      <div><span class="module-name">vln_policy</span><span class="module-kind">node · GPU</span></div>
+      <div class="module-desc">策略推理，输出离散动作</div>
+      <div class="ports">
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/memory/topo_graph</span></div>
+        <div class="port"><span class="port-dir">in</span><span class="port-name">/instruction</span></div>
+        <div class="port"><span class="port-dir out">out</span><span class="port-name">/cmd/action</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 4. 训练与数据闭环 ===== -->
+<section>
+  <div class="sec-head"><h2>训练与评测闭环</h2></div>
+  <div class="cycle">
+    <div class="cycle-track">
+      <div class="node">R2R-CE<span class="node-meta">61 scenes</span></div>
+      <div class="arrow"></div>
+      <div class="node">轨迹采样<span class="node-meta">DAgger</span></div>
+      <div class="arrow"></div>
+      <div class="node accent">策略训练<span class="node-meta">8×A100 · 18h</span></div>
+      <div class="arrow"></div>
+      <div class="node">val-unseen 评测<span class="node-meta">SR / SPL / NE</span></div>
+      <div class="arrow"></div>
+      <div class="node">失败案例挖掘<span class="node-meta">按指令类型聚类</span></div>
+    </div>
+    <div class="cycle-back"><span class="label">难例回流至采样池</span></div>
+  </div>
+</section>
+
+<!-- ===== 5. 工作进度（OpenSpec 收割） ===== -->
+<section>
+  <div class="sec-head"><h2>在途工作</h2><span class="hint">openspec/changes · 2 条</span></div>
+  <div class="changes">
+
+    <div class="change">
+      <div class="change-head">
+        <span class="change-name">拓扑记忆模块</span>
+        <span class="change-slug">add-topo-memory</span>
+        <span class="badge accent">在途</span>
+        <span class="change-date">最后改动 2026-08-01</span>
+      </div>
+      <div class="progress"><span style="width:60%"></span></div>
+      <div class="progress-meta"><span>3 / 5 任务</span><span>60%</span></div>
+      <div class="change-why">长程回环时反复重访同一区域，SR 卡在 41%。根因是没有跨 episode 的空间记忆，agent 只能看当前帧。</div>
+      <ul class="tasks">
+        <li class="done">设计拓扑图数据结构</li>
+        <li class="done">实现节点建图与去重</li>
+        <li class="done">接入策略网络</li>
+        <li class="doing">在 val-unseen 上跑完整评测</li>
+        <li>消融：去掉记忆 token</li>
+      </ul>
+    </div>
+
+    <div class="change">
+      <div class="change-head">
+        <span class="change-name">修复深度相机 QoS 不匹配</span>
+        <span class="change-slug">fix-qos-mismatch</span>
+        <span class="badge">新立案</span>
+        <span class="change-date">最后改动 2026-08-01</span>
+      </div>
+      <div class="progress"><span style="width:0%"></span></div>
+      <div class="progress-meta"><span>0 / 2 任务</span><span>0%</span></div>
+      <div class="change-why">深度话题偶发丢帧，rqt 显示 publisher 与 subscriber 的 reliability 不一致。</div>
+      <ul class="tasks">
+        <li>复现丢帧</li>
+        <li>统一 QoS 配置</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 6. 已完成 ===== -->
+<section>
+  <div class="sec-head"><h2>已归档</h2><span class="hint">近 7 天</span></div>
+  <div class="changes">
+    <div class="change is-archived">
+      <div class="change-head">
+        <span class="change-name">基线复现</span>
+        <span class="change-slug">baseline-eval</span>
+        <span class="badge ok">已完成 2/2</span>
+        <span class="change-date">2026-07-28 归档</span>
+      </div>
+      <div class="change-why">需要一个可信的 baseline 才能判断后续改动有没有效果。</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 7. 里程碑 ===== -->
+<section>
+  <div class="sec-head"><h2>里程碑</h2></div>
+  <ul class="timeline">
+    <li class="done">
+      <div class="t-date">2026-07-28</div>
+      <div class="t-title">baseline 复现完成</div>
+      <div class="t-desc">CMA baseline 对齐官方评测协议，SR 41.0%。</div>
+    </li>
+    <li class="now">
+      <div class="t-date">进行中</div>
+      <div class="t-title">拓扑记忆消融实验</div>
+      <div class="t-desc">初步结果 SR 46.2%，需补齐去掉 memory token 的对照组。</div>
+    </li>
+    <li>
+      <div class="t-date">计划 2026-08-中</div>
+      <div class="t-title">长指令指代消解</div>
+      <div class="t-desc">当前失败案例里 38% 属于多跳指代（"回到刚才那个房间"）。</div>
+    </li>
+    <li>
+      <div class="t-date">计划 2026-09</div>
+      <div class="t-title">真机迁移</div>
+      <div class="t-desc">仿真到实物的深度噪声差异是主要风险。</div>
+    </li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><h2>说明</h2></div>
+  <ul class="notes">
+    <li>评测数字来自 <code>add-topo-memory/evidence/eval.md</code>，单次运行，未做多 seed 平均。</li>
+    <li>进度数据由 <code>scripts/harvest_openspec.py</code> 从 openspec/changes 收割，不经 git。</li>
+  </ul>
+</section>
+
+<footer>
+  <span>内部研发进度 · 数据未经复核</span>
+  <span>生成于 2026-08-01 21:17</span>
+</footer>
+
+</div>
+</body>
+</html>

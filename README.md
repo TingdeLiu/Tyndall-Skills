@@ -4,13 +4,22 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
-## Skills Quick Link
-- [Claude Code Statusline](#1-claude-code-statusline-cc-plus)
-- [PDF Compressor](#2-pdf-compressor-pdf-compressor)
-- [PDF Figure Extractor](#3-pdf-figure-extractor-pdf-figure-extractor)
-- [Video Subtitle Extractor](#4-video-subtitle-extractor-video-subtitle-extractor)
-- [Project Summary](#5-project-summary-project-summary)
-- [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
+## Skills at a Glance
+
+| # | Skill | What it does | Needs |
+|:--:|---|---|---|
+| 1 | [**Claude Code Statusline**](#1-claude-code-statusline-cc-plus)<br>`cc-plus` | Custom status line — model, context bar, session cost, rate limits — plus a completion sound and a golden capybara buddy 🐣 | Python 3 **or** Node |
+| 2 | [**PDF Compressor**](#2-pdf-compressor-pdf-compressor)<br>`pdf-compressor` | Shrinks oversized PDFs to fit API limits, with four quality presets and automatic backup | Ghostscript |
+| 3 | [**PDF Figure Extractor**](#3-pdf-figure-extractor-pdf-figure-extractor)<br>`pdf-figure-extractor` | Detects and crops figures & tables out of papers using the TF-ID model, with a Markdown index | Conda env + Poppler |
+| 4 | [**English → Chinese Paper PDF**](#4-english-to-chinese-paper-pdf-pdf-e2c)<br>`pdf-e2c` | Rebuilds an English paper as a single-column Chinese PDF, figures/tables/equations cropped from the original | `pymupdf` `reportlab` `pillow` |
+| 5 | [**Video Subtitle Extractor**](#5-video-subtitle-extractor-video-subtitle-extractor)<br>`video-subtitle-extractor` | Pulls subtitles off YouTube / Bilibili as plain `.txt` — when you just want the transcript | `yt-dlp` |
+| 6 | [**Video + Bilingual Subtitles**](#6-video-download-with-bilingual-subtitles-video-download)<br>`video-download` | Downloads the video, de-rolls and proofreads the captions, archives it as one `.mkv` with both tracks | `yt-dlp` `node` `ffmpeg` |
+| 7 | [**Project Summary**](#7-project-summary-project-summary)<br>`project-summary` | Reads a repo (URL or local) and writes `architecture.md` with an auto-chosen ASCII architecture diagram | — |
+| 8 | [**Claude-Style HTML**](#8-claude-style-html-claude-html)<br>`claude-html` | Anthropic's visual language as a working design system: two templates, four diagram classes, zero JavaScript | — |
+| 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table | — |
+| 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
+
+→ [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
 ---
 
@@ -99,7 +108,20 @@ Extracts figures and tables from PDF documents using the [TF-ID](https://github.
      pip install torch torchvision transformers timm einops pillow opencv-python pdf2image accelerate
      ```
 
-### 4. Video Subtitle Extractor (`video-subtitle-extractor`)
+### 4. English-to-Chinese Paper PDF (`pdf-e2c`)
+Turns an English research paper into a clean Chinese-version PDF — reflowed to a single column, with every figure, table and equation cropped straight out of the original PDF at full resolution and placed back near its reference.
+
+- **Triggers:** "把这篇论文转成中文", "translate this paper to Chinese pdf", "英文论文转中文版".
+- **Key Features:**
+  - **Not** layout-preserving by design — Chinese and English occupy very different space, so the double-column original is reflowed into free-flowing single column instead of being squeezed into the old frame.
+  - Figures/tables/equations are pixel-perfect crops of the source PDF ("用原图"), never re-rendered or re-drawn.
+  - Body text, headings and captions are translated; references stay in English as convention dictates.
+  - Claude does the translation and layout calls; the scripts only do the mechanical extract → crop → typeset work.
+- **Setup & Prerequisites:**
+  - `pip install pymupdf reportlab pillow`
+  - Chinese font uses reportlab's built-in CID font `STSong-Light` — no font files to install.
+
+### 5. Video Subtitle Extractor (`video-subtitle-extractor`)
 Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` files.
 
 - **Triggers:** "Extract subtitles from this YouTube link: [URL]", "Get captions from Bilibili video".
@@ -114,7 +136,19 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
     2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
   - Ensure `yt-dlp` is accessible in your environment.
 
-### 5. Project Summary (`project-summary`)
+### 6. Video Download with Bilingual Subtitles (`video-download`)
+Downloads the video itself, rebuilds its captions, and archives everything as a single `.mkv` carrying both subtitle tracks — with the `.srt` files kept alongside so they stay editable and greppable. The companion to `video-subtitle-extractor`: that one gives you a transcript, this one gives you something watchable.
+
+- **Triggers:** "下载视频", "双语字幕", "校对字幕", usually alongside a YouTube/Bilibili URL.
+- **Key Features:**
+  - **De-rolls rolling captions.** Auto-captions repeat the previous cue and append one line, padded with 10ms filler cues — an 18-minute talk becomes ~980 cues holding ~490 real lines, which plays as flickering, stuttering duplicate text. This fixes the timeline.
+  - **Proofreads the mishears first.** Machine translation is *faithful* — it faithfully translates whatever the recogniser misheard, so `LLMs`→`Hums` arrives in Chinese as 「哼唱」, `agentic`→`a gentic` as 「基因」. The English pass runs before the Chinese pass, because garbage in, garbage out.
+  - Keeps technical terms in English (`agent`, `prompt`, `PR`, `token`, library names); translates only concepts with settled Chinese equivalents.
+  - Asks before the expensive proofreading pass — decline and you still get de-rolled captions and the `.mkv`, just with the machine translation untouched.
+  - Remuxed with `-c copy`: no re-encoding, no quality loss, Chinese track on by default.
+- **Setup & Prerequisites:** `yt-dlp` (`pip install yt-dlp`), `node`, and `ffmpeg` in PATH. Cookie setup for login-gated videos works the same way as `video-subtitle-extractor` — and the two skills share one cookies folder.
+
+### 7. Project Summary (`project-summary`)
 Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
 
 - **Triggers:** "Analyze this GitHub project", "Generate architecture.md", "Summarize project structure".
@@ -143,6 +177,41 @@ Analyzes a GitHub project (URL or local path) and generates a comprehensive `arc
   │  utils/  │    │   db/    │
   └──────────┘    └──────────┘
   ```
+
+### 8. Claude-Style HTML (`claude-html`)
+A complete design system for producing HTML in Anthropic's / Claude's understated visual language — ivory ground, clay-orange (`#D97757`) accents, no JavaScript, and both light and dark themes working out of the box.
+
+- **Triggers:** "make an HTML report / retrospective / dashboard", "Claude 风格", "Anthropic 风格", "简约风格", or turning an existing page into this style.
+- **Key Features:**
+  - **Two ready-to-open templates:** `project.html` (project architecture + work progress) and `starter.html` (data report / retrospective) — editing content beats writing from zero.
+  - **Four built-in architecture diagram classes** — system pipeline, model layers, module dependencies, training loops — with rules for what actually belongs on a diagram (frequency, latency, parameter count, tensor shapes, real topic names).
+  - **Zero JavaScript.** All interaction is pure CSS (radio / checkbox / details), all charts are inline SVG — so it survives artifacts, email clients, and offline archives where JS is stripped.
+  - **Opinionated style rules** that keep it from drifting into generic AI aesthetics: clay is an accent and never the body color, status colors stay earthy, borders are 1px and shadows nearly absent, whitespace does the separating.
+  - Optional `harvest_openspec.py` pulls recent changes out of an OpenSpec project into `progress.json` for the progress board.
+- **Setup & Prerequisites:** None for the HTML itself. The OpenSpec harvester needs Python 3 and an OpenSpec-managed project.
+
+### 9. Plain-Language Explainer (`speak-human`)
+Re-explains jargon-dense content in plain language — one-sentence conclusion, a single everyday analogy carried all the way through, an ASCII diagram, what it means for *your* situation, and a term-mapping table. It changes how something is said, never what it says.
+
+- **Triggers:** "说人话", "讲人话", "听不懂", "太专业了", "用大白话解释", or `/speak-human` to redo the previous reply. Also works on pasted error messages, docs, and paper excerpts.
+- **Key Features:**
+  - **Fixed five-block output** so nothing important gets dropped — especially the "具体到你这件事" block, without which an analogy floats free and the reader still doesn't know what to do.
+  - **Three difficulty levels** that adjust on "还是不懂" (down a level, new analogy) or "不用这么啰嗦" (up a level).
+  - Hard language rules: no bare acronyms, one idea per sentence under 30 characters, numbers get a reference point (`300ms` → "about one blink"), no written-register filler.
+  - **Accuracy outranks simplicity** — caveats, limits and risks may never be deleted in the name of "keeping it simple", and a distorting analogy has to say where it distorts.
+  - Eight ASCII diagram templates (flow, layers, before/after, loop, timeline, proportion, containment, trade-off) with CJK column-width alignment handled.
+- **Setup & Prerequisites:** None.
+
+### 10. Excalidraw Diagram Generator (`obsidian-excalidraw`)
+Generates Excalidraw diagrams as Obsidian-ready `.md` files, with first-class support for AI model architecture diagrams — VLA, Transformer, Diffusion Policy, multi-system pipelines.
+
+- **Triggers:** "画图", "架构图", "模型结构", "流程图", "思维导图", "Excalidraw", "diagram".
+- **Key Features:**
+  - **A `Builder` class instead of hand-written JSON** — seven helpers (`rect` / `text` / `arrow` / `ellipse` / `subbox` / `parent_box` / `module`) that handle index allocation, bidirectional element binding and serialization for you.
+  - Runs **7 sanity checks before writing**, covering every known pitfall in the Excalidraw file format.
+  - Architecture-aware conventions: tensor shapes annotated at every dimension change, left→right for forward passes, top→bottom for hierarchy, subsystem grouping (System 1/2, train/inference, perception/action).
+  - Includes a palette dictionary and a reference library of AI architecture patterns.
+- **Setup & Prerequisites:** Python 3 to run the builder. Obsidian with the Excalidraw plugin to view/edit the result.
 
 ---
 

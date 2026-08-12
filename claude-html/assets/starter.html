@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026 Q2 产品复盘</title>
+
+<!-- 整页文档才可以用 Web 字体；artifact 片段必须删掉这一行，claude.css 会自动退回系统栈 -->
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,300..500&family=Fira+Code:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="claude.css">
+<style>
+  /* —— 整页模式的两处附加：画布底色、容器透明 —— */
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: #FAF9F5; }
+  @media (prefers-color-scheme: dark) { body { background: #141413; } }
+  :root[data-theme="dark"] body { background: #141413; }
+  :root[data-theme="light"] body { background: #FAF9F5; }
+  .ch { background: transparent; }
+  /* 中文字体补进字体栈（Hanken Grotesk / Newsreader 都不含中文字形） */
+  .ch {
+    --sans: "Hanken Grotesk", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    --serif: "Newsreader", "Noto Serif SC", ui-serif, Georgia, "Songti SC", serif;
+  }
+</style>
+</head>
+<body>
+<div class="ch">
+
+<!-- ===== 报头 ===== -->
+<header>
+  <div class="eyebrow">产品季度复盘</div>
+  <h1 class="title">2026 Q2 产品复盘<span class="sub">增长来自渠道而非产品，留存下滑与 5 月改版同期。这份复盘给出四条待验证的归因方向。</span></h1>
+  <div class="meta">
+    <span><span class="dot ok"></span>数据完整</span>
+    <span>数据截止 <b>2026-06-30</b></span>
+    <span>覆盖 <b>18</b> 个指标</span>
+    <span>生成于 <b>2026-07-02 09:14</b></span>
+  </div>
+</header>
+<div class="callout">口径说明：本文所有指标基于内部埋点，与财务口径存在 1–3% 的差异，不作为对外披露依据。</div>
+
+<!-- ===== 核心指标 ===== -->
+<section>
+  <div class="sec-head"><h2>核心指标</h2><span class="hint">对比 2026 Q1</span></div>
+  <div class="stats">
+    <div class="stat"><div class="s-label">月活用户</div><div class="s-value">128.4k</div><div class="s-sub"><span class="pos">+12.3%</span> 环比</div></div>
+    <div class="stat"><div class="s-label">付费转化</div><div class="s-value">4.7%</div><div class="s-sub"><span class="pos">+0.6pt</span></div></div>
+    <div class="stat"><div class="s-label">次月留存</div><div class="s-value">61.2%</div><div class="s-sub"><span class="neg">−2.1pt</span></div></div>
+    <div class="stat"><div class="s-label">客单价</div><div class="s-value">$38.90</div><div class="s-sub"><span class="flat">持平</span></div></div>
+    <div class="stat"><div class="s-label">P95 延迟</div><div class="s-value">412<span style="font-size:18px;color:var(--text-3)">ms</span></div><div class="s-sub"><span class="pos">−88ms</span></div></div>
+  </div>
+</section>
+
+<!-- ===== 综合判断（长文用 serif） ===== -->
+<section>
+  <div class="sec-head"><h2>综合判断</h2></div>
+  <div class="prose">
+    <p>本季度的增长几乎全部来自投放：新增 MAU 中 68% 由三个付费渠道贡献，自然流量与上季度基本持平。这意味着当前的增速对预算敏感，一旦投放收缩，MAU 会在两个月内回到 Q1 水平。</p>
+    <p>付费转化的改善集中在新用户首周，老用户转化率反而下滑 0.3pt。结合留存曲线看，5 月的导航改版很可能同时拉高了新用户的短期转化、损害了老用户的使用路径——这两件事需要分开验证，不能用整体转化率的正向变化掩盖过去。</p>
+  </div>
+</section>
+
+<!-- ===== 行动项：卡片 + 徽章 + 偏离条 + 折叠图表 ===== -->
+<section>
+  <div class="sec-head"><h2>行动项</h2><span class="hint">按优先级</span></div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">高优先级</div>
+        <div class="card-meta"><span class="badge accent">本季度内</span><span>阻塞其他工作</span></div>
+      </div>
+      <div class="row is-marked">
+        <div class="row-head"><span class="rank">1</span><span class="key">留存归因<span class="key-sub">改版影响</span></span><span class="val">−2.1pt</span></div>
+        <div class="badges"><span class="badge accent">增长组</span><span class="badge bad">风险 高</span><span class="badge">置信度 中</span></div>
+        <div class="bar">
+          <div class="bar-track"><span class="bar-zero"></span><span class="bar-fill" style="left:24%;width:26%;background:var(--success)"></span></div>
+          <div class="bar-caption"><span>悲观 −4.0pt</span><span class="mid">目标 0.0pt（当前 −2.1pt）</span><span>乐观 +1.0pt</span></div>
+        </div>
+        <div class="row-note">连续 6 周低于基线，改版是首要嫌疑</div>
+      </div>
+      <div class="row">
+        <div class="row-head"><span class="rank">2</span><span class="key">老用户转化</span><span class="val">−0.3pt</span></div>
+        <div class="badges"><span class="badge warn">风险 中</span><span class="badge ok">成本 低</span></div>
+        <div class="bar-empty">暂无基线数据</div>
+        <div class="row-note">定价页 A/B 尚未收敛</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">中优先级</div>
+        <div class="card-meta"><span class="badge">下季度</span><span>可并行</span></div>
+      </div>
+      <div class="row">
+        <div class="row-head"><span class="rank">1</span><span class="key">冷启动耗时</span><span class="val">1.8s</span></div>
+        <div class="badges"><span class="badge ok">风险 低</span><span class="badge">置信度 高</span></div>
+        <div class="row-note">已有可复用的预热方案</div>
+        <details class="fold">
+          <summary>趋势</summary>
+          <div class="tabbed">
+            <input class="tab-radio" type="radio" name="tf-perf" id="tf-perf-1" checked>
+            <input class="tab-radio" type="radio" name="tf-perf" id="tf-perf-2">
+            <input class="tab-radio" type="radio" name="tf-perf" id="tf-perf-3">
+            <div class="tabs">
+              <label class="tab" for="tf-perf-1">4 周</label>
+              <label class="tab" for="tf-perf-2">季度</label>
+              <label class="tab" for="tf-perf-3">全年</label>
+            </div>
+            <div class="panes">
+              <div class="pane">
+                <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+                  <polygon points="0,148 0,40 128,62 256,48 384,88 512,96 640,120 640,148" fill="var(--success)" opacity=".1"/>
+                  <polyline points="0,40 128,62 256,48 384,88 512,96 640,120" fill="none" stroke="var(--success)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="chart-caption"><span>06-01 → 06-28</span><span class="pos">−31.2%</span><span>区间 1.8s–2.9s</span></div>
+              </div>
+              <div class="pane">
+                <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+                  <polygon points="0,148 0,30 160,70 320,55 480,100 640,110 640,148" fill="var(--success)" opacity=".1"/>
+                  <polyline points="0,30 160,70 320,55 480,100 640,110" fill="none" stroke="var(--success)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="chart-caption"><span>04-01 → 06-30</span><span class="pos">−38.9%</span><span>区间 1.8s–3.4s</span></div>
+              </div>
+              <div class="pane">
+                <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+                  <polygon points="0,148 0,110 160,60 320,80 480,40 640,72 640,148" fill="var(--danger)" opacity=".1"/>
+                  <polyline points="0,110 160,60 320,80 480,40 640,72" fill="none" stroke="var(--danger)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="chart-caption"><span>2025-07 → 2026-06</span><span class="neg">+14.0%</span><span>区间 1.8s–4.1s</span></div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-top">
+        <div class="card-title">观察</div>
+        <div class="card-meta"><span class="badge">暂不投人</span></div>
+      </div>
+      <div class="row">
+        <div class="row-head"><span class="rank">1</span><span class="key">西语本地化</span><span class="val">3.1%</span></div>
+        <div class="badges"><span class="badge ok">风险 低</span></div>
+        <div class="row-note">流量占比仍低于启动阈值（5%）</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== 数据表：sparkline + 可展开明细行 ===== -->
+<section>
+  <div class="sec-head"><h2>渠道明细</h2><span class="hint">点渠道代号展开走势</span></div>
+  <div class="panel">
+    <table>
+      <thead><tr><th>渠道</th><th>走势</th><th class="num">新增</th><th class="num">成本</th><th class="num">CAC</th><th class="num">转化</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="code"><label class="sym-toggle"><input type="checkbox" class="row-toggle">SEARCH</label></td>
+          <td class="spark-cell"><svg class="spark" viewBox="0 0 72 22" width="72" height="22" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,18 14,15 29,11 43,12 58,5 72,2" fill="none" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          <td class="num">41,208</td><td class="num">$186,400</td><td class="num">$4.52</td>
+          <td class="num"><span class="pos">+0.8pt</span></td>
+          <td class="why-cell">品牌词占比上升，边际成本仍可控</td>
+        </tr>
+        <tr class="detail-row"><td colspan="7">
+          <div class="tabbed">
+            <input class="tab-radio" type="radio" name="tf-search" id="tf-search-1" checked>
+            <input class="tab-radio" type="radio" name="tf-search" id="tf-search-2">
+            <div class="tabs">
+              <label class="tab" for="tf-search-1">新增</label>
+              <label class="tab" for="tf-search-2">CAC</label>
+            </div>
+            <div class="panes">
+              <div class="pane">
+                <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+                  <polygon points="0,148 0,120 160,96 320,74 480,60 640,34 640,148" fill="var(--success)" opacity=".1"/>
+                  <polyline points="0,120 160,96 320,74 480,60 640,34" fill="none" stroke="var(--success)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="chart-caption"><span>04-01 → 06-30</span><span class="pos">+28.4%</span><span>峰值 4.1k / 周</span></div>
+              </div>
+              <div class="pane">
+                <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+                  <polygon points="0,148 0,54 160,60 320,82 480,78 640,96 640,148" fill="var(--danger)" opacity=".1"/>
+                  <polyline points="0,54 160,60 320,82 480,78 640,96" fill="none" stroke="var(--danger)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="chart-caption"><span>04-01 → 06-30</span><span class="neg">+11.6%</span><span>区间 $4.02–$4.71</span></div>
+              </div>
+            </div>
+          </div>
+        </td></tr>
+        <tr>
+          <td class="code"><label class="sym-toggle"><input type="checkbox" class="row-toggle">SOCIAL</label></td>
+          <td class="spark-cell"><svg class="spark" viewBox="0 0 72 22" width="72" height="22" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,5 14,3 29,9 43,13 58,17 72,20" fill="none" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          <td class="num">22,940</td><td class="num">$149,100</td><td class="num">$6.50</td>
+          <td class="num"><span class="neg">−1.2pt</span></td>
+          <td class="why-cell">素材疲劳，5 月后 CTR 持续走低</td>
+        </tr>
+        <tr class="detail-row"><td colspan="7">
+          <svg class="chart-svg" viewBox="0 0 640 148" preserveAspectRatio="none" aria-hidden="true">
+            <polygon points="0,148 0,36 160,44 320,80 480,102 640,124 640,148" fill="var(--danger)" opacity=".1"/>
+            <polyline points="0,36 160,44 320,80 480,102 640,124" fill="none" stroke="var(--danger)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="chart-caption"><span>04-01 → 06-30</span><span class="neg">−34.8%</span><span>区间 1.2k–3.6k / 周</span></div>
+        </td></tr>
+        <tr>
+          <td class="code">ORGANIC</td>
+          <td class="spark-cell"><svg class="spark" viewBox="0 0 72 22" width="72" height="22" preserveAspectRatio="none" aria-hidden="true"><polyline points="0,12 14,11 29,13 43,10 58,12 72,11" fill="none" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></td>
+          <td class="num">18,662</td><td class="num muted">—</td><td class="num muted">—</td>
+          <td class="num"><span class="flat">+0.0pt</span></td>
+          <td class="why-cell">基本持平，无异常</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 关键事件 ===== -->
+<section>
+  <div class="sec-head"><h2>关键事件</h2><span class="hint">4 条</span></div>
+  <div class="feed">
+    <div class="feed-item"><span class="src">发布</span><a href="#">v4.2 导航改版全量</a><time>05-14</time></div>
+    <div class="feed-item"><span class="src">事故</span><a href="#">支付回调堆积 2h17m（P2）</a><time>05-29</time></div>
+    <div class="feed-item"><span class="src">实验</span><a href="#">定价页三版本 A/B 启动</a><time>06-03</time></div>
+    <div class="feed-item"><span class="src">组织</span><span class="h">增长组并入产品线</span><time>06-21</time></div>
+  </div>
+</section>
+
+<!-- ===== 分模块反馈 ===== -->
+<section>
+  <div class="sec-head"><h2>分模块反馈</h2></div>
+  <div class="grid">
+    <div class="mini">
+      <h3>新手引导</h3>
+      <ul>
+        <li><a href="#">首屏步骤过多，三步内可完成</a> <span class="pub">用研 · 12 例</span></li>
+        <li><a href="#">导入流程失败率 7.4%</a> <span class="pub">埋点</span></li>
+      </ul>
+    </div>
+    <div class="mini">
+      <h3>计费</h3>
+      <ul>
+        <li><a href="#">发票抬头无法修改</a> <span class="pub">工单 · 31 起</span></li>
+        <li><a href="#">年付折扣未在结算页展示</a> <span class="pub">销售</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 说明 ===== -->
+<section>
+  <div class="sec-head"><h2>说明</h2></div>
+  <ul class="notes">
+    <li>SOCIAL 渠道 6 月 12–14 日埋点缺失，已用前后均值补齐。</li>
+    <li>CAC 未摊销代理服务费。</li>
+  </ul>
+</section>
+
+<footer>
+  <span>仅供内部复盘使用</span>
+  <span>生成于 2026-07-02 09:14</span>
+</footer>
+
+</div>
+</body>
+</html>
