@@ -36,7 +36,7 @@
   - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
   - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
   - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
-  - **彩蛋宠物 🐣：** 状态栏行尾住着一只金色卡皮巴拉 —— 它会摆姿势（`\(^ww^)/` `~(-oo-)~`）、嚼东西、眨眼、单眼眨，并根据上下文用量 / 花费 / 速率限制在 **9 种心情**间轮换，每种心情都有自己的符号和短语池（`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`）。它还会**随着你干活解锁颜色** —— 默认全金，当天 API 工作时长越过 1 / 4 / 8 小时后依次解锁彩色符号、彩色脸、整只流动彩虹。纯本地运行，**0 token 消耗**。
+  - **彩蛋宠物 🐣：** 状态栏行尾住着一只金色卡皮巴拉 —— 它会摆姿势（`\(^ww^)/` `~(-oo-)~`）、嚼东西、眨眼、单眼眨，并根据上下文用量 / 花费 / 速率限制在 **9 种心情**间轮换，每种心情都有自己的符号和短语池（`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`）。它还会**随着你干活解锁颜色** —— 默认全金，当天 API 工作时长越过 1 / 4 / 8 小时后依次解锁彩色符号、彩色脸、整只流动彩虹。纯本地运行，**0 token 消耗**。
 - **设置与前提条件：**
   - 系统 PATH 中需要 Python 3 或 Node.js。
   - 将该技能安装到 `~/.claude/skills/claude-code-statusline/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
@@ -72,20 +72,20 @@
 
 | 心情 | 触发条件 | 符号 | 短语示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
-| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
-| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
-| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | you ok? · go outside · hydrate? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full · /compact pls · all is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyes heavy · /compact? · wrap it up? |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | built diff · corp card · wow. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth it · investing · tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it · big brain |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts · unbothered · floating |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | a tangerine? · melon pls · grass time |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe · sitting pro · melon wages |
 
 - 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
 - **两个真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候它不会跑偏去唱 "la la la~"。
 
-所以你会时不时看到 `\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so very sleepy` 或 `\(×oo×)/ !?! /compact. please.` 这样的画面。
+所以你会时不时看到 `\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so sleepy` 或 `\(×oo×)/ !?! /compact pls` 这样的画面。
 
 **颜色档位 —— 今天用得越多越花哨**
 
@@ -113,7 +113,7 @@
 **技术原理**
 - **0 token，纯本地** —— 它由状态栏脚本本地计算、画在你的终端里，**任何内容都不会发给模型**。
 - 符号加粗醒目，话语用暗色柔和呈现，不抢状态栏其它信息。
-- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都能随便加。两条约定：短语控制在 24 字符内免得窄终端换行；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
+- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都能随便加。两条约定：短语控制在 12 字符内 —— 一行放不下时话是第一个被截掉的；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 - 容错设计 —— 一旦出错宠物就静默隐藏，状态栏其余部分完全不受影响；状态文件读不到或写不进时静默退回档 1（全金）。
 
 ### 2. PDF 压缩器 (`pdf-compressor`)

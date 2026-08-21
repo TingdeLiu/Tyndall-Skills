@@ -178,24 +178,24 @@ Color coding (using chosen thresholds):
 
 | 心情 | 触发 | 符号 | 短语池示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? / go outside, i'll wait / hydrate maybe? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help / /compact. please. / everything is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy / /compact soon? / maybe wrap this one up |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different / capy has a corp card / wow. ok. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent / investing in ourselves / the tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it, friend / big brain hours |
-| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass / unbothered. moisturized. / floating along |
-| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? / one (1) melon please / grass o'clock |
-| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running / pro sitting expert / will work for melon |
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | you ok? / go outside / hydrate? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full / /compact pls / all is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyes heavy / /compact? / wrap it up? |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | built diff / corp card / wow. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth it / investing / tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it / big brain |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts / unbothered / floating |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | a tangerine? / melon pls / grass time |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe / sitting pro / melon wages |
 
 - 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
 - **真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候不会插科打诨说 "la la la~"。
 
-例：`\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so very sleepy`、`\(×oo×)/ !?! /compact. please.`
+例：`\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so sleepy`、`\(×oo×)/ !?! /compact pls`
 
 > 想改/想加，直接编辑脚本里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都可以随便加。
 >
-> 两条约定：短语控制在 **24 字符**以内，免得窄终端换行；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
+> 两条约定：短语控制在 **12 字符**以内 —— 状态栏一行放不下时，话是第一个被截掉的；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 
 ### 颜色档位（今日用得越多越花哨）
 

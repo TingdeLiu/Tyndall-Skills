@@ -36,7 +36,7 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
   - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 4 / 8 hours. Fully local, **0 tokens**.
+  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 4 / 8 hours. Fully local, **0 tokens**.
 - **Setup & Prerequisites:**
   - Python 3 or Node.js available in PATH.
   - Install the skill into `~/.claude/skills/claude-code-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
@@ -72,20 +72,20 @@ Tucked at the end of the status line lives a tiny golden capybara, ported from C
 
 | Mood | When | Symbols | Sample quips |
 |---|---|---|---|
-| `alert` | rate limit ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
-| `fried` | context ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
-| `sleepy` | context ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
-| `rich` | cost ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
-| `cash` | cost ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
-| `happy` | context < 50% (everyday) | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
-| `chill` | everyday rotation | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
-| `snack` | everyday rotation | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
-| `silly` | everyday rotation | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
+| `alert` | rate limit ≥ 90% | `!!!` `! !` `!?!` | you ok? · go outside · hydrate? |
+| `fried` | context ≥ DANGER | `×××` `!?!` `@@@` | brain full · /compact pls · all is soup |
+| `sleepy` | context ≥ WARN | `zzz` `zZz` `- - -` | eyes heavy · /compact? · wrap it up? |
+| `rich` | cost ≥ $5 | `$$$` `★★★` `$★$` | built diff · corp card · wow. luxury. |
+| `cash` | cost ≥ $1 | `$$$` `¢¢¢` | worth it · investing · tokens flow |
+| `happy` | context < 50% (everyday) | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it · big brain |
+| `chill` | everyday rotation | `♪♪♪` `. . .` `♪ ♪` | no thoughts · unbothered · floating |
+| `snack` | everyday rotation | `*nom*` `*munch*` `°°°` | a tangerine? · melon pls · grass time |
+| `silly` | everyday rotation | `^_^` `:3` `owo` `>_<` | capybara.exe · sitting pro · melon wages |
 
 - Ordinary state moods (`sleepy` / `cash` / `rich`) own 2 beats in 3; the third goes to an everyday mood so it never gets samey.
 - **The two real warnings (`alert` / `fried`) own every beat** — when something's actually wrong the buddy doesn't wander off into "la la la~".
 
-So you'll catch things like `\(^ww^)/ ♥♥♥ proud of you`, `~(-oo-)~ zZz so very sleepy`, or `\(×oo×)/ !?! /compact. please.`
+So you'll catch things like `\(^ww^)/ ♥♥♥ proud of you`, `~(-oo-)~ zZz so sleepy`, or `\(×oo×)/ !?! /compact pls`
 
 **Colour tiers — the more you use it today, the flashier it gets**
 
@@ -113,7 +113,7 @@ The buddy starts gold. As **today's cumulative API working time** climbs, it unl
 **Under the hood**
 - **0 tokens, fully local** — it's computed by the statusline script and drawn in your terminal; nothing is ever sent to the model.
 - The symbol is bold, the quip is dimmed, so it never crowds the rest of the bar.
-- Want different lines? Edit the `MOODS` table in `statusline.py` / `statusline.js` — every mood's `pose` / `sym` / `says` list is free to grow. Two conventions: keep quips under 24 chars so narrow terminals don't wrap, and keep `pose` and `sym` on different characters or you get muddle like `zZ z Z z`.
+- Want different lines? Edit the `MOODS` table in `statusline.py` / `statusline.js` — every mood's `pose` / `sym` / `says` list is free to grow. Two conventions: keep quips to 12 chars — the quip is the first thing a narrow terminal truncates, and keep `pose` and `sym` on different characters or you get muddle like `zZ z Z z`.
 - Fails silent — if anything ever goes wrong the buddy just hides, the rest of the status line is untouched. If the state file can't be read or written it quietly falls back to tier 1.
 
 ### 2. PDF Compressor (`pdf-compressor`)
