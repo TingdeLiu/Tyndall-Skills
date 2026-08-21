@@ -23,13 +23,21 @@ process.stdin.on('end', () => {
 
   const R = '\x1b[0m', BOLD = '\x1b[1m', DIM = '\x1b[2m';
   const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m';
-  const W = 16;
+
+  let W = parseInt(process.env.BAR_WIDTH || '10', 10);
+  if (isNaN(W) || W < 4) W = 10;
+  // Both cells must be the same East Asian width class, or the bar physically
+  // changes width as it fills. U+2588/U+2591 (the obvious pair) do not qualify:
+  // the filled one is Ambiguous — double-width on a CJK terminal — and the empty
+  // one is Narrow. Every full-block and box-drawing glyph is Ambiguous; U+25AE and
+  // U+25AF are Narrow, so this pair stays W columns wide in every locale.
+  const FILL = '▮', EMPTY = '▯';
 
   const col = p => p < WARN ? GREEN : p < DANGER ? YELLOW : RED;
 
   const bar = p => {
     const f = Math.min(W, (p * W / 100) | 0);
-    return col(p) + '█'.repeat(f) + DIM + '░'.repeat(W - f) + R;
+    return col(p) + FILL.repeat(f) + DIM + EMPTY.repeat(W - f) + R;
   };
 
   const countdown = ts => {
@@ -232,7 +240,7 @@ process.stdin.on('end', () => {
 
   const ctx = used != null
     ? `[${bar(used)}] ${DIM}${Math.round(used)}%${R}`
-    : `[${DIM}${'░'.repeat(W)}${R}]`;
+    : `[${DIM}${EMPTY.repeat(W)}${R}]`;
 
   const costStr = cost != null ? `  ${DIM}$${cost.toFixed(3)}${R}` : '';
 

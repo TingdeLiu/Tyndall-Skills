@@ -106,6 +106,7 @@ The buddy starts gold. As **today's cumulative API working time** climbs, it unl
 
 | Env var | Effect |
 |---|---|
+| `BAR_WIDTH=10` | Context bar cells (default 10; drop it on narrow terminals) |
 | `BUDDY_TIERS="60,240,480"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
 | `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
 | `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |

@@ -137,7 +137,7 @@ Tell the user setup is complete and what the status bar will look like.
 ## Status Bar Output Format
 
 ```
-Sonnet 4.6  ctx [████░░░░░░░░░░░░] 25%  $0.050  5h:10%  7d:30%  (·oo·)
+Sonnet 4.6  ctx [▮▮▯▯▯▯▯▯▯▯] 25%  $0.050  5h:10%  7d:30%  (·oo·) ♥♥♥ you got this
 ```
 
 Color coding (using chosen thresholds):
@@ -197,6 +197,23 @@ Color coding (using chosen thresholds):
 >
 > 两条约定：短语控制在 **12 字符**以内 —— 状态栏一行放不下时，话是第一个被截掉的；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 
+### 进度条字符的选择（别随手换）
+
+进度条用 `▮` / `▯`（U+25AE / U+25AF），**不是**更常见的 `█` / `░`。原因是东亚歧义宽度：
+
+- `█` U+2588 属于 **Ambiguous**，在中文 / 日文 / 韩文终端下按**双宽**渲染；而 `░` U+2591 属于 Narrow，永远单宽。
+- 两者混用的后果是**进度条会随用量增长自己变宽** —— 0% 时 16 列，100% 时 32 列，整行跟着抖，最右边的 buddy 被挤出屏幕。
+- 实测下来，所有实心方块（U+2588–258F、U+2592、U+2593）和框线字符（U+2500、U+2501、U+2502…）**全部**是 Ambiguous。非歧义的只剩 `░ ▪ ▫ ▬ ▮ ▯` 和 ASCII `= - #`。
+- `▮` / `▯` 是其中唯一同族、能拼成正经进度条的一对，两者都是 Narrow，所以进度条在任何语言环境下都恒为 `BAR_WIDTH` 列。
+
+想换字符的话改脚本里的 `FILL` / `EMPTY` 两个常量即可，但**务必先确认新字符的 East Asian Width 是 N 或 Na**：
+
+```python
+import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 才安全，'A' 会抖
+```
+
+同理，buddy 的符号里 `★ ♥ ♪ ° · ×` 也都是歧义宽度 —— 它们只占行尾，抖动不影响布局，所以保留了。
+
 ### 颜色档位（今日用得越多越花哨）
 
 默认全金色。**当天累计 API 工作时长**越长，卡皮巴拉解锁的颜色层数越多 —— 干活干得多，它就越精神：
@@ -218,6 +235,7 @@ Color coding (using chosen thresholds):
 
 | 变量 | 作用 |
 |---|---|
+| `BAR_WIDTH=10` | 上下文进度条格数（默认 10，窄终端可调小） |
 | `BUDDY_TIERS="60,240,480"` | 自定义解锁档 2/3/4 的分钟阈值 |
 | `BUDDY_TIER=4` | 强制锁定某档，用来预览效果（不写状态文件） |
 | `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
@@ -266,7 +284,7 @@ fs.writeFileSync(os.homedir() + '/.claude/statusline_debug.json', raw);
 
 ## Platform Notes
 
-**Windows Unicode fix (Python only)** — required to prevent cp1252 encoding errors with `█` `░`:
+**Windows Unicode fix (Python only)** — required to prevent cp1252 encoding errors with `▮` `▯`:
 ```python
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 ```

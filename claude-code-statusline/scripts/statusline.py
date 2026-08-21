@@ -25,14 +25,24 @@ CYAN  = "\033[36m"
 GREEN = "\033[32m"
 YELL  = "\033[33m"
 RED   = "\033[31m"
-W = 16
+
+try:
+    W = max(4, int(os.environ.get('BAR_WIDTH', '10')))
+except Exception:
+    W = 10
+# Both cells must be the same East Asian width class, or the bar physically
+# changes width as it fills. U+2588/U+2591 (the obvious pair) do not qualify:
+# the filled one is Ambiguous — double-width on a CJK terminal — and the empty
+# one is Narrow. Every full-block and box-drawing glyph is Ambiguous; U+25AE and
+# U+25AF are Narrow, so this pair stays W columns wide in every locale.
+FILL, EMPTY = "▮", "▯"
 
 def col(p):
     return GREEN if p < WARN else (YELL if p < DANGER else RED)
 
 def bar(p):
     f = min(W, round(p) * W // 100)
-    return col(p) + "█" * f + DIM + "░" * (W - f) + R
+    return col(p) + FILL * f + DIM + EMPTY * (W - f) + R
 
 def countdown(ts):
     if not ts: return ""
@@ -234,7 +244,7 @@ def buddy(used, cost, h5, d7, tier):
     return out
 
 ctx = (f"[{bar(used)}] {DIM}{round(used)}%{R}" if used is not None
-       else f"[{DIM}{'░' * W}{R}]")
+       else f"[{DIM}{EMPTY * W}{R}]")
 
 cost_str = f"  {DIM}${cost:.3f}{R}" if cost is not None else ""
 
