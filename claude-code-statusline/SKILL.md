@@ -137,7 +137,7 @@ Tell the user setup is complete and what the status bar will look like.
 ## Status Bar Output Format
 
 ```
-Sonnet 4.6  ctx [▮▮▯▯▯▯▯▯▯▯] 25%  $0.050  5h:10%  7d:30%  (·oo·) ♥♥♥ you got this
+Sonnet 4.6  ctx 25%  $0.050  5h:10%  7d:30%  (·oo·) ♥♥♥ you got this
 ```
 
 Color coding (using chosen thresholds):
@@ -178,15 +178,15 @@ Color coding (using chosen thresholds):
 
 | 心情 | 触发 | 符号 | 短语池示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | you ok? / go outside / hydrate? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full / /compact pls / all is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyes heavy / /compact? / wrap it up? |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | built diff / corp card / wow. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth it / investing / tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it / big brain |
-| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts / unbothered / floating |
-| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | a tangerine? / melon pls / grass time |
-| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe / sitting pro / melon wages |
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? / go outside, i'll wait / hydrate maybe? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help / /compact. please. / everything is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy / /compact soon? / maybe wrap this one up |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different / capy has a corp card / wow. ok. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent / investing in ourselves / the tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it, friend / big brain hours |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass / unbothered. moisturized. / floating along |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? / one (1) melon please / grass o'clock |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running / pro sitting expert / will work for melon |
 
 - 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
 - **真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候不会插科打诨说 "la la la~"。
@@ -195,21 +195,19 @@ Color coding (using chosen thresholds):
 
 > 想改/想加，直接编辑脚本里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都可以随便加。
 >
-> 两条约定：短语控制在 **12 字符**以内 —— 状态栏一行放不下时，话是第一个被截掉的；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
+> 两条约定：短语控制在 **24 字符**以内 —— 话在整行最右边，是窄终端第一个截掉的东西；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 
-### 进度条字符的选择（别随手换）
+### 为什么没有进度条（别急着加回来）
 
-进度条用 `▮` / `▯`（U+25AE / U+25AF），**不是**更常见的 `█` / `░`。原因是东亚歧义宽度：
+早期版本用 `[████░░░░░░░░]` 这样的进度条显示上下文用量，后来换成了纯百分比 `ctx 36%`。两个原因：
 
-- `█` U+2588 属于 **Ambiguous**，在中文 / 日文 / 韩文终端下按**双宽**渲染；而 `░` U+2591 属于 Narrow，永远单宽。
-- 两者混用的后果是**进度条会随用量增长自己变宽** —— 0% 时 16 列，100% 时 32 列，整行跟着抖，最右边的 buddy 被挤出屏幕。
-- 实测下来，所有实心方块（U+2588–258F、U+2592、U+2593）和框线字符（U+2500、U+2501、U+2502…）**全部**是 Ambiguous。非歧义的只剩 `░ ▪ ▫ ▬ ▮ ▯` 和 ASCII `= - #`。
-- `▮` / `▯` 是其中唯一同族、能拼成正经进度条的一对，两者都是 Narrow，所以进度条在任何语言环境下都恒为 `BAR_WIDTH` 列。
+1. **占地方。** 进度条要 12–34 列，而状态栏一行放不下时，最右边的 buddy 是第一个被截掉的 —— 花那么多列换一个百分比已经能表达的信息，不划算。
+2. **它会自己变宽。** `█`（U+2588）是**东亚歧义宽度**字符，在中文 / 日文 / 韩文终端下按双宽渲染；而 `░`（U+2591）是 Narrow，永远单宽。两者混用的结果是进度条随用量增长而变宽 —— 实测 0% 时 18 列、100% 时 34 列。也就是说**上下文越满、整行越长，buddy 越容易被挤出屏幕** —— 恰好在它该提醒你 `/compact` 的时候消失。
 
-想换字符的话改脚本里的 `FILL` / `EMPTY` 两个常量即可，但**务必先确认新字符的 East Asian Width 是 N 或 Na**：
+如果你还是想要进度条，注意所有实心方块（U+2588–258F、U+2592、U+2593）和框线字符（U+2500、U+2501、U+2502…）**全部**是 Ambiguous。非歧义的只剩 `░ ▪ ▫ ▬ ▮ ▯` 和 ASCII `= - #`，其中 `▮` / `▯` 是唯一同族、能拼成正经条的一对。换任何字符前先验一下：
 
 ```python
-import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 才安全，'A' 会抖
+import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 或 'Na' 才安全，'A' 会抖
 ```
 
 同理，buddy 的符号里 `★ ♥ ♪ ° · ×` 也都是歧义宽度 —— 它们只占行尾，抖动不影响布局，所以保留了。
@@ -235,7 +233,6 @@ import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 才安全，'A' 
 
 | 变量 | 作用 |
 |---|---|
-| `BAR_WIDTH=10` | 上下文进度条格数（默认 10，窄终端可调小） |
 | `BUDDY_TIERS="60,240,480"` | 自定义解锁档 2/3/4 的分钟阈值 |
 | `BUDDY_TIER=4` | 强制锁定某档，用来预览效果（不写状态文件） |
 | `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
@@ -284,7 +281,7 @@ fs.writeFileSync(os.homedir() + '/.claude/statusline_debug.json', raw);
 
 ## Platform Notes
 
-**Windows Unicode fix (Python only)** — required to prevent cp1252 encoding errors with `▮` `▯`:
+**Windows Unicode fix (Python only)** — required to prevent cp1252 encoding errors with `↺` `♥` `★`:
 ```python
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 ```

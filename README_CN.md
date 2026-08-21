@@ -8,7 +8,7 @@
 
 | # | 技能 | 做什么 | 依赖 |
 |:--:|---|---|---|
-| 1 | [**Claude Code 状态栏**](#1-claude-code-状态栏-claude-code-statusline)<br>`claude-code-statusline` | 自定义状态栏 —— 模型、上下文进度条、会话花费、速率限制 —— 外加完成提示音和一只金色卡皮巴拉 🐣 | Python 3 **或** Node |
+| 1 | [**Claude Code 状态栏**](#1-claude-code-状态栏-claude-code-statusline)<br>`claude-code-statusline` | 自定义状态栏 —— 模型、上下文百分比、会话花费、速率限制 —— 外加完成提示音和一只金色卡皮巴拉 🐣 | Python 3 **或** Node |
 | 2 | [**PDF 压缩器**](#2-pdf-压缩器-pdf-compressor)<br>`pdf-compressor` | 把超大 PDF 压到符合 API 限制，四档质量预设，自动备份原文件 | Ghostscript |
 | 3 | [**PDF 图表提取器**](#3-pdf-图表提取器-pdf-figure-extractor)<br>`pdf-figure-extractor` | 用 TF-ID 模型检测并裁切论文里的图和表，附带 Markdown 索引 | Conda 环境 + Poppler |
 | 4 | [**英文论文转中文 PDF**](#4-英文论文转中文-pdf-pdf-e2c)<br>`pdf-e2c` | 把英文论文重排成单栏中文 PDF，图/表/公式从原 PDF 高清裁切插回 | `pymupdf` `reportlab` `pillow` |
@@ -32,7 +32,7 @@
 
 - **触发条件：** “配置 Claude Code 状态栏”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
 - **核心功能：**
-  - 显示模型名称、按使用量上色的上下文进度条、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
+  - 显示模型名称、按用量上色的上下文百分比、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
   - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
   - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
   - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
@@ -72,15 +72,15 @@
 
 | 心情 | 触发条件 | 符号 | 短语示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | you ok? · go outside · hydrate? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full · /compact pls · all is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyes heavy · /compact? · wrap it up? |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | built diff · corp card · wow. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth it · investing · tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it · big brain |
-| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts · unbothered · floating |
-| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | a tangerine? · melon pls · grass time |
-| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe · sitting pro · melon wages |
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
 
 - 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
 - **两个真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候它不会跑偏去唱 "la la la~"。
@@ -106,7 +106,6 @@
 
 | 环境变量 | 作用 |
 |---|---|
-| `BAR_WIDTH=10` | 上下文进度条格数（默认 10，窄终端可调小） |
 | `BUDDY_TIERS="60,240,480"` | 自定义解锁档 2/3/4 的分钟阈值 |
 | `BUDDY_TIER=4` | 强制锁定某档用于预览（不写状态文件） |
 | `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
@@ -114,7 +113,7 @@
 **技术原理**
 - **0 token，纯本地** —— 它由状态栏脚本本地计算、画在你的终端里，**任何内容都不会发给模型**。
 - 符号加粗醒目，话语用暗色柔和呈现，不抢状态栏其它信息。
-- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都能随便加。两条约定：短语控制在 12 字符内 —— 一行放不下时话是第一个被截掉的；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
+- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都能随便加。两条约定：短语控制在 24 字符内 —— 话在最右边，是窄终端第一个截掉的东西；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 - 容错设计 —— 一旦出错宠物就静默隐藏，状态栏其余部分完全不受影响；状态文件读不到或写不进时静默退回档 1（全金）。
 
 ### 2. PDF 压缩器 (`pdf-compressor`)

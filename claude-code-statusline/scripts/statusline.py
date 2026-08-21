@@ -26,23 +26,8 @@ GREEN = "\033[32m"
 YELL  = "\033[33m"
 RED   = "\033[31m"
 
-try:
-    W = max(4, int(os.environ.get('BAR_WIDTH', '10')))
-except Exception:
-    W = 10
-# Both cells must be the same East Asian width class, or the bar physically
-# changes width as it fills. U+2588/U+2591 (the obvious pair) do not qualify:
-# the filled one is Ambiguous — double-width on a CJK terminal — and the empty
-# one is Narrow. Every full-block and box-drawing glyph is Ambiguous; U+25AE and
-# U+25AF are Narrow, so this pair stays W columns wide in every locale.
-FILL, EMPTY = "▮", "▯"
-
 def col(p):
     return GREEN if p < WARN else (YELL if p < DANGER else RED)
-
-def bar(p):
-    f = min(W, round(p) * W // 100)
-    return col(p) + FILL * f + DIM + EMPTY * (W - f) + R
 
 def countdown(ts):
     if not ts: return ""
@@ -104,67 +89,76 @@ GOLD = "\033[93m"
 # The critter's entire vocabulary lives here — edit freely.
 #   pose : (left, right) limbs wrapped around the face — \ / paws, ~ ~ water
 #   sym  : symbol cluster that ALWAYS trails the face, so it's never bare
-#   says : the dim one-liners — keep to 12 chars, or the bar runs off narrow
-#          terminals and the quip is the first thing truncated away
+#   says : the dim one-liners — keep under ~24 chars; the quip sits at the far
+#          right, so it is the first thing a narrow terminal truncates
 # Keep pose and sym on different characters, or you get muddle like "zZ z Z z".
 MOODS = {
     'happy': {
         'pose': [("", ""), ("\\", "/"), ("", "/")],
         'sym':  ["♥♥♥", "✧✧✧", "♪♥♪", "♥ ♥"],
         'says': ["you got this", "we're vibing", "proud of you",
-                 "look at you", "chef's kiss", "ship it",
-                 "big brain", "cozy day", "good company", "so clean"],
+                 "look at you go", "chef's kiss", "ship it, friend",
+                 "big brain hours", "cozy lil day", "good company",
+                 "that one was clean"],
     },
     'chill': {
         'pose': [("", ""), ("~", "~")],
         'sym':  ["♪♪♪", ". . .", "♪ ♪"],
-        'says': ["la la la~", "chillin'", "doot doot",
-                 "no thoughts", "water's nice", "floating",
-                 "unbothered", "zero urgency", "slow is fine",
+        'says': ["la la la~", "just chillin'", "doot doot doot",
+                 "no thoughts, just grass", "the water's nice",
+                 "floating along", "unbothered. moisturized.",
+                 "zero urgency detected", "capy time is slow time",
                  "hmm hmm hmm"],
     },
     'snack': {
         'pose': [("", ""), ("", "/")],
         'sym':  ["*nom*", "°°°", "*munch*", "~*~"],
-        'says': ["a tangerine?", "grass time", "nom nom nom",
-                 "snack saved", "melon pls", "chewing", "brb, snack"],
+        'says': ["is that a tangerine?", "grass o'clock", "nom nom nom",
+                 "saving you a snack", "one (1) melon please",
+                 "chewing on it", "snack break, brb"],
     },
     'silly': {
         'pose': [("", ""), ("", "?"), ("\\", "/")],
         'sym':  ["^_^", ":3", "owo", ">_<"],
-        'says': ["capybara.exe", "small rodent", "sitting pro",
-                 "all friends", "melon wages", "big rodent", "no notes"],
+        'says': ["capybara.exe running", "i am but a small rodent",
+                 "pro sitting expert", "friend to all",
+                 "will work for melon", "largest rodent believes",
+                 "just vibing, no notes"],
     },
     'sleepy': {
         'pose': [("", ""), ("~", "~")],
         'sym':  ["zzz", "z Z z", "zZz", "- - -"],
-        'says': ["5 more mins", "so sleepy", "eyes heavy",
-                 "ctx is cozy", "carry on", "/compact?",
-                 "wrap it up?", "running low"],
+        'says': ["5 more minutes", "so very sleepy", "eyelids: heavy",
+                 "context's getting cozy", "ok... carry on",
+                 "/compact soon?", "maybe wrap this one up",
+                 "running low, gently"],
     },
     'fried': {
         'pose': [("", ""), ("\\", "/")],
         'sym':  ["×××", "!?!", "@@@"],
-        'says': ["brain full", "no room left", "/compact pls",
-                 "all is soup", "at the brim", "screaming"],
+        'says': ["brain full, send help", "no room left up here",
+                 "/compact. please.", "everything is soup",
+                 "we are at the brim", "screaming politely"],
     },
     'cash': {
         'pose': [("", ""), ("", "/")],
         'sym':  ["$$$", "$ $ $", "¢¢¢"],
-        'says': ["worth it", "treat urself", "well spent",
-                 "ooh, fancy", "investing", "tokens flow"],
+        'says': ["worth every cent", "treat yourself", "money well spent",
+                 "ooh, fancy", "investing in ourselves", "the tokens flow"],
     },
     'rich': {
         'pose': [("", ""), ("\\", "/")],
         'sym':  ["$$$", "★★★", "$★$"],
-        'says': ["built diff", "billable?", "corp card",
-                 "wow. luxury.", "all invoices"],
+        'says': ["simply built different", "hope it's billable",
+                 "capy has a corp card", "wow. ok. luxury.",
+                 "no notes, just invoices"],
     },
     'alert': {
         'pose': [("", ""), ("\\", "/")],
         'sym':  ["!!!", "! !", "!?!"],
-        'says': ["you ok?", "ease up", "take a break",
-                 "pace it", "go outside", "limit close", "hydrate?"],
+        'says': ["breathe, you ok?", "ease up soon", "take a lil break",
+                 "pace yourself", "go outside, i'll wait",
+                 "the limit approaches", "hydrate maybe?"],
     },
 }
 
@@ -243,8 +237,10 @@ def buddy(used, cost, h5, d7, tier):
         out += f" {DIM}{say}{R}"
     return out
 
-ctx = (f"[{bar(used)}] {DIM}{round(used)}%{R}" if used is not None
-       else f"[{DIM}{EMPTY * W}{R}]")
+# No progress bar: it cost 12-34 columns depending on locale and fill, and the
+# quip at the far right is what got truncated to pay for it. The percentage
+# carries the same signal in 3 columns, colour-coded by the same thresholds.
+ctx = f"{col(used)}{round(used)}%{R}" if used is not None else f"{DIM}--{R}"
 
 cost_str = f"  {DIM}${cost:.3f}{R}" if cost is not None else ""
 
