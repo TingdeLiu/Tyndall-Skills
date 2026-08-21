@@ -36,7 +36,7 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
   - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 3 / 8 hours. Fully local, **0 tokens**.
+  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 4 / 8 hours. Fully local, **0 tokens**.
 - **Setup & Prerequisites:**
   - Python 3 or Node.js available in PATH.
   - Install the skill into `~/.claude/skills/claude-code-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
@@ -94,8 +94,8 @@ The buddy starts gold. As **today's cumulative API working time** climbs, it unl
 | API time today | Tier | Look |
 |---|:--:|---|
 | < 1 h | 1 | all gold — `(^oo^) ♥♥♥` |
-| 1 – 3 h | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
-| 3 – 8 h | 3 | **face and symbol** both coloured — pale face, vivid symbol |
+| 1 – 4 h | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
+| 4 – 8 h | 3 | **face and symbol** both coloured — pale face, vivid symbol |
 | ≥ 8 h | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock |
 
 - It counts `cost.total_api_duration_ms` — time actually spent calling the API. Leaving a session idle earns you nothing.
@@ -106,7 +106,7 @@ The buddy starts gold. As **today's cumulative API working time** climbs, it unl
 
 | Env var | Effect |
 |---|---|
-| `BUDDY_TIERS="60,180,480"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
+| `BUDDY_TIERS="60,240,480"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
 | `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
 | `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |
 
