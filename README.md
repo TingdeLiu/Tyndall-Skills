@@ -8,7 +8,7 @@ English | [中文](README_CN.md)
 
 | # | Skill | What it does | Needs |
 |:--:|---|---|---|
-| 1 | [**Claude Code Statusline**](#1-claude-code-statusline-cc-plus)<br>`cc-plus` | Custom status line — model, context bar, session cost, rate limits — plus a completion sound and a golden capybara buddy 🐣 | Python 3 **or** Node |
+| 1 | [**Claude Code Statusline**](#1-claude-code-statusline-claude-code-statusline)<br>`claude-code-statusline` | Custom status line — model, context bar, session cost, rate limits — plus a completion sound and a golden capybara buddy 🐣 | Python 3 **or** Node |
 | 2 | [**PDF Compressor**](#2-pdf-compressor-pdf-compressor)<br>`pdf-compressor` | Shrinks oversized PDFs to fit API limits, with four quality presets and automatic backup | Ghostscript |
 | 3 | [**PDF Figure Extractor**](#3-pdf-figure-extractor-pdf-figure-extractor)<br>`pdf-figure-extractor` | Detects and crops figures & tables out of papers using the TF-ID model, with a Markdown index | Conda env + Poppler |
 | 4 | [**English → Chinese Paper PDF**](#4-english-to-chinese-paper-pdf-pdf-e2c)<br>`pdf-e2c` | Rebuilds an English paper as a single-column Chinese PDF, figures/tables/equations cropped from the original | `pymupdf` `reportlab` `pillow` |
@@ -25,7 +25,7 @@ English | [中文](README_CN.md)
 
 ## Available Skills
 
-### 1. Claude Code Statusline (`cc-plus`)
+### 1. Claude Code Statusline (`claude-code-statusline`)
 A cross-platform Claude Code enhancement that adds a custom status line and a completion notification sound on Windows and macOS.
 
 ![Claude Code status line](images/claude-status.png)
@@ -36,20 +36,30 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
   - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-  - **Easter-egg buddy 🐣:** an optional golden capybara `(^oo^)` lives at the end of the status line — it idle-animates between refreshes (chews, blinks) and reacts to your context / cost / rate-limit state with little emotes (`♥♥♥` `zzz` `!!!`). Fully local, **0 tokens**.
+  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 5 / 20 / 60 minutes. Fully local, **0 tokens**.
 - **Setup & Prerequisites:**
   - Python 3 or Node.js available in PATH.
-  - Install the skill into `~/.claude/skills/cc-plus/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
+  - Install the skill into `~/.claude/skills/claude-code-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
 
 #### 🐣 Meet your buddy — the golden capybara
 
-Tucked at the end of the status line lives a tiny golden capybara, ported from Claude Code's internal companion easter-egg. It's a single line of text, but it's *alive*: every status-bar refresh re-samples the wall clock and your session state, so the little guy keeps fidgeting and reacting.
+Tucked at the end of the status line lives a tiny golden capybara, ported from Claude Code's internal companion easter-egg. It's a single line of text, but it's *alive*: every status-bar refresh re-samples the wall clock and your session state, so the little guy keeps fidgeting, posing and talking.
 
-**Idle animation** (time-driven — changes between refreshes)
-- Chewing: `(^oo^)` → `(^Oo^)` → `(^oO^)`
-- Blinking: every so often a quick `(-oo-)`
+**It's built from four layers** — so you never get a lone bare face just sitting there:
 
-**Mood** — the eyes follow your context usage:
+```
+\(^ww^)/  ♥♥♥  proud of you
+│         │    └─ quip — dimmed, lands on 3 frames out of 4
+│         └────── symbol — on every frame, so it's never a bare face
+└──────────────── pose + face — paws, water, chewing, blinking, winking
+```
+
+- **Pose** — `\ /` paws up, `/` waving, `~ ~` floating in the water, `?` head tilt
+- **Face** — eyes track context usage; the mouth chews through `oo → Oo → oO → ww → vv`, with the occasional blink `(-oo-)` and wink `(^oo-)`
+- **Symbol** — shows on *every* frame, so the buddy is never just a face
+- **Quip** — lands on 3 frames out of 4, rotating through the current mood's pool
+
+**Eyes** follow your context usage:
 
 | Context | Eyes | State |
 |---|---|---|
@@ -58,23 +68,52 @@ Tucked at the end of the status line lives a tiny golden capybara, ported from C
 | WARN – DANGER | `-` | tired — `(-oo-)` |
 | ≥ DANGER | `×` | exhausted — `(×oo×)` |
 
-**Occasional emotes** — now and then a symbol + a warm/silly quip pops out; the quip rotates through a pool so it's never quite the same twice:
+**Nine moods** — your session state picks one, and everyday moods rotate through whatever beats are left:
 
-| Symbol | When | Sample quips |
-|---|---|---|
-| `♥♥♥` | context is roomy | you got this · proud of you · we're vibing |
-| `~~~` | random | la la la~ · just chillin' · doot doot doot |
-| `zzz` | context ≥ WARN | 5 more minutes · so very sleepy · ok... carry on |
-| `$$$` | cost ≥ $1 | worth every cent · treat yourself · ooh, fancy |
-| `!!!` | rate limit ≥ 90% | breathe, you ok? · ease up soon · take a lil break |
+| Mood | When | Symbols | Sample quips |
+|---|---|---|---|
+| `alert` | rate limit ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
+| `fried` | context ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
+| `sleepy` | context ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
+| `rich` | cost ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
+| `cash` | cost ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
+| `happy` | context < 50% (everyday) | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
+| `chill` | everyday rotation | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
+| `snack` | everyday rotation | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
+| `silly` | everyday rotation | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
 
-So you'll catch things like `(^oo^) ♥♥♥ you got this` or `(×oo×) !!! breathe, you ok?`.
+- Ordinary state moods (`sleepy` / `cash` / `rich`) own 2 beats in 3; the third goes to an everyday mood so it never gets samey.
+- **The two real warnings (`alert` / `fried`) own every beat** — when something's actually wrong the buddy doesn't wander off into "la la la~".
+
+So you'll catch things like `\(^ww^)/ ♥♥♥ proud of you`, `~(-oo-)~ zZz so very sleepy`, or `\(×oo×)/ !?! /compact. please.`
+
+**Colour tiers — the more you use it today, the flashier it gets**
+
+The buddy starts gold. As **today's cumulative API working time** climbs, it unlocks more colour:
+
+| API time today | Tier | Look |
+|---|:--:|---|
+| < 5 min | 1 | all gold — `(^oo^) ♥♥♥` |
+| 5 – 20 min | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
+| 20 – 60 min | 3 | **face and symbol** both coloured — pale face, vivid symbol |
+| ≥ 60 min | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock |
+
+- It counts `cost.total_api_duration_ms` — time actually spent calling the API. Leaving a session idle earns you nothing.
+- Each session only knows its own duration, so the daily total is accumulated in `~/.claude/statusline-buddy.json` (`{"date":…,"sessions":{"<session_id>":<ms>}}`), **reset every midnight**.
+- The status line re-renders several times a second, so it **only writes to disk when the current session gains ≥5s of API time** — otherwise it's read-only.
+- Needs a 256-colour terminal (Windows Terminal, iTerm2, and essentially every modern one qualify).
+
+| Env var | Effect |
+|---|---|
+| `BUDDY_TIERS="5,20,60"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
+| `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
+| `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |
 
 **Under the hood**
 - **0 tokens, fully local** — it's computed by the statusline script and drawn in your terminal; nothing is ever sent to the model.
-- The symbol is bold gold, the quip is dimmed, so it never crowds the rest of the bar.
-- Want different lines? Edit the `QUIPS` table in `statusline.py` / `statusline.js`.
-- Fails silent — if anything ever goes wrong the buddy just hides, the rest of the status line is untouched.
+- The symbol is bold, the quip is dimmed, so it never crowds the rest of the bar.
+- Want different lines? Edit the `MOODS` table in `statusline.py` / `statusline.js` — every mood's `pose` / `sym` / `says` list is free to grow. Two conventions: keep quips under 24 chars so narrow terminals don't wrap, and keep `pose` and `sym` on different characters or you get muddle like `zZ z Z z`.
+- Fails silent — if anything ever goes wrong the buddy just hides, the rest of the status line is untouched. If the state file can't be read or written it quietly falls back to tier 1.
 
 ### 2. PDF Compressor (`pdf-compressor`)
 Automatically compresses large PDF files using Ghostscript to ensure they fit within API limits or to optimize processing speed.
@@ -221,7 +260,7 @@ There are three ways to let Claude Code "learn" these skills — pick whichever 
 
 ### Option A: Just Hand Claude the Link (Recommended — Easiest)
 The least-effort path: paste this repo's URL into Claude Code and let it do the rest — it will read the repo, find the skill you need, and install or run it for you. No manual copying, no path juggling.
-> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `cc-plus` statusline skill for me."
+> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `claude-code-statusline` skill for me."
 
 ### Option B: Global Registration
 Copy the skill folder to your local Claude Code skills directory. This makes the skill available in all your projects.

@@ -8,7 +8,7 @@
 
 | # | 技能 | 做什么 | 依赖 |
 |:--:|---|---|---|
-| 1 | [**Claude Code 状态栏**](#1-claude-code-状态栏-cc-plus)<br>`cc-plus` | 自定义状态栏 —— 模型、上下文进度条、会话花费、速率限制 —— 外加完成提示音和一只金色卡皮巴拉 🐣 | Python 3 **或** Node |
+| 1 | [**Claude Code 状态栏**](#1-claude-code-状态栏-claude-code-statusline)<br>`claude-code-statusline` | 自定义状态栏 —— 模型、上下文进度条、会话花费、速率限制 —— 外加完成提示音和一只金色卡皮巴拉 🐣 | Python 3 **或** Node |
 | 2 | [**PDF 压缩器**](#2-pdf-压缩器-pdf-compressor)<br>`pdf-compressor` | 把超大 PDF 压到符合 API 限制，四档质量预设，自动备份原文件 | Ghostscript |
 | 3 | [**PDF 图表提取器**](#3-pdf-图表提取器-pdf-figure-extractor)<br>`pdf-figure-extractor` | 用 TF-ID 模型检测并裁切论文里的图和表，附带 Markdown 索引 | Conda 环境 + Poppler |
 | 4 | [**英文论文转中文 PDF**](#4-英文论文转中文-pdf-pdf-e2c)<br>`pdf-e2c` | 把英文论文重排成单栏中文 PDF，图/表/公式从原 PDF 高清裁切插回 | `pymupdf` `reportlab` `pillow` |
@@ -25,7 +25,7 @@
 
 ## 可用技能
 
-### 1. Claude Code 状态栏 (`cc-plus`)
+### 1. Claude Code 状态栏 (`claude-code-statusline`)
 跨平台的 Claude Code 增强技能，为 Windows 和 macOS 同时提供自定义状态栏与响应完成提示音。
 
 ![Claude Code 状态栏效果](images/claude-status.png)
@@ -36,20 +36,30 @@
   - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
   - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
   - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
-  - **彩蛋宠物 🐣：** 状态栏行尾住着一只可选的金色卡皮巴拉 `(^oo^)` —— 它会在刷新之间做待机动画（嚼东西、眨眼），并根据上下文用量 / 花费 / 速率限制冒出小表情（`♥♥♥` `zzz` `!!!`）。纯本地运行，**0 token 消耗**。
+  - **彩蛋宠物 🐣：** 状态栏行尾住着一只金色卡皮巴拉 —— 它会摆姿势（`\(^ww^)/` `~(-oo-)~`）、嚼东西、眨眼、单眼眨，并根据上下文用量 / 花费 / 速率限制在 **9 种心情**间轮换，每种心情都有自己的符号和短语池（`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`）。它还会**随着你干活解锁颜色** —— 默认全金，当天 API 工作时长越过 5 / 20 / 60 分钟后依次解锁彩色符号、彩色脸、整只流动彩虹。纯本地运行，**0 token 消耗**。
 - **设置与前提条件：**
   - 系统 PATH 中需要 Python 3 或 Node.js。
-  - 将该技能安装到 `~/.claude/skills/cc-plus/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
+  - 将该技能安装到 `~/.claude/skills/claude-code-statusline/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
 
 #### 🐣 认识你的宠物 —— 金色卡皮巴拉
 
-状态栏行尾住着一只金色的小卡皮巴拉，移植自 Claude Code 内置的 companion 彩蛋。它只是一行文字，却是**活的**：每次状态栏刷新都会重新读取当前时间和会话状态，所以这小家伙会不停地动、不停地对你的状态做出反应。
+状态栏行尾住着一只金色的小卡皮巴拉，移植自 Claude Code 内置的 companion 彩蛋。它只是一行文字，却是**活的**：每次状态栏刷新都会重新读取当前时间和会话状态，所以这小家伙会不停地摆姿势、不停地对你的状态碎碎念。
 
-**待机动画**（时间驱动，刷新之间持续变化）
-- 嚼东西：`(^oo^)` → `(^Oo^)` → `(^oO^)`
-- 眨眼：偶尔快速 `(-oo-)` 一下
+**它由四层拼成** —— 所以永远不会只剩一张干巴巴的脸杵在那：
 
-**心情** —— 眼睛随上下文用量变化：
+```
+\(^ww^)/  ♥♥♥  proud of you
+│         │    └─ 话 —— 暗色，四帧里说三帧
+│         └────── 符号 —— 每一帧都有，所以绝不会只剩一张脸
+└──────────────── 姿势 + 脸 —— 举爪、泡水、咀嚼、眨眼、单眼眨
+```
+
+- **姿势** —— `\ /` 举爪、`/` 挥手、`~ ~` 泡在水里、`?` 歪头
+- **脸** —— 眼睛跟着上下文用量走；嘴在 `oo → Oo → oO → ww → vv` 之间咀嚼，偶尔眨眼 `(-oo-)`、偶尔单眼眨 `(^oo-)`
+- **符号** —— **每一帧都有**，所以它绝不会只剩一张脸
+- **话** —— 四帧里说三帧，从当前心情的短语池按时间轮换
+
+**眼睛**随上下文用量变化：
 
 | 上下文 | 眼睛 | 状态 |
 |---|---|---|
@@ -58,23 +68,52 @@
 | WARN – DANGER | `-` | 疲惫 —— `(-oo-)` |
 | ≥ DANGER | `×` | 累瘫 —— `(×oo×)` |
 
-**偶发反应** —— 时不时冒出一个符号 + 一句暖心/俏皮的话；话语从短语池里随时间轮换，所以每次都不太一样：
+**共 9 种心情** —— 会话状态优先挑一种，剩下的节拍由「日常心情」轮换填满：
 
-| 符号 | 触发条件 | 短语示例（卡皮巴拉淡定治愈风） |
-|---|---|---|
-| `♥♥♥` | ctx 宽裕时 | you got this · proud of you · we're vibing |
-| `~~~` | 随机 | la la la~ · just chillin' · doot doot doot |
-| `zzz` | ctx ≥ WARN | 5 more minutes · so very sleepy · ok... carry on |
-| `$$$` | 花费 ≥ $1 | worth every cent · treat yourself · ooh, fancy |
-| `!!!` | 限额 ≥ 90% | breathe, you ok? · ease up soon · take a lil break |
+| 心情 | 触发条件 | 符号 | 短语示例 |
+|---|---|---|---|
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
 
-所以你会时不时看到 `(^oo^) ♥♥♥ you got this` 或 `(×oo×) !!! breathe, you ok?` 这样的画面。
+- 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
+- **两个真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候它不会跑偏去唱 "la la la~"。
+
+所以你会时不时看到 `\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so very sleepy` 或 `\(×oo×)/ !?! /compact. please.` 这样的画面。
+
+**颜色档位 —— 今天用得越多越花哨**
+
+默认全金色。**当天累计 API 工作时长**越长，解锁的颜色层数越多：
+
+| 今日 API 时长 | 档位 | 效果 |
+|---|:--:|---|
+| < 5 min | 1 | 全金色 —— `(^oo^) ♥♥♥` |
+| 5 – 20 min | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） |
+| 20 – 60 min | 3 | **脸和符号**各自上色 —— 脸用淡色，符号用亮色 |
+| ≥ 60 min | 4 | **整只逐字符彩虹**，色相随秒数流动 |
+
+- 统计的是 `cost.total_api_duration_ms`，也就是**真正在跑 API 的时间** —— 挂着发呆不算数。
+- 每个会话只知道自己的时长，所以跨会话累加存在 `~/.claude/statusline-buddy.json`（`{"date":…,"sessions":{"<session_id>":<ms>}}`），**每天 0 点自动重置**。
+- 状态栏一秒会刷好几次，所以**只在当前会话 API 时长增加 ≥5 秒时才写盘**，平时纯读。
+- 需要 256 色终端（Windows Terminal、iTerm2 以及基本所有现代终端都支持）。
+
+| 环境变量 | 作用 |
+|---|---|
+| `BUDDY_TIERS="5,20,60"` | 自定义解锁档 2/3/4 的分钟阈值 |
+| `BUDDY_TIER=4` | 强制锁定某档用于预览（不写状态文件） |
+| `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
 
 **技术原理**
 - **0 token，纯本地** —— 它由状态栏脚本本地计算、画在你的终端里，**任何内容都不会发给模型**。
-- 符号是金色加粗，话语用暗色柔和呈现，不抢状态栏其它信息。
-- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `QUIPS` 表即可。
-- 容错设计 —— 一旦出错宠物就静默隐藏，状态栏其余部分完全不受影响。
+- 符号加粗醒目，话语用暗色柔和呈现，不抢状态栏其它信息。
+- 想换台词？编辑 `statusline.py` / `statusline.js` 里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都能随便加。两条约定：短语控制在 24 字符内免得窄终端换行；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
+- 容错设计 —— 一旦出错宠物就静默隐藏，状态栏其余部分完全不受影响；状态文件读不到或写不进时静默退回档 1（全金）。
 
 ### 2. PDF 压缩器 (`pdf-compressor`)
 使用 Ghostscript 自动压缩大型 PDF 文件，确保它们符合 API 限制或优化处理速度。
@@ -221,7 +260,7 @@
 
 ### 选项 A：直接把链接丢给 Claude（最推荐，最省事）
 最省事的方式：把本仓库链接粘贴给 Claude Code，剩下的交给它 —— 它会自己读取仓库、找到你需要的技能，并帮你安装或直接运行，无需手动复制、无需折腾路径。
-> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 cc-plus 状态栏技能。”
+> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 `claude-code-statusline` 状态栏技能。”
 
 ### 选项 B：全局注册
 将技能文件夹复制到本地 Claude Code 技能目录。这使得该技能在你所有的项目中都可用。

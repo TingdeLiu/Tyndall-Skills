@@ -1,5 +1,5 @@
 ---
-name: cc-plus
+name: claude-code-statusline
 description: Set up a Claude Code custom status line (with an optional ASCII buddy/pet easter-egg) AND completion notification sound on Windows or macOS. Use when configuring statusLine in settings.json, when bash/jq/Unicode errors occur, when the user wants a sound alert when Claude finishes a response, or when adding a status-bar pet/companion. Auto-detects OS and Python vs Node.js runtime.
 ---
 
@@ -149,13 +149,23 @@ Color coding (using chosen thresholds):
 
 ## Buddy 宠物 (彩蛋)
 
-状态栏行尾住着一只**金色的传说级卡皮巴拉** —— Claude Code 内置 companion 彩蛋的移植版。单行、无字，但它**活着**：每次状态栏刷新都会换一个姿态，靠「当前时间」驱动待机动画、靠「会话状态」决定心情和偶发反应。固定一只，已内建在两个脚本里，无需任何配置。
+状态栏行尾住着一只**金色的传说级卡皮巴拉** —— Claude Code 内置 companion 彩蛋的移植版。单行，但它**活着**：每次状态栏刷新都会换一个姿态，靠「当前时间」驱动待机动画、靠「会话状态」决定心情、心情再决定它摆什么姿势、冒什么符号、说什么话。固定一只，已内建在两个脚本里，无需任何配置。
 
-**待机动画**（时间驱动，刷新之间持续微动）：
-- 嘴在咀嚼：`oo` → `Oo` → `oO` 循环
-- 偶尔眨眼：`(^oo^)` → `(-oo-)` 一闪
+**它长这样**（四层拼出来，从不只剩一张干巴巴的脸）：
 
-**心情**（眼睛随 `ctx` 上下文用量变化）：
+```
+\(^ww^)/  ♥♥♥  proud of you
+│         │    └─ 话 —— 暗色，四帧里说三帧
+│         └────── 符号 —— 每一帧都有，所以绝不会只剩一张脸
+└──────────────── 姿势 + 脸 —— 举爪、泡水、咀嚼、眨眼、单眼眨
+```
+
+- **姿势** `pose` —— `\ /` 举爪、`/` 挥手、`~ ~` 泡在水里、`?` 歪头
+- **脸** —— 眼睛看 ctx 用量，嘴在 `oo → Oo → oO → ww → vv` 之间咀嚼，偶尔眨眼 `(-oo-)`、偶尔单眼眨 `(^oo-)`
+- **符号** `sym` —— **每一帧都有**，所以永远不会只剩一张脸杵在那
+- **话** `says` —— 四帧里说三帧，从当前心情的短语池按时间轮换
+
+**眼睛**（随 `ctx` 上下文用量变化）：
 
 | ctx | 眼睛 | 状态 |
 |---|---|---|
@@ -164,23 +174,61 @@ Color coding (using chosen thresholds):
 | WARN–DANGER | `-` | 疲惫 `(-oo-)` |
 | ≥ DANGER | `×` | 累瘫 `(×oo×)` |
 
-**偶发反应**（按会话状态，时不时冒一个符号 + 一句暖心/俏皮的话，不是常驻；话语从短语池里随时间轮换，所以每次不一样）：
+**心情**共 9 种，会话状态优先，剩下的节拍由「日常心情」轮换填满：
 
-| 符号 | 触发 | 短语池（卡皮巴拉淡定治愈风） |
-|---|---|---|
-| ` ♥♥♥` | ctx 宽裕时 | you got this / we're vibing / proud of you / … |
-| ` ~~~` | 随机 | la la la~ / just chillin' / doot doot doot / … |
-| ` zzz` | ctx ≥ WARN | 5 more minutes / so very sleepy / ok... carry on / … |
-| ` $$$` | 花费 ≥ $1 | worth every cent / treat yourself / ooh, fancy / … |
-| ` !!!` | 限额 ≥ 90% | breathe, you ok? / ease up soon / take a lil break / … |
+| 心情 | 触发 | 符号 | 短语池示例 |
+|---|---|---|---|
+| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? / go outside, i'll wait / hydrate maybe? |
+| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help / /compact. please. / everything is soup |
+| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy / /compact soon? / maybe wrap this one up |
+| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different / capy has a corp card / wow. ok. luxury. |
+| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent / investing in ourselves / the tokens flow |
+| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it, friend / big brain hours |
+| `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass / unbothered. moisturized. / floating along |
+| `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? / one (1) melon please / grass o'clock |
+| `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running / pro sitting expert / will work for melon |
 
-例：`(^oo^) ♥♥♥ you got this`、`(-Oo-) zzz 5 more minutes`、`(×oo×) !!! breathe, you ok?`
+- 普通状态心情（`sleepy` / `cash` / `rich`）占 3 帧里的 2 帧，剩 1 帧留给日常心情，免得看腻。
+- **真·告警状态（`alert` / `fried`）独占每一帧** —— 该急的时候不会插科打诨说 "la la la~"。
 
-> 符号金色醒目，话语用暗色柔和呈现，不抢状态栏其它信息。短语想改/想加，直接编辑脚本里的 `QUIPS` 即可。
+例：`\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so very sleepy`、`\(×oo×)/ !?! /compact. please.`
 
-> 调试：设环境变量 `BUDDY_NOW=<整数>` 可固定动画相位，方便预览各帧。
+> 想改/想加，直接编辑脚本里的 `MOODS` 表 —— 每种心情的 `pose` / `sym` / `says` 三个列表都可以随便加。
+>
+> 两条约定：短语控制在 **24 字符**以内，免得窄终端换行；`pose` 和 `sym` 别用同一批字符，否则会糊成 `zZ z Z z` 这种。
 
-容错设计：宠物逻辑出错时静默隐藏，绝不影响状态栏其余部分。
+### 颜色档位（今日用得越多越花哨）
+
+默认全金色。**当天累计 API 工作时长**越长，卡皮巴拉解锁的颜色层数越多 —— 干活干得多，它就越精神：
+
+| 今日 API 时长 | 档位 | 效果 |
+|---|:--:|---|
+| < 5 min | 1 | 全金色 `(^oo^) ♥♥♥` |
+| 5 – 20 min | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） |
+| 20 – 60 min | 3 | **脸和符号**各自上色（脸用淡色，符号用亮色） |
+| ≥ 60 min | 4 | **整只逐字符彩虹**，色相随秒数流动 |
+
+- 统计的是 `cost.total_api_duration_ms`，也就是**真正在跑 API 的时间**，挂着发呆不算数。
+- 每个会话只知道自己的时长，所以要跨会话累加：状态存在 `~/.claude/statusline-buddy.json`，形如 `{"date":"2026-08-21","sessions":{"<session_id>":<ms>}}`，**每天 0 点自动重置**。
+- 状态栏一秒会刷好几次，所以**只在当前会话 API 时长增加 ≥5 秒时才写盘**，平时纯读。
+- 需要 256 色终端（Windows Terminal / iTerm2 / 绝大多数现代终端都支持）。
+
+**可调环境变量：**
+
+| 变量 | 作用 |
+|---|---|
+| `BUDDY_TIERS="5,20,60"` | 自定义解锁档 2/3/4 的分钟阈值 |
+| `BUDDY_TIER=4` | 强制锁定某档，用来预览效果（不写状态文件） |
+| `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
+
+预览四个档位：
+
+```bash
+J='{"session_id":"x","model":{"display_name":"Opus 5"},"context_window":{"used_percentage":12},"cost":{"total_cost_usd":0.5}}'
+for t in 1 2 3 4; do echo "$J" | BUDDY_TIER=$t python ~/.claude/statusline.py; done
+```
+
+容错设计：宠物逻辑出错时静默隐藏，绝不影响状态栏其余部分；状态文件读不到或写不进时静默退回档 1（全金），同样不影响其它内容。
 
 ---
 
