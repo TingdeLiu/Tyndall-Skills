@@ -36,7 +36,7 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
   - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 5 / 20 / 60 minutes. Fully local, **0 tokens**.
+  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact soon?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 3 / 8 hours. Fully local, **0 tokens**.
 - **Setup & Prerequisites:**
   - Python 3 or Node.js available in PATH.
   - Install the skill into `~/.claude/skills/claude-code-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
@@ -93,19 +93,20 @@ The buddy starts gold. As **today's cumulative API working time** climbs, it unl
 
 | API time today | Tier | Look |
 |---|:--:|---|
-| < 5 min | 1 | all gold — `(^oo^) ♥♥♥` |
-| 5 – 20 min | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
-| 20 – 60 min | 3 | **face and symbol** both coloured — pale face, vivid symbol |
-| ≥ 60 min | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock |
+| < 1 h | 1 | all gold — `(^oo^) ♥♥♥` |
+| 1 – 3 h | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
+| 3 – 8 h | 3 | **face and symbol** both coloured — pale face, vivid symbol |
+| ≥ 8 h | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock |
 
 - It counts `cost.total_api_duration_ms` — time actually spent calling the API. Leaving a session idle earns you nothing.
+- Note this runs much *slower* than the wall clock for ordinary serial use (roughly 15% of it), but *faster* when you fan out — ten agents running in parallel for a minute bank ten minutes of API time. So tier 4 is really the "I ran a lot of parallel work today" achievement.
 - Each session only knows its own duration, so the daily total is accumulated in `~/.claude/statusline-buddy.json` (`{"date":…,"sessions":{"<session_id>":<ms>}}`), **reset every midnight**.
 - The status line re-renders several times a second, so it **only writes to disk when the current session gains ≥5s of API time** — otherwise it's read-only.
 - Needs a 256-colour terminal (Windows Terminal, iTerm2, and essentially every modern one qualify).
 
 | Env var | Effect |
 |---|---|
-| `BUDDY_TIERS="5,20,60"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
+| `BUDDY_TIERS="60,180,480"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
 | `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
 | `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |
 

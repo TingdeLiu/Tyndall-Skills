@@ -51,9 +51,9 @@ def countdown(ts):
 # API time, i.e. how much work actually got done today.
 STATE = os.path.join(os.path.expanduser('~'), '.claude', 'statusline-buddy.json')
 try:  # minutes that unlock tiers 2 / 3 / 4
-    TIERS = [float(x) for x in os.environ.get('BUDDY_TIERS', '5,20,60').split(',')]
+    TIERS = [float(x) for x in os.environ.get('BUDDY_TIERS', '60,180,480').split(',')]
 except Exception:
-    TIERS = [5.0, 20.0, 60.0]
+    TIERS = [60.0, 180.0, 480.0]
 
 def daily_tier(session_id, ms):
     forced = os.environ.get('BUDDY_TIER')     # for previewing the tiers

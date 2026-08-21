@@ -51,9 +51,9 @@ process.stdin.on('end', () => {
   const STATE = path.join(os.homedir(), '.claude', 'statusline-buddy.json');
   let TIERS;                                  // minutes that unlock tiers 2 / 3 / 4
   try {
-    TIERS = (process.env.BUDDY_TIERS || '5,20,60').split(',').map(Number);
+    TIERS = (process.env.BUDDY_TIERS || '60,180,480').split(',').map(Number);
     if (TIERS.some(isNaN)) throw new Error('bad');
-  } catch (e) { TIERS = [5, 20, 60]; }
+  } catch (e) { TIERS = [60, 180, 480]; }
 
   const dailyTier = (sessionId, ms) => {
     const forced = process.env.BUDDY_TIER;    // for previewing the tiers
