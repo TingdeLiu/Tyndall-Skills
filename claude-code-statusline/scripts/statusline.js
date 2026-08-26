@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 const os = require('os'), fs = require('fs'), path = require('path');
 
-const WARN   = parseInt(process.env.WARN_PCT   || '80', 10);
-const DANGER = parseInt(process.env.DANGER_PCT || '95', 10);
+const WARN   = parseInt(process.env.WARN_PCT   || '70', 10);
+const DANGER = parseInt(process.env.DANGER_PCT || '85', 10);
 
 let raw = '';
 process.stdin.setEncoding('utf-8');
@@ -41,16 +41,16 @@ process.stdin.on('end', () => {
   // ---- daily streak: today's API working time unlocks the buddy's colour tiers ----
   // Sessions each report only their own `total_api_duration_ms`, so we accumulate
   // them in a small file to get a per-day total. Idle time never counts — this is
-  // API time, i.e. how much work actually got done today.
+  // API compute time.
   const STATE = path.join(os.homedir(), '.claude', 'statusline-buddy.json');
-  let TIERS;                                  // minutes that unlock tiers 2 / 3 / 4
+  let TIERS;                                  // minutes that unlock tiers 2 / 3 / 4 (default: 5m, 15m, 35m)
   try {
-    TIERS = (process.env.BUDDY_TIERS || '60,240,480').split(',').map(Number);
+    TIERS = (process.env.BUDDY_TIERS || '5,15,35').split(',').map(Number);
     if (TIERS.some(isNaN)) throw new Error('bad');
-  } catch (e) { TIERS = [60, 240, 480]; }
+  } catch (e) { TIERS = [5, 15, 35]; }
 
   const dailyTier = (sessionId, ms) => {
-    const forced = process.env.BUDDY_TIER;    // for previewing the tiers
+    const forced = process.env.BUDDY_TIER;    // for previewing the tiers (1..4)
     if (forced) return Math.max(1, Math.min(4, parseInt(forced, 10)));
     if (!sessionId || ms == null) return 1;
     const d = new Date();
@@ -60,10 +60,8 @@ process.stdin.on('end', () => {
     if (st.date !== today) st = { date: today, sessions: {} };  // new day, start over
     if (!st.sessions) st.sessions = {};
     const prev = st.sessions[sessionId] || 0;
-    st.sessions[sessionId] = Math.max(prev, ms);
-    // The status bar re-renders several times a second, so only touch the disk
-    // once this session has moved by 5s+ of API time.
-    if (ms - prev >= 5000) {
+    if (ms > prev) {
+      st.sessions[sessionId] = ms;
       try {
         fs.writeFileSync(STATE + '.tmp', JSON.stringify(st));
         fs.renameSync(STATE + '.tmp', STATE);
@@ -80,15 +78,14 @@ process.stdin.on('end', () => {
   const GOLD = '\x1b[93m';
 
   // The critter's entire vocabulary lives here — edit freely.
-  //   pose : [left, right] limbs wrapped around the face — \ / paws, ~ ~ water
+  //   pose : [left, right] limbs wrapped around the face — \ / paws, ~ ~ water, etc.
   //   sym  : symbol cluster that ALWAYS trails the face, so it's never bare
   //   says : the dim one-liners — keep under ~24 chars; the quip sits at the far
   //          right, so it is the first thing a narrow terminal truncates
-  // Keep pose and sym on different characters, or you get muddle like "zZ z Z z".
   const MOODS = {
     happy: {
       pose: [['', ''], ['\\', '/'], ['', '/']],
-      sym:  ["♥♥♥", "✧✧✧", "♪♥♪", "♥ ♥"],
+      sym:  ["♥♥♥", "✧✧✧", "♪♥♪", "♥ ♥", "★✧★"],
       says: ["you got this", "we're vibing", "proud of you",
              "look at you go", "chef's kiss", "ship it, friend",
              "big brain hours", "cozy lil day", "good company",
@@ -96,7 +93,7 @@ process.stdin.on('end', () => {
     },
     chill: {
       pose: [['', ''], ['~', '~']],
-      sym:  ["♪♪♪", ". . .", "♪ ♪"],
+      sym:  ["♪♪♪", ". . .", "♪ ♪", "~*~"],
       says: ["la la la~", "just chillin'", "doot doot doot",
              "no thoughts, just grass", "the water's nice",
              "floating along", "unbothered. moisturized.",
@@ -180,10 +177,10 @@ process.stdin.on('end', () => {
     // eyes — mood from context usage, plus blinks and the occasional wink
     let eye;
     if (used == null)        eye = '·';
-    else if (used >= DANGER) eye = '×';   // cross-eyed, fried
-    else if (used >= WARN)   eye = '-';   // tired, half-lidded
-    else if (used >= 50)     eye = '·';   // awake
-    else                     eye = '^';   // happy, ctx still roomy
+    else if (used >= DANGER) eye = '×';   // cross-eyed, fried (>=85%)
+    else if (used >= WARN)   eye = '-';   // tired, half-lidded (>=70%)
+    else if (used >= 35)     eye = '·';   // awake, steady (35%..70%)
+    else                     eye = '^';   // happy, ctx still roomy (<35%)
     let lEye = eye, rEye = eye;
     if (eye === '·' || eye === '^') {
       if      (phase % 7  === 0) { lEye = rEye = '-'; }   // blink
@@ -196,16 +193,23 @@ process.stdin.on('end', () => {
     // mood — session state wins most beats, fillers rotate through the rest
     const lim = Math.max(h5 || 0, d7 || 0);
     let state = null;
-    if      (lim >= 90)                        state = 'alert';
-    else if (used != null && used >= DANGER)   state = 'fried';
-    else if (used != null && used >= WARN)     state = 'sleepy';
-    else if ((cost || 0) >= 5)                 state = 'rich';
-    else if ((cost || 0) >= 1)                 state = 'cash';
+    if      (lim >= 75)                        state = 'alert';   // Rate limit approaching
+    else if (used != null && used >= DANGER)   state = 'fried';   // Context full
+    else if (used != null && used >= WARN)     state = 'sleepy';  // Context high
+    else if ((cost || 0) >= 1.5)               state = 'rich';    // High session cost
+    else if ((cost || 0) >= 0.3)               state = 'cash';    // Active session cost
 
-    const fillers = ['chill', 'snack', 'silly'];
-    if (used == null || used < 50) fillers.unshift('happy');
+    let fillers = ['chill', 'snack', 'silly'];
+    if (used == null || used < 35) {
+      fillers = ['happy', 'happy', 'chill', 'silly', 'snack'];
+    } else if (used < WARN) {
+      fillers = ['chill', 'snack', 'silly', 'happy'];
+    } else {
+      fillers = ['sleepy', 'chill', 'snack'];
+    }
+
     // a live state mood owns 2 beats in 3, so fillers keep it from getting samey —
-    // but when something is actually wrong it stays on message every beat
+    // but when something is actually urgent it stays on message every beat
     const urgent = state === 'alert' || state === 'fried';
     const mood = (state && (urgent || phase % 3))
       ? state

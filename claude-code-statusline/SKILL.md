@@ -53,9 +53,9 @@ Call `AskUserQuestion` with these two questions:
 - 不播放 — 仅配置状态栏
 
 **Q2:** "上下文用量警告阈值？" (header: "警告阈值")
-- 80% 警告 / 95% 危险 (Recommended)
-- 70% 警告 / 90% 危险
-- 60% 警告 / 85% 危险
+- 70% 警告 / 85% 危险 (Recommended)
+- 80% 警告 / 95% 危险
+- 60% 警告 / 80% 危险
 
 ---
 
@@ -165,25 +165,25 @@ Color coding (using chosen thresholds):
 - **符号** `sym` —— **每一帧都有**，所以永远不会只剩一张脸杵在那
 - **话** `says` —— 四帧里说三帧，从当前心情的短语池按时间轮换
 
-**眼睛**（随 `ctx` 上下文用量变化）：
+**眼睛**（随 `ctx` 上下文用量平滑变化）：
 
 | ctx | 眼睛 | 状态 |
 |---|---|---|
-| < 50% | `^` | 开心 `(^oo^)` |
-| 50–WARN | `·` | 清醒 `(·oo·)` |
-| WARN–DANGER | `-` | 疲惫 `(-oo-)` |
-| ≥ DANGER | `×` | 累瘫 `(×oo×)` |
+| < 35% | `^` | 充裕开心 `(^oo^)` / `(^ww^)` |
+| 35%–WARN (70%) | `·` | 稳步专注 `(·oo·)` / `(·ww·)` |
+| WARN–DANGER (70%–85%) | `-` | 渐感充盈 `(-oo-)` / `(-ww-)` |
+| ≥ DANGER (85%) | `×` | 脑容量满载 `(×oo×)` / `(×ww×)` |
 
 **心情**共 9 种，会话状态优先，剩下的节拍由「日常心情」轮换填满：
 
 | 心情 | 触发 | 符号 | 短语池示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? / go outside, i'll wait / hydrate maybe? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help / /compact. please. / everything is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy / /compact soon? / maybe wrap this one up |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different / capy has a corp card / wow. ok. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent / investing in ourselves / the tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it, friend / big brain hours |
+| `alert` | 速率限额 ≥ 75% | `!!!` `! !` `!?!` | breathe, you ok? / go outside, i'll wait / hydrate maybe? |
+| `fried` | ctx ≥ DANGER (85%) | `×××` `!?!` `@@@` | brain full, send help / /compact. please. / everything is soup |
+| `sleepy` | ctx ≥ WARN (70%) | `zzz` `zZz` `- - -` | eyelids: heavy / /compact soon? / maybe wrap this one up |
+| `rich` | 单会话花费 ≥ $1.50 | `$$$` `★★★` `$★$` | simply built different / capy has a corp card / wow. ok. luxury. |
+| `cash` | 单会话花费 ≥ $0.30 | `$$$` `¢¢¢` | worth every cent / investing in ourselves / the tokens flow |
+| `happy` | ctx < 35%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this / chef's kiss / ship it, friend / big brain hours |
 | `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass / unbothered. moisturized. / floating along |
 | `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? / one (1) melon please / grass o'clock |
 | `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running / pro sitting expert / will work for melon |
@@ -216,24 +216,24 @@ import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 或 'Na' 才安�
 
 默认全金色。**当天累计 API 工作时长**越长，卡皮巴拉解锁的颜色层数越多 —— 干活干得多，它就越精神：
 
-| 今日 API 时长 | 档位 | 效果 |
-|---|:--:|---|
-| < 1 h | 1 | 全金色 `(^oo^) ♥♥♥` |
-| 1 – 4 h | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） |
-| 4 – 8 h | 3 | **脸和符号**各自上色（脸用淡色，符号用亮色） |
-| ≥ 8 h | 4 | **整只逐字符彩虹**，色相随秒数流动 |
+| 今日 API 时长 | 档位 | 效果 | 对应实际工作量 |
+|---|:--:|---|---|
+| < 5 min | 1 | 全金色 `(^oo^) ♥♥♥` | 刚开工 / 轻量调试 |
+| 5 – 15 min | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） | 约 30m~1h 深度结对，渐入佳境 |
+| 15 – 35 min | 3 | **脸和符号**各自上色（脸用淡色，符号用亮色） | 约 1.5h~3h 沉浸式编码，全情投入 |
+| ≥ 35 min | 4 | **整只逐字符彩虹**，色相随秒数流动 | 全天重度 Coding / 多 Agent 狂暴输出成就 |
 
 - 统计的是 `cost.total_api_duration_ms`，也就是**真正在跑 API 的时间**，挂着发呆不算数。
-- 注意这个口径跑得比墙钟**慢**得多（普通串行使用大约只有墙钟的 15%），但并行 agent / workflow 会让它跑得比墙钟**快**（10 个 agent 并行跑 1 分钟 = 10 分钟 API 时长）。所以档 4 实际是「今天跑了大量并行任务」的成就。
-- 每个会话只知道自己的时长，所以要跨会话累加：状态存在 `~/.claude/statusline-buddy.json`，形如 `{"date":"2026-08-21","sessions":{"<session_id>":<ms>}}`，**每天 0 点自动重置**。
-- 状态栏一秒会刷好几次，所以**只在当前会话 API 时长增加 ≥5 秒时才写盘**，平时纯读。
+- 普通串行编码单次交互 API 耗时约 3~10 秒，因此 35 分钟 API 时长已相当于高强度工作大半天。
+- 每个会话只知道自己的时长，所以要跨会话累加：状态存在 `~/.claude/statusline-buddy.json`，形如 `{"date":"2026-08-26","sessions":{"<session_id>":<ms>}}`，**每天 0 点自动重置**。
+- 状态栏每次更新时若 API 时长有增长即增量同步写盘，保证换会话/退出时累计进度不丢失。
 - 需要 256 色终端（Windows Terminal / iTerm2 / 绝大多数现代终端都支持）。
 
 **可调环境变量：**
 
 | 变量 | 作用 |
 |---|---|
-| `BUDDY_TIERS="60,240,480"` | 自定义解锁档 2/3/4 的分钟阈值 |
+| `BUDDY_TIERS="5,15,35"` | 自定义解锁档 2/3/4 的分钟阈值（默认 5m, 15m, 35m） |
 | `BUDDY_TIER=4` | 强制锁定某档，用来预览效果（不写状态文件） |
 | `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
 
@@ -241,7 +241,7 @@ import unicodedata; unicodedata.east_asian_width('▮')   # 'N' 或 'Na' 才安�
 
 ```bash
 J='{"session_id":"x","model":{"display_name":"Opus 5"},"context_window":{"used_percentage":12},"cost":{"total_cost_usd":0.5}}'
-for t in 1 2 3 4; do echo "$J" | BUDDY_TIER=$t python ~/.claude/statusline.py; done
+for t in 1 2 3 4; do echo "$J" | BUDDY_TIER=$t node ~/.claude/statusline.js; done
 ```
 
 容错设计：宠物逻辑出错时静默隐藏，绝不影响状态栏其余部分；状态文件读不到或写不进时静默退回档 1（全金），同样不影响其它内容。
