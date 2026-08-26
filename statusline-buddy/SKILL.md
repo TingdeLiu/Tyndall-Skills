@@ -1,6 +1,6 @@
 ---
-name: claude-code-statusline
-description: Set up a Claude Code custom status line (with an optional ASCII buddy/pet easter-egg) AND completion notification sound on Windows or macOS. Use when configuring statusLine in settings.json, when bash/jq/Unicode errors occur, when the user wants a sound alert when Claude finishes a response, or when adding a status-bar pet/companion. Auto-detects OS and Python vs Node.js runtime.
+name: statusline-buddy
+description: Set up a Claude Code custom status line with an animated living ASCII golden capybara buddy/companion easter egg, real-time stats, and completion notification sound on Windows or macOS. Use when configuring statusLine in settings.json, when bash/jq/Unicode errors occur, when the user wants a sound alert, or when adding a status-bar pet/companion. Auto-detects OS and Python vs Node.js runtime.
 ---
 
 # Status Line & Notification Setup (Windows / macOS)

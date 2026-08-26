@@ -8,7 +8,7 @@
 
 | # | 技能 | 做什么 | 依赖 |
 |:--:|---|---|---|
-| 1 | [**Claude Code 状态栏**](#1-claude-code-状态栏-claude-code-statusline)<br>`claude-code-statusline` | 自定义状态栏 —— 模型、上下文百分比、会话花费、速率限制 —— 外加完成提示音和一只金色卡皮巴拉 🐣 | Python 3 **或** Node |
+| 1 | [**状态栏伴侣**](#1-状态栏伴侣-statusline-buddy)<br>`statusline-buddy` | 自定义状态栏 —— 模型、上下文百分比、会话花费、速率限制 —— 外加完成提示音和一只活泼的金色卡皮巴拉 🐣 | Python 3 **或** Node |
 | 2 | [**PDF 压缩器**](#2-pdf-压缩器-pdf-compressor)<br>`pdf-compressor` | 把超大 PDF 压到符合 API 限制，四档质量预设，自动备份原文件 | Ghostscript |
 | 3 | [**PDF 图表提取器**](#3-pdf-图表提取器-pdf-figure-extractor)<br>`pdf-figure-extractor` | 用 TF-ID 模型检测并裁切论文里的图和表，附带 Markdown 索引 | Conda 环境 + Poppler |
 | 4 | [**英文论文转中文 PDF**](#4-英文论文转中文-pdf-pdf-e2c)<br>`pdf-e2c` | 把英文论文重排成单栏中文 PDF，图/表/公式从原 PDF 高清裁切插回 | `pymupdf` `reportlab` `pillow` |
@@ -25,21 +25,21 @@
 
 ## 可用技能
 
-### 1. Claude Code 状态栏 (`claude-code-statusline`)
+### 1. 状态栏伴侣 (`statusline-buddy`)
 跨平台的 Claude Code 增强技能，为 Windows 和 macOS 同时提供自定义状态栏与响应完成提示音。
 
 ![Claude Code 状态栏效果](images/claude-status.png)
 
-- **触发条件：** “配置 Claude Code 状态栏”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
+- **触发条件：** “配置 Claude Code 状态栏”、”状态栏宠物”、”状态栏伴侣”、”Claude 回复完成后播放提示音”，或 bash/jq 状态栏脚本失败时使用。
 - **核心功能：**
   - 显示模型名称、按用量上色的上下文百分比、当前会话累计花费（美元）以及 5 小时 / 7 天速率限制百分比。
   - Claude 完成响应后自动播放提示音（叮咚 / 铃声 / 蜂鸣），macOS 使用 `afplay`，Windows 使用 PowerShell。
-  - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义。
+  - 颜色警告阈值可通过 `WARN_PCT` / `DANGER_PCT` 环境变量自定义（默认 70% / 85%）。
   - 自动检测 Python 或 Node.js —— 不依赖 `jq`，无 Unicode 编码错误。
-  - **彩蛋宠物 🐣：** 状态栏行尾住着一只金色卡皮巴拉 —— 它会摆姿势（`\(^ww^)/` `~(-oo-)~`）、嚼东西、眨眼、单眼眨，并根据上下文用量 / 花费 / 速率限制在 **9 种心情**间轮换，每种心情都有自己的符号和短语池（`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`）。它还会**随着你干活解锁颜色** —— 默认全金，当天 API 工作时长越过 1 / 4 / 8 小时后依次解锁彩色符号、彩色脸、整只流动彩虹。纯本地运行，**0 token 消耗**。
+  - **彩蛋宠物 🐣：** 状态栏行尾住着一只金色卡皮巴拉 —— 它会摆姿势（`\(^ww^)/` `~(-oo-)~`）、嚼东西、眨眼、单眼眨，并根据上下文用量 / 花费 / 速率限制在 **9 种心情**间轮换，每种心情都有自己的符号和短语池（`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`）。它还会**随着你干活解锁颜色** —— 默认全金，当天所有窗口累计 API 工作时长越过 5 / 15 / 35 分钟后依次解锁彩色符号、彩色脸、整只流动彩虹。纯本地运行，**0 token 消耗**。
 - **设置与前提条件：**
   - 系统 PATH 中需要 Python 3 或 Node.js。
-  - 将该技能安装到 `~/.claude/skills/claude-code-statusline/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
+  - 将该技能安装到 `~/.claude/skills/statusline-buddy/`（参见 [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)），然后对 Claude 说 **”帮我配置 Claude Code 状态栏”** —— 它会自动检测操作系统和运行时，询问提示音偏好，并完成脚本与 `settings.json` 的全部配置。
 
 #### 🐣 认识你的宠物 —— 金色卡皮巴拉
 
@@ -59,25 +59,25 @@
 - **符号** —— **每一帧都有**，所以它绝不会只剩一张脸
 - **话** —— 四帧里说三帧，从当前心情的短语池按时间轮换
 
-**眼睛**随上下文用量变化：
+**眼睛**随上下文用量平滑变化：
 
 | 上下文 | 眼睛 | 状态 |
 |---|---|---|
-| < 50% | `^` | 开心 —— `(^oo^)` |
-| 50 – WARN | `·` | 清醒 —— `(·oo·)` |
-| WARN – DANGER | `-` | 疲惫 —— `(-oo-)` |
-| ≥ DANGER | `×` | 累瘫 —— `(×oo×)` |
+| < 35% | `^` | 开心 —— `(^oo^)` / `(^ww^)` |
+| 35% – WARN (70%) | `·` | 清醒 / 稳健 —— `(·oo·)` |
+| WARN – DANGER (70%–85%) | `-` | 疲惫 —— `(-oo-)` |
+| ≥ DANGER (85%) | `×` | 累瘫 —— `(×oo×)` |
 
 **共 9 种心情** —— 会话状态优先挑一种，剩下的节拍由「日常心情」轮换填满：
 
 | 心情 | 触发条件 | 符号 | 短语示例 |
 |---|---|---|---|
-| `alert` | 限额 ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
-| `fried` | ctx ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
-| `sleepy` | ctx ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
-| `rich` | 花费 ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
-| `cash` | 花费 ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
-| `happy` | ctx < 50%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
+| `alert` | 速率限额 ≥ 75% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
+| `fried` | ctx ≥ DANGER (85%) | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
+| `sleepy` | ctx ≥ WARN (70%) | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
+| `rich` | 单会话花费 ≥ $1.50 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
+| `cash` | 单会话花费 ≥ $0.30 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
+| `happy` | ctx < 35%（日常） | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
 | `chill` | 日常轮换 | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
 | `snack` | 日常轮换 | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
 | `silly` | 日常轮换 | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
@@ -87,26 +87,26 @@
 
 所以你会时不时看到 `\(^ww^)/ ♥♥♥ proud of you`、`~(-oo-)~ zZz so sleepy` 或 `\(×oo×)/ !?! /compact pls` 这样的画面。
 
-**颜色档位 —— 今天用得越多越花哨**
+**颜色档位 —— 今天工作越久越花哨**
 
-默认全金色。**当天累计 API 工作时长**越长，解锁的颜色层数越多：
+默认全金色。**跨窗口累计的当天 API 工作时长**越长，解锁的颜色层数越多：
 
-| 今日 API 时长 | 档位 | 效果 |
-|---|:--:|---|
-| < 1 h | 1 | 全金色 —— `(^oo^) ♥♥♥` |
-| 1 – 4 h | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） |
-| 4 – 8 h | 3 | **脸和符号**各自上色 —— 脸用淡色，符号用亮色 |
-| ≥ 8 h | 4 | **整只逐字符彩虹**，色相随秒数流动 |
+| 今日 API 时长 | 档位 | 效果 | 对应实际工作量 |
+|---|:--:|---|---|
+| < 5 min | 1 | 全金色 —— `(^oo^) ♥♥♥` | 刚开工 / 轻量调试 |
+| 5 – 15 min | 2 | **符号**按心情上色（开心粉、发呆蓝、零食橙…） | 约 30m~1h 深度结对，渐入佳境 |
+| 15 – 35 min | 3 | **脸和符号**各自上色 —— 脸用淡色，符号用亮色 | 约 1.5h~3h 沉浸式编码，全情投入 |
+| ≥ 35 min | 4 | **整只逐字符彩虹**，色相随秒数流动 | 全天重度编码 / 多 Agent 狂暴输出成就 🌈 |
 
-- 统计的是 `cost.total_api_duration_ms`，也就是**真正在跑 API 的时间** —— 挂着发呆不算数。
-- 注意这个口径跑得比墙钟**慢**得多（普通串行使用大约只有墙钟的 15%），但并行 agent / workflow 会让它跑得比墙钟**快**（10 个 agent 并行跑 1 分钟 = 10 分钟 API 时长）。所以档 4 实际是「今天跑了大量并行任务」的成就。
+- 统计的是所有窗口会话的 `cost.total_api_duration_ms` 累计，也就是**真正在跑 API 的时间** —— 挂着发呆不算数。
+- 普通串行单次交互 API 耗时约 3~10 秒，因此 35 分钟 API 时长已代表极高强度的深度工作。
 - 每个会话只知道自己的时长，所以跨会话累加存在 `~/.claude/statusline-buddy.json`（`{"date":…,"sessions":{"<session_id>":<ms>}}`），**每天 0 点自动重置**。
-- 状态栏一秒会刷好几次，所以**只在当前会话 API 时长增加 ≥5 秒时才写盘**，平时纯读。
+- 状态栏每次更新增量写盘，关闭或新建窗口不会丢失进度。
 - 需要 256 色终端（Windows Terminal、iTerm2 以及基本所有现代终端都支持）。
 
 | 环境变量 | 作用 |
 |---|---|
-| `BUDDY_TIERS="60,240,480"` | 自定义解锁档 2/3/4 的分钟阈值 |
+| `BUDDY_TIERS="5,15,35"` | 自定义解锁档 2/3/4 的分钟阈值（默认: 5, 15, 35） |
 | `BUDDY_TIER=4` | 强制锁定某档用于预览（不写状态文件） |
 | `BUDDY_NOW=<整数>` | 固定动画相位，方便逐帧调试 |
 
@@ -261,7 +261,7 @@
 
 ### 选项 A：直接把链接丢给 Claude（最推荐，最省事）
 最省事的方式：把本仓库链接粘贴给 Claude Code，剩下的交给它 —— 它会自己读取仓库、找到你需要的技能，并帮你安装或直接运行，无需手动复制、无需折腾路径。
-> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 `claude-code-statusline` 状态栏技能。”
+> “这是一个技能仓库：https://github.com/TingdeLiu/Tyndall-Skills —— 帮我安装其中的 `statusline-buddy` 状态栏技能。”
 
 ### 选项 B：全局注册
 将技能文件夹复制到本地 Claude Code 技能目录。这使得该技能在你所有的项目中都可用。

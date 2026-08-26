@@ -8,7 +8,7 @@ English | [中文](README_CN.md)
 
 | # | Skill | What it does | Needs |
 |:--:|---|---|---|
-| 1 | [**Claude Code Statusline**](#1-claude-code-statusline-claude-code-statusline)<br>`claude-code-statusline` | Custom status line — model, context %, session cost, rate limits — plus a completion sound and a golden capybara buddy 🐣 | Python 3 **or** Node |
+| 1 | [**Statusline Buddy**](#1-statusline-buddy-statusline-buddy)<br>`statusline-buddy` | Custom status line — model, context %, session cost, rate limits — plus a completion sound and an animated living golden capybara buddy 🐣 | Python 3 **or** Node |
 | 2 | [**PDF Compressor**](#2-pdf-compressor-pdf-compressor)<br>`pdf-compressor` | Shrinks oversized PDFs to fit API limits, with four quality presets and automatic backup | Ghostscript |
 | 3 | [**PDF Figure Extractor**](#3-pdf-figure-extractor-pdf-figure-extractor)<br>`pdf-figure-extractor` | Detects and crops figures & tables out of papers using the TF-ID model, with a Markdown index | Conda env + Poppler |
 | 4 | [**English → Chinese Paper PDF**](#4-english-to-chinese-paper-pdf-pdf-e2c)<br>`pdf-e2c` | Rebuilds an English paper as a single-column Chinese PDF, figures/tables/equations cropped from the original | `pymupdf` `reportlab` `pillow` |
@@ -25,21 +25,21 @@ English | [中文](README_CN.md)
 
 ## Available Skills
 
-### 1. Claude Code Statusline (`claude-code-statusline`)
+### 1. Statusline Buddy (`statusline-buddy`)
 A cross-platform Claude Code enhancement that adds a custom status line and a completion notification sound on Windows and macOS.
 
 ![Claude Code status line](images/claude-status.png)
 
-- **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", or failures of bash/jq-based statusline scripts.
+- **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", "Statusline buddy", "状态栏宠物", or failures of bash/jq-based statusline scripts.
 - **Key Features:**
   - Shows model name, colour-coded context-usage percentage, session cost (USD), and 5h/7d rate-limit percentages.
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
-  - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables.
+  - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables (default: 70% / 85%).
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
-  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 1 / 4 / 8 hours. Fully local, **0 tokens**.
+  - **Easter-egg buddy 🐣:** a golden capybara lives at the end of the status line — it poses (`\(^ww^)/` `~(-oo-)~`), chews, blinks and winks between refreshes, and rotates through **9 moods** driven by your context / cost / rate-limit state, each with its own symbols and quip pool (`♥♥♥ chef's kiss` · `zZz /compact?` · `!?! everything is soup`). It also **earns colour as you work** — gold by default, unlocking coloured symbols, a coloured face, and finally a flowing rainbow as today's API time passes 5 / 15 / 35 minutes. Fully local, **0 tokens**.
 - **Setup & Prerequisites:**
   - Python 3 or Node.js available in PATH.
-  - Install the skill into `~/.claude/skills/claude-code-statusline/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
+  - Install the skill into `~/.claude/skills/statusline-buddy/` (see [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)), then ask Claude **"set up my Claude Code statusline"** — it'll detect your OS and runtime, ask for your sound preference, and wire up the script + `settings.json` automatically.
 
 #### 🐣 Meet your buddy — the golden capybara
 
@@ -63,21 +63,21 @@ Tucked at the end of the status line lives a tiny golden capybara, ported from C
 
 | Context | Eyes | State |
 |---|---|---|
-| < 50% | `^` | happy — `(^oo^)` |
-| 50 – WARN | `·` | awake — `(·oo·)` |
-| WARN – DANGER | `-` | tired — `(-oo-)` |
-| ≥ DANGER | `×` | exhausted — `(×oo×)` |
+| < 35% | `^` | happy — `(^oo^)` / `(^ww^)` |
+| 35% – WARN (70%) | `·` | awake / steady — `(·oo·)` |
+| WARN – DANGER (70%–85%) | `-` | tired — `(-oo-)` |
+| ≥ DANGER (85%) | `×` | exhausted — `(×oo×)` |
 
 **Nine moods** — your session state picks one, and everyday moods rotate through whatever beats are left:
 
 | Mood | When | Symbols | Sample quips |
 |---|---|---|---|
-| `alert` | rate limit ≥ 90% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
-| `fried` | context ≥ DANGER | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
-| `sleepy` | context ≥ WARN | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
-| `rich` | cost ≥ $5 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
-| `cash` | cost ≥ $1 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
-| `happy` | context < 50% (everyday) | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
+| `alert` | rate limit ≥ 75% | `!!!` `! !` `!?!` | breathe, you ok? · go outside, i'll wait · hydrate maybe? |
+| `fried` | context ≥ DANGER (85%) | `×××` `!?!` `@@@` | brain full, send help · /compact. please. · everything is soup |
+| `sleepy` | context ≥ WARN (70%) | `zzz` `zZz` `- - -` | eyelids: heavy · /compact soon? · maybe wrap this one up |
+| `rich` | cost ≥ $1.50 | `$$$` `★★★` `$★$` | simply built different · capy has a corp card · wow. ok. luxury. |
+| `cash` | cost ≥ $0.30 | `$$$` `¢¢¢` | worth every cent · investing in ourselves · the tokens flow |
+| `happy` | context < 35% (everyday) | `♥♥♥` `✧✧✧` `♪♥♪` | you got this · chef's kiss · ship it, friend · big brain hours |
 | `chill` | everyday rotation | `♪♪♪` `. . .` `♪ ♪` | no thoughts, just grass · unbothered. moisturized. · floating along |
 | `snack` | everyday rotation | `*nom*` `*munch*` `°°°` | is that a tangerine? · one (1) melon please · grass o'clock |
 | `silly` | everyday rotation | `^_^` `:3` `owo` `>_<` | capybara.exe running · pro sitting expert · will work for melon |
@@ -87,26 +87,26 @@ Tucked at the end of the status line lives a tiny golden capybara, ported from C
 
 So you'll catch things like `\(^ww^)/ ♥♥♥ proud of you`, `~(-oo-)~ zZz so sleepy`, or `\(×oo×)/ !?! /compact pls`
 
-**Colour tiers — the more you use it today, the flashier it gets**
+**Colour tiers — the more you work today, the flashier it gets**
 
-The buddy starts gold. As **today's cumulative API working time** climbs, it unlocks more colour:
+The buddy starts gold. As **today's cumulative API working time** across all your windows climbs, it unlocks more colour:
 
-| API time today | Tier | Look |
-|---|:--:|---|
-| < 1 h | 1 | all gold — `(^oo^) ♥♥♥` |
-| 1 – 4 h | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) |
-| 4 – 8 h | 3 | **face and symbol** both coloured — pale face, vivid symbol |
-| ≥ 8 h | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock |
+| API time today | Tier | Look | Real-World Work Equivalent |
+|---|:--:|---|---|
+| < 5 min | 1 | all gold — `(^oo^) ♥♥♥` | Just starting / light debugging |
+| 5 – 15 min | 2 | the **symbol** takes the mood's colour (happy pink, chill blue, snack orange…) | ~30m–1h active pair programming |
+| 15 – 35 min | 3 | **face and symbol** both coloured — pale face, vivid symbol | ~1.5h–3h deep coding flow |
+| ≥ 35 min | 4 | the **whole critter goes rainbow**, per character, hue scrolling with the clock | Full heavy coding day / multi-agent grind 🌈 |
 
-- It counts `cost.total_api_duration_ms` — time actually spent calling the API. Leaving a session idle earns you nothing.
-- Note this runs much *slower* than the wall clock for ordinary serial use (roughly 15% of it), but *faster* when you fan out — ten agents running in parallel for a minute bank ten minutes of API time. So tier 4 is really the "I ran a lot of parallel work today" achievement.
-- Each session only knows its own duration, so the daily total is accumulated in `~/.claude/statusline-buddy.json` (`{"date":…,"sessions":{"<session_id>":<ms>}}`), **reset every midnight**.
-- The status line re-renders several times a second, so it **only writes to disk when the current session gains ≥5s of API time** — otherwise it's read-only.
+- It counts `cost.total_api_duration_ms` across all windows and sessions — time actually spent calling the API. Leaving a session idle earns you nothing.
+- Note this runs much *slower* than the wall clock for ordinary serial use (roughly 15% of it), so 35 minutes API time represents a solid heavy coding session.
+- Each session reports its duration, which is accumulated in `~/.claude/statusline-buddy.json` (`{"date":…,"sessions":{"<session_id>":<ms>}}`), **reset every midnight**.
+- Incremental updates are safely synchronized to disk so switching or closing sessions never loses progress.
 - Needs a 256-colour terminal (Windows Terminal, iTerm2, and essentially every modern one qualify).
 
 | Env var | Effect |
 |---|---|
-| `BUDDY_TIERS="60,240,480"` | Minute thresholds that unlock tiers 2 / 3 / 4 |
+| `BUDDY_TIERS="5,15,35"` | Minute thresholds that unlock tiers 2 / 3 / 4 (default: 5, 15, 35) |
 | `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
 | `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |
 
@@ -261,7 +261,7 @@ There are three ways to let Claude Code "learn" these skills — pick whichever 
 
 ### Option A: Just Hand Claude the Link (Recommended — Easiest)
 The least-effort path: paste this repo's URL into Claude Code and let it do the rest — it will read the repo, find the skill you need, and install or run it for you. No manual copying, no path juggling.
-> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `claude-code-statusline` skill for me."
+> "Here's a skills repo: https://github.com/TingdeLiu/Tyndall-Skills — install the `statusline-buddy` skill for me."
 
 ### Option B: Global Registration
 Copy the skill folder to your local Claude Code skills directory. This makes the skill available in all your projects.
