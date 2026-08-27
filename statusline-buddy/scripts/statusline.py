@@ -26,8 +26,24 @@ GREEN = "\033[32m"
 YELL  = "\033[33m"
 RED   = "\033[31m"
 
+try:
+    W = max(4, int(os.environ.get('BAR_WIDTH', '16')))
+except Exception:
+    W = 16
+# █ (U+2588) is East Asian *Ambiguous* and ░ (U+2591) is Narrow, so a terminal
+# that renders ambiguous glyphs double-wide grows the bar as it fills. Windows
+# Terminal and the usual Western terminals draw both narrow, which is why this
+# pair is the default. If yours does widen, set BAR_CELLS="▮▯" — U+25AE and
+# U+25AF are both Narrow, so that pair stays W columns wide in every locale.
+_cells = os.environ.get('BAR_CELLS', '')
+FILL, EMPTY = (_cells[0], _cells[1]) if len(_cells) >= 2 else ("█", "░")
+
 def col(p):
     return GREEN if p < WARN else (YELL if p < DANGER else RED)
+
+def bar(p):
+    f = min(W, round(p) * W // 100)
+    return col(p) + FILL * f + DIM + EMPTY * (W - f) + R
 
 def countdown(ts):
     if not ts: return ""
@@ -239,10 +255,8 @@ def buddy(used, cost, h5, d7, tier):
         out += f" {DIM}{say}{R}"
     return out
 
-# No progress bar: it cost 12-34 columns depending on locale and fill, and the
-# quip at the far right is what got truncated to pay for it. The percentage
-# carries the same signal in 3 columns, colour-coded by the same thresholds.
-ctx = f"{col(used)}{round(used)}%{R}" if used is not None else f"{DIM}--{R}"
+ctx = (f"[{bar(used)}] {DIM}{round(used)}%{R}" if used is not None
+       else f"[{DIM}{EMPTY * W}{R}]")
 
 cost_str = f"  {DIM}${cost:.3f}{R}" if cost is not None else ""
 

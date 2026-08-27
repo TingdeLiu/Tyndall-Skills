@@ -8,7 +8,7 @@ English | [中文](README_CN.md)
 
 | # | Skill | What it does | Needs |
 |:--:|---|---|---|
-| 1 | [**Statusline Buddy**](#1-statusline-buddy-statusline-buddy)<br>`statusline-buddy` | Custom status line — model, context %, session cost, rate limits — plus a completion sound and an animated living golden capybara buddy 🐣 | Python 3 **or** Node |
+| 1 | [**Statusline Buddy**](#1-statusline-buddy-statusline-buddy)<br>`statusline-buddy` | Custom status line — model, context bar, session cost, rate limits — plus a completion sound and an animated living golden capybara buddy 🐣 | Python 3 **or** Node |
 | 2 | [**PDF Compressor**](#2-pdf-compressor-pdf-compressor)<br>`pdf-compressor` | Shrinks oversized PDFs to fit API limits, with four quality presets and automatic backup | Ghostscript |
 | 3 | [**PDF Figure Extractor**](#3-pdf-figure-extractor-pdf-figure-extractor)<br>`pdf-figure-extractor` | Detects and crops figures & tables out of papers using the TF-ID model, with a Markdown index | Conda env + Poppler |
 | 4 | [**English → Chinese Paper PDF**](#4-english-to-chinese-paper-pdf-pdf-e2c)<br>`pdf-e2c` | Rebuilds an English paper as a single-column Chinese PDF, figures/tables/equations cropped from the original | `pymupdf` `reportlab` `pillow` |
@@ -32,7 +32,7 @@ A cross-platform Claude Code enhancement that adds a custom status line and a co
 
 - **Triggers:** "Set up a statusline", "Configure Claude Code statusLine", "Play a sound when Claude finishes", "Statusline buddy", "状态栏宠物", or failures of bash/jq-based statusline scripts.
 - **Key Features:**
-  - Shows model name, colour-coded context-usage percentage, session cost (USD), and 5h/7d rate-limit percentages.
+  - Shows model name, a colour-coded context-usage bar `[████░░░░░░░░░░░░] 25%`, session cost (USD), and 5h/7d rate-limit percentages.
   - Plays a notification sound (Ding / Chime / Beep) via `afplay` on macOS or PowerShell on Windows when Claude finishes a response.
   - Color thresholds configurable via `WARN_PCT` / `DANGER_PCT` environment variables (default: 70% / 85%).
   - Auto-detects Python or Node.js — no `jq` dependency, no Unicode encoding errors.
@@ -106,6 +106,8 @@ The buddy starts gold. As **today's cumulative API working time** across all you
 
 | Env var | Effect |
 |---|---|
+| `BAR_WIDTH=16` | Context bar cells (default 16, minimum 4; drop it on narrow terminals) |
+| `BAR_CELLS="█░"` | The bar's filled / empty glyphs (exactly two chars; use `"▮▯"` if your terminal renders the bar at a changing width) |
 | `BUDDY_TIERS="5,15,35"` | Minute thresholds that unlock tiers 2 / 3 / 4 (default: 5, 15, 35) |
 | `BUDDY_TIER=4` | Pin a tier to preview it (never writes the state file) |
 | `BUDDY_NOW=<int>` | Freeze the animation phase for frame-by-frame debugging |

@@ -24,7 +24,22 @@ process.stdin.on('end', () => {
   const R = '\x1b[0m', BOLD = '\x1b[1m', DIM = '\x1b[2m';
   const CYAN = '\x1b[36m', GREEN = '\x1b[32m', YELLOW = '\x1b[33m', RED = '\x1b[31m';
 
+  let W = parseInt(process.env.BAR_WIDTH || '16', 10);
+  if (isNaN(W) || W < 4) W = 16;
+  // █ (U+2588) is East Asian *Ambiguous* and ░ (U+2591) is Narrow, so a terminal
+  // that renders ambiguous glyphs double-wide grows the bar as it fills. Windows
+  // Terminal and the usual Western terminals draw both narrow, which is why this
+  // pair is the default. If yours does widen, set BAR_CELLS="▮▯" — U+25AE and
+  // U+25AF are both Narrow, so that pair stays W columns wide in every locale.
+  const cells = [...(process.env.BAR_CELLS || '')];
+  const [FILL, EMPTY] = cells.length >= 2 ? cells : ['█', '░'];
+
   const col = p => p < WARN ? GREEN : p < DANGER ? YELLOW : RED;
+
+  const bar = p => {
+    const f = Math.min(W, (p * W / 100) | 0);
+    return col(p) + FILL.repeat(f) + DIM + EMPTY.repeat(W - f) + R;
+  };
 
   const countdown = ts => {
     if (!ts) return '';
@@ -237,10 +252,9 @@ process.stdin.on('end', () => {
     return out;
   };
 
-  // No progress bar: it cost 12-34 columns depending on locale and fill, and the
-  // quip at the far right is what got truncated to pay for it. The percentage
-  // carries the same signal in 3 columns, colour-coded by the same thresholds.
-  const ctx = used != null ? `${col(used)}${Math.round(used)}%${R}` : `${DIM}--${R}`;
+  const ctx = used != null
+    ? `[${bar(used)}] ${DIM}${Math.round(used)}%${R}`
+    : `[${DIM}${EMPTY.repeat(W)}${R}]`;
 
   const costStr = cost != null ? `  ${DIM}$${cost.toFixed(3)}${R}` : '';
 
