@@ -14,9 +14,9 @@ English | [中文](README_CN.md)
 | 4 | [**English → Chinese Paper PDF**](#4-english-to-chinese-paper-pdf-pdf-e2c)<br>`pdf-e2c` | Rebuilds an English paper as a single-column Chinese PDF, figures/tables/equations cropped from the original | `pymupdf` `reportlab` `pillow` |
 | 5 | [**Video Subtitle Extractor**](#5-video-subtitle-extractor-video-subtitle-extractor)<br>`video-subtitle-extractor` | Pulls subtitles off YouTube / Bilibili as plain `.txt` — when you just want the transcript | `yt-dlp` |
 | 6 | [**Video + Bilingual Subtitles**](#6-video-download-with-bilingual-subtitles-video-download)<br>`video-download` | Downloads the video, de-rolls and proofreads the captions, archives it as one `.mkv` with both tracks | `yt-dlp` `node` `ffmpeg` |
-| 7 | [**Project Summary**](#7-project-summary-project-summary)<br>`project-summary` | Reads a repo (URL or local) and writes `architecture.md` with an auto-chosen ASCII architecture diagram | — |
+| 7 | [**Project Summary**](#7-project-summary-project-summary)<br>`project-summary` | Reads a repo (URL or local) and writes `architecture.md`, every diagram rendered twice — Mermaid first, ASCII as fallback | — |
 | 8 | [**Claude-Style HTML**](#8-claude-style-html-claude-html)<br>`claude-html` | Anthropic's visual language as a working design system: two templates, four diagram classes, zero JavaScript | — |
-| 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table | — |
+| 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table — and turns a list of options you can't choose between into a decision you can make | — |
 | 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
@@ -149,15 +149,36 @@ Downloads the video itself, rebuilds its captions, and archives everything as a 
 - **Setup & Prerequisites:** `yt-dlp` (`pip install yt-dlp`), `node`, and `ffmpeg` in PATH. Cookie setup for login-gated videos works the same way as `video-subtitle-extractor` — and the two skills share one cookies folder.
 
 ### 7. Project Summary (`project-summary`)
-Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese, with auto-selected ASCII architecture diagrams.
+Analyzes a GitHub project (URL or local path) and generates a comprehensive `architecture.md` in Simplified Chinese. Every diagram ships twice: a Mermaid version that renders in GitHub / VS Code / Obsidian, and an ASCII version for terminals, PR diffs, and the fine alignment Mermaid can't express.
 
 - **Triggers:** "Analyze this GitHub project", "Generate architecture.md", "Summarize project structure".
 - **Key Features:**
-  - Auto-selects diagram style (pipeline / layered / dependency tree / microservices / request flow / nested components) via a decision tree.
+  - Auto-selects diagram *semantics* (pipeline / layered / dependency tree / microservices / request flow / nested components / tensor-shape flow) via a decision tree — then renders those same semantics in both syntaxes.
+  - **Mermaid-first, ASCII-fallback**: both diagrams describe the identical set of nodes and edges. Defaults to vertical `flowchart TD`, because a 5+ node chain forced into `LR` renders too wide to read.
+  - **Mermaid syntax safety rules** that stop a whole diagram from failing to render — quote every node label, never leave `<`, `>` or `|` bare, and rewrite tokens like `<image>` before they get parsed as HTML.
+  - **Pattern 7 — tensor-shape flow** for ML/deep-learning repos (torch / transformers deps, `model/` `policy/` `networks/` dirs): one diagram per core model, layered on top of the overall architecture, with a shape-verification checklist.
   - Width-adaptive ASCII diagrams (80 / 120 columns) with CJK double-width alignment rules.
   - Produces a structured `architecture.md` covering tech stack, components, data flow, and design decisions.
 - **Setup & Prerequisites:** None — uses only Claude Code's built-in file and shell tools.
-- **Example output (excerpt):**
+- **Example output (excerpt)** — the same architecture, both ways:
+
+  **架构总览（Mermaid）**
+
+```mermaid
+flowchart TD
+    APP["主应用入口<br/>main.py / index.js"]
+    A["模块 A<br/>auth/"]
+    B["模块 B<br/>api/"]
+    U["工具库<br/>utils/"]
+    D["数据库<br/>db/"]
+
+    APP --> A
+    APP --> B
+    A --> U
+    B --> D
+```
+
+  **架构总览（文本细化版）**
 
   ```
   ┌─────────────────────────────────────┐
@@ -193,13 +214,14 @@ A complete design system for producing HTML in Anthropic's / Claude's understate
 ### 9. Plain-Language Explainer (`speak-human`)
 Re-explains jargon-dense content in plain language — one-sentence conclusion, a single everyday analogy carried all the way through, an ASCII diagram, what it means for *your* situation, and a term-mapping table. It changes how something is said, never what it says.
 
-- **Triggers:** "说人话", "讲人话", "听不懂", "太专业了", "用大白话解释", or `/speak-human` to redo the previous reply. Also works on pasted error messages, docs, and paper excerpts.
+- **Triggers:** "说人话", "讲人话", "听不懂", "太专业了", "用大白话解释", or `/speak-human` to redo the previous reply. Also works on pasted error messages, docs, paper excerpts, and contract clauses — and on a set of options an assistant handed back that you don't feel qualified to choose between.
 - **Key Features:**
   - **Fixed five-block output** so nothing important gets dropped — especially the "具体到你这件事" block, without which an analogy floats free and the reader still doesn't know what to do.
+  - **A separate structure for decisions.** When the ball has been passed back to you — "which of these three approaches do you want?" — restating the options isn't enough. This mode names what you are actually deciding, lays the options side by side on the questions you care about (not on parameter names), and marks which roads you can't reverse out of.
   - **Three difficulty levels** that adjust on "还是不懂" (down a level, new analogy) or "不用这么啰嗦" (up a level).
   - Hard language rules: no bare acronyms, one idea per sentence under 30 characters, numbers get a reference point (`300ms` → "about one blink"), no written-register filler.
   - **Accuracy outranks simplicity** — caveats, limits and risks may never be deleted in the name of "keeping it simple", and a distorting analogy has to say where it distorts.
-  - Eight ASCII diagram templates (flow, layers, before/after, loop, timeline, proportion, containment, trade-off) with CJK column-width alignment handled.
+  - Ten ASCII diagram templates (flow, layers, before/after, loop, timeline, proportion, containment, trade-off, **option comparison**, **decision tree**) with CJK column-width alignment handled, plus a picker table that maps what's in the text to which diagram to draw — and tells you when not to draw one.
 - **Setup & Prerequisites:** None.
 
 ### 10. Excalidraw Diagram Generator (`obsidian-excalidraw`)
