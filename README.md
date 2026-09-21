@@ -18,6 +18,7 @@ English | [中文](README_CN.md)
 | 8 | [**Claude-Style HTML**](#8-claude-style-html-claude-html)<br>`claude-html` | Anthropic's visual language as a working design system: two templates, four diagram classes, zero JavaScript | — |
 | 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table — and turns a list of options you can't choose between into a decision you can make | — |
 | 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
+| 11 | [**Quick Paper Summary**](#11-quick-paper-summary-paper-summary-simple)<br>`paper-summary-simple` | Give it a title or a link, get back a structured Chinese summary that leads with what's worth borrowing | — |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -234,6 +235,20 @@ Generates Excalidraw diagrams as Obsidian-ready `.md` files, with first-class su
   - Architecture-aware conventions: tensor shapes annotated at every dimension change, left→right for forward passes, top→bottom for hierarchy, subsystem grouping (System 1/2, train/inference, perception/action).
   - Includes a palette dictionary and a reference library of AI architecture patterns.
 - **Setup & Prerequisites:** Python 3 to run the builder. Obsidian with the Excalidraw plugin to view/edit the result.
+
+---
+
+### 11. Quick Paper Summary (`paper-summary-simple`)
+Hand it a paper title or a link and get back a structured Chinese summary. No PDF, no downloads — it works off what it can fetch from the web, which is what makes it fast enough to run on a whole reading list.
+
+- **Triggers:** "总结这篇论文", "summarize this paper", or simply pasting an arXiv / OpenReview / conference link.
+- **Key Features:**
+  - **Leads with 精华 (the takeaway)** — at most five sentences on what in this paper is actually worth borrowing, before any background. Skim that block and you already know whether to read on.
+  - **Five fixed sections** (精华 → background → method → results → limitations) with deliberately uneven weighting: the method section carries the detail, background and limitations stay at 2-3 sentences.
+  - **Chinese prose, English terms** — model names, datasets, metrics and jargon (VLM, VLN, Transformer, RL) stay in the original so they remain searchable.
+  - **Never invents a venue.** If the fetched page doesn't state where a paper was published, it's treated as a preprint rather than guessed at.
+  - **Publishing-safe output**: figure placeholders that survive kramdown (no blank lines inside `<div>`, ASCII quotes only), plus a MathJax escaping guide for the formula syntax Jekyll silently eats.
+- **Setup & Prerequisites:** None — just network access. For the figures themselves, pair it with [`pdf-figure-extractor`](#3-pdf-figure-extractor-pdf-figure-extractor).
 
 ---
 

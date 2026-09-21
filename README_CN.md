@@ -18,6 +18,7 @@
 | 8 | [**Claude 风格 HTML**](#8-claude-风格-html-claude-html)<br>`claude-html` | 把 Anthropic 的视觉语言做成可用的设计系统：两个模板、四类架构图、零 JavaScript | 无 |
 | 9 | [**说人话**](#9-说人话-speak-human)<br>`speak-human` | 把术语重讲成：一句话结论 + 一个类比 + 一张 ASCII 图 + 一张术语对照表；也把「几个方案挑不下来」变成能拍板的样子 | 无 |
 | 10 | [**Excalidraw 架构图**](#10-excalidraw-架构图生成-obsidian-excalidraw)<br>`obsidian-excalidraw` | 把文本变成 Obsidian 可直接打开的 Excalidraw 图，专攻 AI 模型架构（VLA、Transformer、Diffusion Policy） | Python 3 + Obsidian |
+| 11 | [**论文快速总结**](#11-论文快速总结-paper-summary-simple)<br>`paper-summary-simple` | 给个标题或链接，返回一份开头就讲清「哪里值得借鉴」的中文摘要 | 无 |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -234,6 +235,20 @@ flowchart TD
   - 面向架构图的约定：每次维度变化都标注张量形状，前向过程从左到右、层级关系从上到下，支持子系统分组（System 1/2、训练/推理、感知/动作）。
   - 附带配色字典和一份 AI 架构图范式参考库。
 - **设置与前提条件：** 运行 builder 需要 Python 3。查看和编辑结果需要 Obsidian + Excalidraw 插件。
+
+---
+
+### 11. 论文快速总结 (`paper-summary-simple`)
+丢一个论文标题或一条链接进去，拿回一份结构化中文摘要。不下 PDF、不抽图，全靠网页信息 —— 正因为轻，才能拿来扫一整份阅读清单。
+
+- **触发条件：** “总结这篇论文”、“summarize this paper”，或者直接粘一条 arXiv / OpenReview / 会议链接。
+- **核心功能：**
+  - **开头就是「精华」** —— 最多五句话讲清这篇论文哪里值得借鉴，放在所有背景介绍之前。扫这一段就能决定要不要继续读。
+  - **固定五段结构**（精华 → 背景 → 方法 → 结果 → 局限），且故意分配不均：方法部分承载细节，背景和局限各自压在 2-3 句。
+  - **中文行文，术语保英文** —— 模型名、数据集、指标和术语（VLM、VLN、Transformer、RL）一律留原文，以后还搜得到。
+  - **不臆测 venue。** 抓到的页面没写发表处，就按预印本处理，而不是猜一个会议名字填上。
+  - **输出能直接发出去**：图片占位写法避开了 kramdown 的坑（`<div>` 内不能有空行、只用 ASCII 直引号），另附一份 MathJax 转义指南，专治 Jekyll 默默吃掉公式的那几种写法。
+- **设置与前提条件：** 无 —— 能联网就行。图本身需要抽的话，配合 [`pdf-figure-extractor`](#3-pdf-图表提取器-pdf-figure-extractor) 用。
 
 ---
 
