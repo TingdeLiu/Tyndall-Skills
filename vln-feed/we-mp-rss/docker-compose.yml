@@ -1,0 +1,42 @@
+# we-mp-rss —— 微信公众号转 RSS（替代已失效的 wewe-rss）
+#
+# 为什么换掉 wewe-rss：wewe-rss 把所有请求转发给作者部署的中转
+# https://weread.111965.xyz ，该中转跑在 Deno Deploy Classic 上，
+# 平台 2026-07-20 下线后中转恒定返回 502，扫码/同步全部失效；
+# 项目本身 2026-05-11 已归档，不会再修。
+#
+# we-mp-rss 不走微信读书：driver/wx.py 只连 mp.weixin.qq.com/cgi-bin/home
+# （微信公众平台后台），因此不受微信读书接口封禁影响。
+# 代价是需要用「你自己的微信公众号」扫码登录公众平台（个人订阅号即可，免费注册）。
+#
+# 启动：  cd 此目录后  docker compose up -d
+# 面板：  http://localhost:8001   登录 admin / 下面 PASSWORD 的值
+# 停止：  docker compose down     数据保留在 ./data
+services:
+  we-mp-rss:
+    image: ghcr.io/rachelos/we-mp-rss:latest
+    container_name: we-mp-rss
+    restart: unless-stopped
+    ports:
+      - "8001:8001"           # 8001 与 wewe-rss 的 4000 不冲突
+    environment:
+      - DB=sqlite:///data/we_mp_rss.db
+      - USERNAME=admin
+      - PASSWORD=change-me    # 面板登录密码，首次启动前改成你自己的
+      - TZ=Asia/Shanghai
+      # 采集模式。默认 web 是作者标注的「旧版」，只打 appmsgpublish 一个端点，
+      # 撞上微信频控就直接放弃。auto = free_publish → publish → appmsgpublish
+      # → appmsg 四个端点依次降级，再兜底 Playwright 真实浏览器。
+      # 2026-09-13 改：频控期间四个端点都拿不到数据，但频控恢复后 auto 命中率更高。
+      - GATHER.MODEL=auto
+    volumes:
+      # 必须用 named volume，不能用 ./data 这种 bind mount：
+      # Docker Desktop for Windows 把宿主目录以 9p 文件系统挂进容器，
+      # SQLite 在 9p 上建不了 WAL 所需的 shared-memory 映射，
+      # 一读一写就报 "unable to open database file"（2026-09-05 实测：
+      # 挂载目录连 select 都失败，容器内 /tmp 则 WAL 正常）。
+      # 数据在 Linux VM 内，备份用：docker cp we-mp-rss:/app/data <目标目录>
+      - wemp_data:/app/data
+
+volumes:
+  wemp_data:

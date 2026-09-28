@@ -19,6 +19,7 @@ English | [中文](README_CN.md)
 | 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table — and turns a list of options you can't choose between into a decision you can make | — |
 | 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
 | 11 | [**Quick Paper Summary**](#11-quick-paper-summary-paper-summary-simple)<br>`paper-summary-simple` | Give it a title or a link, get back a structured Chinese summary that leads with what's worth borrowing | — |
+| 12 | [**VLN Research Feed**](#12-vln-research-feed-vln-feed)<br>`vln-feed` | Keeps a deduplicated local library of new VLN / VLA / embodied-navigation work from arXiv and WeChat, and writes each week's haul up as a structured Chinese research digest | Python 3 (+ Docker for WeChat) |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -291,6 +292,21 @@ Hand it a paper title or a link and get back a structured Chinese summary. No PD
   - **Never invents a venue.** If the fetched page doesn't state where a paper was published, it's treated as a preprint rather than guessed at.
   - **Publishing-safe output**: figure placeholders that survive kramdown (no blank lines inside `<div>`, ASCII quotes only), plus a MathJax escaping guide for the formula syntax Jekyll silently eats.
 - **Setup & Prerequisites:** None — just network access. For the figures themselves, pair it with [`pdf-figure-extractor`](#3-pdf-figure-extractor-pdf-figure-extractor).
+
+### 12. VLN Research Feed (`vln-feed`)
+Keeps an incremental local library of the latest embodied-navigation work — VLN, VLA, visual navigation, embodied agents — pulled from arXiv and WeChat official accounts, then turns each week's haul into a structured Chinese research digest. Built for someone doing ground-robot VLN research who needs to know what to read this week, not a news feed.
+
+- **Triggers:** "抓取具身导航最新资料", "更新 VLN 选题库", "分析最近 VLN/VLA 论文", "生成 VLN 周报", "vln-feed".
+- **Key Features:**
+  - **Incremental, deduplicated library** — one Markdown file per item plus an `index.md`; rerunning only adds what's new. Every item is auto-tagged with a **domain** (navigation / embodied agent / VLA-manipulation / driving / other) and the **benchmarks** it reports (R2R-CE, RxR-CE, ObjectNav, HM3D, …), so narrowing down is a `grep` on one field.
+  - **Two tuned arXiv queries** — navigation, and embodied agents / AgentOS — each annotated in `feeds.yaml` with how its noise was measured and trimmed. When arXiv's API starts refusing uncached queries with `406` under load, it falls back to OAI-PMH bulk metadata and matches the same query locally.
+  - **Deep on navigation, shallow on the rest.** VLA-manipulation papers can be three-quarters of a week's arXiv results, so the digest analyses only the navigation + embodied-agent pool in depth (problem / method / evidence / value / limits) and folds everything else into one-line topic roundups. R2R-CE (continuous) and discrete R2R are never mixed.
+  - **Evidence discipline** — "the paper reports…" kept apart from "this report judges…", every link taken from the fetched items rather than from memory, no promotional language. `validate_report.py` blocks a report that is missing a core section or contains images, tables (unreadable on mobile) or bare links.
+  - **WeChat, honestly documented** — feeding article links by hand always works; the self-hosted `we-mp-rss` route is wired up, but WeChat's account-level rate limiting can stall it for weeks. `probe_wechat.py` tells you which state you're in within 5 seconds.
+- **Setup & Prerequisites:**
+  - `pip install -r vln-feed/requirements.txt` (Python 3). The arXiv sources work out of the box.
+  - The library goes to `vln-feed/output/` by default; set `output_dir` in `feeds.yaml` to keep it elsewhere.
+  - WeChat (optional): Docker, plus a WeChat Official Account of your own (a free personal subscription account is enough) to authorize `we-mp-rss`. Change `PASSWORD` in `we-mp-rss/docker-compose.yml` before the first start.
 
 ---
 

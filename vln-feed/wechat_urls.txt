@@ -1,0 +1,7 @@
+# 视觉语言导航公众号 —— 手动文章链接清单
+# 用法：在微信里打开公众号文章 → 右上角「…」→ 复制链接，粘到下面，一行一个。
+# 然后运行： python scripts/fetch_vln.py --urls wechat_urls.txt --no-feeds
+# 已抓过的链接会自动跳过（去重），可反复追加。
+#
+# 示例（请替换成真实链接）：
+# https://mp.weixin.qq.com/s/xxxxxxxxxxxxxxxxxxxx

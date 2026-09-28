@@ -13,3 +13,6 @@ __pycache__/
 Thumbs.db
 .vscode/
 .idea/
+
+# vln-feed: generated library (items, index, reports, dedupe state)
+vln-feed/output/

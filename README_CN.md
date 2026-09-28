@@ -19,6 +19,7 @@
 | 9 | [**说人话**](#9-说人话-speak-human)<br>`speak-human` | 把术语重讲成：一句话结论 + 一个类比 + 一张 ASCII 图 + 一张术语对照表；也把「几个方案挑不下来」变成能拍板的样子 | 无 |
 | 10 | [**Excalidraw 架构图**](#10-excalidraw-架构图生成-obsidian-excalidraw)<br>`obsidian-excalidraw` | 把文本变成 Obsidian 可直接打开的 Excalidraw 图，专攻 AI 模型架构（VLA、Transformer、Diffusion Policy） | Python 3 + Obsidian |
 | 11 | [**论文快速总结**](#11-论文快速总结-paper-summary-simple)<br>`paper-summary-simple` | 给个标题或链接，返回一份开头就讲清「哪里值得借鉴」的中文摘要 | 无 |
+| 12 | [**具身导航资料周报**](#12-具身导航资料周报-vln-feed)<br>`vln-feed` | 从 arXiv 和微信公众号增量收集 VLN / VLA / 具身导航新工作，去重入本地资料库，每周写成一份结构化中文研究周报 | Python 3（公众号另需 Docker） |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -291,6 +292,21 @@ flowchart TD
   - **不臆测 venue。** 抓到的页面没写发表处，就按预印本处理，而不是猜一个会议名字填上。
   - **输出能直接发出去**：图片占位写法避开了 kramdown 的坑（`<div>` 内不能有空行、只用 ASCII 直引号），另附一份 MathJax 转义指南，专治 Jekyll 默默吃掉公式的那几种写法。
 - **设置与前提条件：** 无 —— 能联网就行。图本身需要抽的话，配合 [`pdf-figure-extractor`](#3-pdf-图表提取器-pdf-figure-extractor) 用。
+
+### 12. 具身导航资料周报 (`vln-feed`)
+把具身导航领域（VLN、VLA、视觉导航、具身 Agent）的新工作从 arXiv 和微信公众号收进一个本地增量资料库，再把每周新增写成一份结构化中文研究周报。它服务的是做地面机器人 VLN 研究、想知道「这周该读哪几篇」的人，不是资讯搬运。
+
+- **触发条件：** “抓取具身导航最新资料”、“更新 VLN 选题库”、“分析最近 VLN/VLA 论文”、“生成 VLN 周报”、“vln-feed”。
+- **核心功能：**
+  - **增量去重的资料库** —— 每条一份 Markdown，外加一张 `index.md` 总索引；重复跑只补新条目。每条自动标注**领域**（导航 / 具身Agent / VLA·操作 / 自动驾驶 / 其他）和它报告的**基准**（R2R-CE、RxR-CE、ObjectNav、HM3D……），筛选只需对一个字段 `grep`。
+  - **两条调过噪声的 arXiv 检索** —— 导航一条、具身 Agent / AgentOS 一条，`feeds.yaml` 里逐条注释了噪声怎么实测、怎么收窄的。arXiv API 高负载时会对未缓存检索返回 `406`，这时自动改走 OAI-PMH 拉全量元数据，在本地用同一条检索式匹配。
+  - **导航深读，其余速览。** 一周的 arXiv 结果里纯操作类 VLA 论文可能占到四分之三，所以周报只对「导航 + 具身Agent」主池做深度分析（问题 / 方法 / 证据 / 价值 / 局限），其余按主题压成一行一组。R2R-CE（连续环境）和离散 R2R 绝不混写。
+  - **证据纪律** —— 「论文报告……」与「本报告判断……」分开写，链接只取自已抓条目、不凭记忆补，不用宣传措辞。`validate_report.py` 会拦下缺核心章节、带图片、带表格（手机上难读）或带裸链接的报告。
+  - **公众号接入如实交代** —— 手动喂文章链接始终可用；自建 `we-mp-rss` 的链路已经搭好，但微信的账号级频控可能一卡几周。`probe_wechat.py` 5 秒内告诉你当前处在哪种状态。
+- **设置与前提条件：**
+  - `pip install -r vln-feed/requirements.txt`（Python 3）。arXiv 源开箱即用。
+  - 资料库默认写到 `vln-feed/output/`；想放别处就改 `feeds.yaml` 的 `output_dir`。
+  - 公众号（可选）：需要 Docker，外加一个你自己的微信公众号（免费的个人订阅号即可）给 `we-mp-rss` 扫码授权。首次启动前先改掉 `we-mp-rss/docker-compose.yml` 里的 `PASSWORD`。
 
 ---
 

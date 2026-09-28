@@ -1,0 +1,135 @@
+# vln-feed 资料源配置
+# ---------------------------------------------------------------------------
+# 每个源字段：
+#   name        显示名（必填）
+#   url         RSS / Atom 地址（必填）
+#   type        wechat | arxiv | generic（决定正文抽取方式，默认 generic）
+#   keep_all    true 时不做关键词过滤，全部保留（公众号本身已聚焦时设 true）
+#   enabled     false 可临时停用某个源（默认 true）
+#
+# 关键词过滤（仅对 keep_all=false 的源生效）见底部 keywords 段。
+# ---------------------------------------------------------------------------
+
+# 资料库输出目录（index.md / items/ / seen.json 都放这里）
+# 不填时默认写到技能目录内的 ./output；想放别处就取消注释改成自己的路径。
+# output_dir: D:/Research/vln-feed-output
+
+feeds:
+  # --- 微信公众号（自建 we-mp-rss，见 we-mp-rss/docker-compose.yml） ---------
+  # all.rss 聚合你在 we-mp-rss 面板里订阅的所有公众号。
+  # 步骤：① cd we-mp-rss && docker compose up -d
+  #       ② 打开 http://localhost:8001 登录 admin / <你在 compose 里设的 PASSWORD>
+  #       ③ 用「你自己的微信公众号」扫码授权登录微信公众平台
+  #       ④ 搜索并订阅「视觉语言导航」「具身智能导航」
+  - name: 公众号·具身导航(we-mp-rss)
+    url: http://localhost:8001/feed/all.rss
+    type: wechat
+    keep_all: true
+    enabled: true
+
+  # --- 已停用：wewe-rss（2026-09-05 确认永久失效） ---------------------------
+  # wewe-rss 把所有请求转发给作者部署的中转 https://weread.111965.xyz，
+  # 该中转跑在 Deno Deploy Classic 上，平台 2026-07-20 下线后中转恒返 502
+  # （镜像 weread.965111.xyz 直接返回 DEPLOYMENT_NOT_FOUND），
+  # 扫码登录与同步全部失效；项目本身 2026-05-11 已归档，不会再修。
+  # 中转地址虽可用环境变量 PLATFORM_URL 覆盖，但没有可用的替代部署。
+  - name: 公众号·视觉语言导航(wewe-rss·已失效)
+    url: http://localhost:4000/feeds/all.atom
+    type: wechat
+    keep_all: true
+    enabled: false
+
+  # --- arXiv 具身导航最新论文（开箱即用，无需任何外部服务） ------------------
+  # 覆盖 VLN(视觉语言导航) / VLA(视觉语言动作) / VN(视觉导航) / 具身导航 /
+  # PointNav / 3D-VLM / 导航 agent / 导航数据集与 benchmark。
+  # 2026-07-05 扩充：原先只有 6 个核心短语，一周只能覆盖约 6 天就撞到
+  # max_results=40 的上限（已验证：40 条最早只回溯到 6.3 天前，说明窗口内
+  # 更早的论文其实已经被截断丢失）。扩充后单独测试过每个新词的噪声：
+  # - "point goal navigation" / "PointNav" / "3D vision-language" 噪声很低，直接当独立 OR 项。
+  # - "3D encoder"/"navigation agent"/"navigation dataset"/"navigation benchmark"
+  #   单独用噪声很高（比如 "navigation agent" 会命中代码 agent、web agent），
+  #   所以都用 AND 收窄到 navigation/embodied/robot/VLN/language model/vision-language 语境下。
+  # - "agentic navigation" 单独测试 170 条里前几条全不相关（代码/多智能体控制），已弃用。
+  # - "sim-to-real navigation"/"sim2real navigation" 作为逐字短语实测只有 0~1 条命中，
+  #   现实中 sim2real 导航论文几乎都会同时提到 visual/embodied navigation，已被核心词覆盖，未单列。
+  # 扩充后实测 60 条覆盖约 7~8 天、噪声约 1/60，max_results 相应从 40 提到 100 留足 10 天窗口余量。
+  # 2026-09-19 补漏：实测发现只用上面那批短语会漏掉一整类纯导航论文——
+  #   LEAP(四足导航) / EgoPathBench(导航 benchmark) / UDAV(VLM 航点规划) /
+  #   Harness Robotic OS(具身 Agent 运行时) / GLAM(全局时空记忆) 等，
+  #   同一 10 天窗口内漏了 16 条、其中约 12 条有价值（噪声仅 4 条）。
+  #   原因是 query 只认 visual/embodied/object navigation 这几种固定搭配，而
+  #   robot / social / terrain / legged / egocentric navigation 等说法一个没收。
+  #   本次补齐这些常见搭配，并加入 waypoint（AND embodied/mobile robot/navigation
+  #   收窄，单独用会命中航路点跟踪之类的纯控制论文）。max_results 100 -> 120。
+  # 注意 vision-language-action 仍是无约束分支：它每期带来约 50 条纯操作论文
+  #   （机械臂/力控/灵巧手），占比约 74%。这是用户 2026-09-19 明确选择的「分池而非
+  #   砍掉」——VLA 动态仍要跟，但由 fetch_vln.py 的 detect_domain() 打「领域」标签
+  #   分流，周报只对主池（导航 + 具身Agent）做深度分析。若哪天要收窄，就给这个
+  #   分支 AND 上 (navigation OR embodied OR mobile OR locomotion)。
+  - name: arXiv·具身导航最新
+    url: http://export.arxiv.org/api/query?search_query=%28abs%3A%22vision-and-language%20navigation%22%20OR%20abs%3A%22vision%20language%20navigation%22%20OR%20abs%3A%22embodied%20navigation%22%20OR%20abs%3A%22visual%20navigation%22%20OR%20abs%3A%22object%20navigation%22%20OR%20abs%3A%22vision-language-action%22%20OR%20abs%3A%22point%20goal%20navigation%22%20OR%20abs%3A%22PointNav%22%20OR%20abs%3A%223D%20vision-language%22%20OR%20abs%3A%22robot%20navigation%22%20OR%20abs%3A%22navigation%20policy%22%20OR%20abs%3A%22goal-directed%20navigation%22%20OR%20abs%3A%22social%20navigation%22%20OR%20abs%3A%22topological%20navigation%22%20OR%20abs%3A%22semantic%20navigation%22%20OR%20abs%3A%22map-free%20navigation%22%20OR%20abs%3A%22off-road%20navigation%22%20OR%20abs%3A%22terrain%20navigation%22%20OR%20abs%3A%22indoor%20navigation%22%20OR%20abs%3A%22outdoor%20navigation%22%20OR%20abs%3A%22legged%20navigation%22%20OR%20abs%3A%22quadruped%20navigation%22%20OR%20abs%3A%22humanoid%20navigation%22%20OR%20abs%3A%22egocentric%20navigation%22%20OR%20abs%3A%22waypoint%20prediction%22%20OR%20%28abs%3A%22waypoint%22%20AND%20%28abs%3Aembodied%20OR%20abs%3A%22mobile%20robot%22%20OR%20abs%3Anavigation%29%29%20OR%20%28abs%3A%223D%20encoder%22%20AND%20%28abs%3Anavigation%20OR%20abs%3Aembodied%20OR%20abs%3Arobot%29%29%20OR%20%28abs%3A%22navigation%20agent%22%20AND%20%28abs%3A%22language%20model%22%20OR%20abs%3A%22vision-language%22%29%29%20OR%20%28abs%3A%22navigation%20dataset%22%20AND%20%28abs%3Arobot%20OR%20abs%3Aembodied%20OR%20abs%3AVLN%29%29%20OR%20%28abs%3A%22navigation%20benchmark%22%20AND%20%28abs%3Arobot%20OR%20abs%3Aembodied%20OR%20abs%3AVLN%29%29%29&sortBy=submittedDate&sortOrder=descending&max_results=120
+    type: arxiv
+    keep_all: true
+    enabled: true
+
+  # --- arXiv 具身 Agent / AgentOS（2026-09-19 新增，独立源便于单独调噪） -----
+  # 起因：用户指出资料库全是 VLA，却抓不到具身 Agent / AgentOS 方向。核查属实——
+  # 上面那个导航源的 query 里唯一沾边的是 navigation agent，还被 AND 收窄到必须
+  # 同时提 language model / vision-language；而本文件底部 keywords 里虽然写了
+  # embodied agent，但两个源都是 keep_all: true，fetch_vln.py 的关键词过滤整段被
+  # 跳过（见该文件 `if not keep_all and not matches_keywords`），那批词从未生效。
+  #
+  # 范围为用户 2026-09-19 选定的四类：
+  #   ① 具身 agent 架构 / harness / OS   ② 具身记忆与长期规划
+  #   ③ Agent 化的物体查找与探索          ④ 通用 agent —— 但只收架构性主题
+  # ④ 之所以收窄：完全不限具身的 LLM agent 每周几百篇，会把导航论文挤出
+  #   max_results 窗口（同上，40 条时就被截断过）。故只留 agent OS / runtime /
+  #   harness / memory / 工具编排，且不收 GUI、web、code、SWE agent。
+  #
+  # 两轮实测（09-09~09-17 窗口）：
+  #   第一版不带具身约束，噪声 50%+，且真把主池灌爆了——MUSE 故事引擎（"Theory-
+  #   Harnessed" 误命中 agent harness）、NetOps 运维 agent、ClinAgent 临床对话、
+  #   Theseus 知识图谱「Graph Navigation」、EconSkills web agent 全部涌入。
+  #   第二版（当前）给所有 agent 词 AND 上具身语境，并用 ANDNOT 排掉 web/GUI/coding/
+  #   SWE/知识图谱/RAG/叙事/临床/运维/推荐/文献这些领域，窗口内剩 22 条、噪声约 27%，
+  #   而 Harness Robotic OS、Finder、AeroWeaver、GLAM、RoboFind、DeliveryGym 等
+  #   目标论文一篇没丢。
+  # 代价：纯通用、完全不沾具身的 agent 架构论文会被挡掉（例如「How Do Agent
+  #   Harnesses Create Value?」）。这是刻意取舍——不加具身约束就守不住主池。
+  - name: arXiv·具身Agent/AgentOS
+    url: http://export.arxiv.org/api/query?search_query=%28%28%28abs%3A%22embodied%20agent%22%20OR%20abs%3A%22embodied%20agents%22%20OR%20abs%3A%22agent%20harness%22%20OR%20abs%3A%22agent%20harnesses%22%20OR%20abs%3A%22agent%20runtime%22%20OR%20abs%3A%22embodied-agent%20runtime%22%20OR%20abs%3A%22agent%20operating%20system%22%20OR%20abs%3A%22AgentOS%22%20OR%20abs%3A%22robotic%20OS%22%20OR%20abs%3A%22agent%20memory%22%20OR%20abs%3A%22tool%20orchestration%22%20OR%20abs%3A%22context%20management%22%20OR%20abs%3A%22spatial%20memory%22%20OR%20abs%3A%22episodic%20memory%22%20OR%20%28abs%3A%22agentic%22%20AND%20%28abs%3A%22object%20search%22%20OR%20abs%3A%22object%20finding%22%20OR%20abs%3Aexploration%29%29%20OR%20%28abs%3A%22long-horizon%22%20AND%20abs%3A%22task%20planning%22%29%20OR%20abs%3A%22object%20search%22%20OR%20abs%3A%22object%20finding%22%20OR%20abs%3A%22active%20exploration%22%29%20AND%20%28abs%3Aembodied%20OR%20abs%3Arobot%20OR%20abs%3Arobotic%20OR%20abs%3Anavigation%20OR%20abs%3Amanipulation%20OR%20abs%3A%22mobile%20robot%22%29%29%20ANDNOT%20%28abs%3A%22web%20agent%22%20OR%20abs%3A%22GUI%20agent%22%20OR%20abs%3A%22coding%20agent%22%20OR%20abs%3A%22SWE-agent%22%20OR%20abs%3A%22software%20engineering%22%20OR%20abs%3A%22knowledge%20graph%22%20OR%20abs%3A%22retrieval-augmented%22%20OR%20abs%3A%22RAG%22%20OR%20abs%3A%22story%22%20OR%20abs%3A%22narrative%22%20OR%20abs%3A%22clinical%22%20OR%20abs%3A%22NetOps%22%20OR%20abs%3A%22recommendation%22%20OR%20abs%3A%22search%20index%22%20OR%20abs%3A%22scientific%20literature%22%29%29&sortBy=submittedDate&sortOrder=descending&max_results=80
+    type: arxiv
+    keep_all: true
+    enabled: true
+
+# 关键词过滤：标题或摘要命中任意一个即保留（大小写不敏感）
+# 范围 = 具身导航整体：VLN / VLA / VN / 具身导航 等。
+keywords:
+  - vision-and-language navigation
+  - vision language navigation
+  - VLN
+  - vision-language-action
+  - VLA
+  - embodied navigation
+  - embodied agent
+  - visual navigation
+  - object navigation
+  - objectnav
+  - pointgoal
+  - point goal navigation
+  - PointNav
+  - imagenav
+  - instruction following
+  - REVERIE
+  - habitat
+  - 3D vision-language
+  - 3D encoder
+  - navigation agent
+  - navigation dataset
+  - navigation benchmark
+  - 视觉语言导航
+  - 视觉语言动作
+  - 具身导航
+  - 具身智能
+  - 视觉导航
+  - 导航
