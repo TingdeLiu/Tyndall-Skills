@@ -198,7 +198,7 @@ tags: [excalidraw]
   - ≥6 行：直接升级子框（见下文「内容多怎么办」）
 - `roundness: {type: 3}`（圆角矩形）
 
-参考已有图：`OpenVLA.md` 的 Vision Encoder 盒、`NavDP架构.md` 的 RGB编码器盒。
+参考 [references/ai-architecture-patterns.md](references/ai-architecture-patterns.md) §1 的模块盒 JSON（§1.1 Vision Encoder 盒是完整示例）。
 
 #### 文字宽度估算（避免溢出）
 
@@ -401,7 +401,7 @@ def subbox(rect_id, txt_id, x, y, w, h, stroke, fill, text_content, idx_rect, id
 - **z 轴**：分组框用最早的索引（如 `a1`），子模块用之后的（`a2, a3, ...`）。**禁止用末字符为 `0` 的索引**（见 §7.4）
 - 顶部贴标题文本：`System 2: 高层规划「Slow, 2 Hz」`
 
-参考：`InternVLA-N1.md` 的 DualVLN 双系统框。
+参考 [references/ai-architecture-patterns.md](references/ai-architecture-patterns.md) §2 子系统分组框的 JSON。
 
 ### 3.6 重复块与跳连
 
@@ -433,7 +433,7 @@ def subbox(rect_id, txt_id, x, y, w, h, stroke, fill, text_content, idx_rect, id
 - 🚀 **推理流程** — 多阶段步骤（Stage 1/2/3）
 - ⚙️ **训练**（可选）— 损失函数、数据集
 
-每张图保留 ≥1 个侧栏（参考 `NavDP架构.md`）。
+每张图保留 ≥1 个侧栏（JSON 见 [references/ai-architecture-patterns.md](references/ai-architecture-patterns.md) §7 侧栏卡片）。
 
 ### 3.9 AI 架构图常用图标库
 

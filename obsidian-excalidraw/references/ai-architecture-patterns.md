@@ -371,7 +371,7 @@ CoT 分支、条件路由用：
          [Robot 30 Hz]                       y: 940
 ```
 
-参考实例：`InternVLA-N1.md`。
+典型实例：InternVLA-N1 的 DualVLN 双系统结构。
 
 ---
 
