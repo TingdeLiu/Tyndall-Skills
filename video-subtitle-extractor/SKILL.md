@@ -1,6 +1,6 @@
 ---
 name: video-subtitle-extractor
-description: Extract and save subtitles from video URLs as plain .txt files. Supports Bilibili (B站) and YouTube. Use when the user provides a Bilibili or YouTube video link and asks to extract, download, or save subtitles/captions. Triggers on phrases like "提取字幕", "下载字幕", "extract subtitles", "get subtitles", or when a bilibili.com / youtube.com / youtu.be URL is provided with a subtitle-related request.
+description: Extract and save subtitles from video URLs as plain .txt files. Supports Bilibili (B站) and YouTube. Use when the user provides a Bilibili or YouTube video link and asks to extract, download, or save subtitles/captions. Triggers on phrases like "提取字幕", "下载字幕", "extract subtitles", "get subtitles", or when a bilibili.com / youtube.com / youtu.be URL is provided with a subtitle-related request. For the video file itself, watchable bilingual subtitles, or proofreading machine-translated captions, use video-download instead.
 ---
 
 # Video Subtitle Extractor
@@ -8,6 +8,16 @@ description: Extract and save subtitles from video URLs as plain .txt files. Sup
 Extract subtitles from Bilibili or YouTube videos and save as plain `.txt` files.
 
 **Requires:** `yt-dlp` installed (`pip install yt-dlp`)
+
+## Not this skill
+
+This one produces a **plain-text transcript** — one language, no timestamps, no video.
+It does not de-roll rolling auto-captions and does not proofread anything.
+
+Use **video-download** instead when the user wants the video file, wants subtitles
+they can actually watch (`.srt` / `.mkv` with bilingual tracks), or wants the machine
+translation corrected. Its `fetch` step covers everything this skill does, so the only
+reason to stay here is that a `.txt` is all that's wanted.
 
 ## Workflow
 
@@ -55,10 +65,15 @@ extension, then pass the file:
 python scripts/extract_subtitles.py "<URL>" --cookies "path/to/cookies.txt"
 ```
 
-Store the cookies file in the `video-subtitle-extractor/cookies/` directory (e.g. `video-subtitle-extractor/cookies/www.youtube.com_cookies.txt`) and it will be automatically detected by the script.
+Or drop it in this skill's `cookies/` directory and the script picks it up without `--cookies`. Only these exact names are recognised — anything else in the folder is ignored:
+
+- YouTube: `www.youtube.com_cookies.txt` or `youtube.com_cookies.txt`
+- Bilibili: `www.bilibili.com_cookies.txt` or `bilibili.com_cookies.txt`
 
 > **Note:** `--cookies-from-browser chrome` fails when Chrome is running (database locked).
 > `--cookies-from-browser edge` fails on Windows due to DPAPI encryption. Use a cookies.txt file instead.
+
+Cookies expire. When a fetch that used to work starts demanding sign-in, re-export over the same file.
 
 ## Troubleshooting
 

@@ -177,7 +177,7 @@
   - **依赖项：** `pip install yt-dlp`。
   - **Cookie 设置（可选）：** 若要提取需登录或大会员可见的视频字幕：
     1. 使用浏览器扩展（如“Get cookies.txt LOCALLY”）导出你的 Cookie。
-    2. 将下载好的 Cookie 文件直接放入 `video-subtitle-extractor/cookies` 文件夹即可（无需改名）。
+    2. 将下载好的 Cookie 文件放入 `video-subtitle-extractor/cookies` 文件夹，保留扩展默认的文件名 `www.youtube.com_cookies.txt` 或 `www.bilibili.com_cookies.txt`。其他文件名会被忽略。
   - 确保 `yt-dlp` 在你的环境中可以访问。
 
 ### 6. 视频下载与双语字幕 (`video-download`)

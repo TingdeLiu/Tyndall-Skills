@@ -177,7 +177,7 @@ Extracts and saves subtitles from Bilibili and YouTube videos as plain `.txt` fi
   - **Dependency:** `pip install yt-dlp`.
   - **Cookie Setup (Optional):** To extract subtitles from login-gated or members-only videos:
     1. Use a browser extension (e.g., "Get cookies.txt LOCALLY") to export your cookies.
-    2. Save the downloaded cookie file directly into the `video-subtitle-extractor/cookies` folder (no renaming necessary).
+    2. Save the downloaded cookie file into the `video-subtitle-extractor/cookies` folder under the extension's default name — `www.youtube.com_cookies.txt` or `www.bilibili.com_cookies.txt`. Files with any other name are ignored.
   - Ensure `yt-dlp` is accessible in your environment.
 
 ### 6. Video Download with Bilingual Subtitles (`video-download`)
