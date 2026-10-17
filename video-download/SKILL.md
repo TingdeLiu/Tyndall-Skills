@@ -1,6 +1,6 @@
 ---
 name: video-download
-description: Download a video with proofread bilingual subtitles, archived as a single .mkv. Use when the user wants the video file itself, wants watchable bilingual subtitles, or asks to fix machine-translated captions — usually alongside a YouTube/Bilibili URL ("下载视频", "双语字幕", "校对字幕"). For a plain-text transcript and no video, use video-subtitle-extractor instead.
+description: Download a video with proofread bilingual subtitles, archived as a single .mkv. Use when the user wants the video file itself, wants watchable bilingual subtitles, or asks to fix machine-translated captions — usually alongside a YouTube/Bilibili URL ("下载视频", "双语字幕", "校对字幕"). For Chinese dubbing or a Chinese-localized video with a new audio track, use video-localize. For a plain-text transcript and no video, use video-subtitle-extractor instead.
 ---
 
 # Video Download

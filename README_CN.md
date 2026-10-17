@@ -20,6 +20,7 @@
 | 10 | [**Excalidraw 架构图**](#10-excalidraw-架构图生成-obsidian-excalidraw)<br>`obsidian-excalidraw` | 把文本变成 Obsidian 可直接打开的 Excalidraw 图，专攻 AI 模型架构（VLA、Transformer、Diffusion Policy） | Python 3 + Obsidian |
 | 11 | [**论文快速总结**](#11-论文快速总结-paper-summary-simple)<br>`paper-summary-simple` | 给个标题或链接，返回一份开头就讲清「哪里值得借鉴」的中文摘要 | 无 |
 | 12 | [**具身导航资料周报**](#12-具身导航资料周报-vln-feed)<br>`vln-feed` | 从 arXiv 和微信公众号增量收集 VLN / VLA / 具身导航新工作，去重入本地资料库，每周写成一份结构化中文研究周报 | Python 3（公众号另需 Docker） |
+| 13 | [**视频中文本地化**](#13-视频中文本地化-video-localize)<br>`video-localize` | 校对中文字幕、生成中文配音，制作可切换中文与原声音轨的视频 | `yt-dlp` `node` `ffmpeg`（配音另需 IndexTTS-2.5） |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -309,6 +310,16 @@ flowchart TD
   - 公众号（可选）：需要 Docker，外加一个你自己的微信公众号（免费的个人订阅号即可）给 `we-mp-rss` 扫码授权。首次启动前先改掉 `we-mp-rss/docker-compose.yml` 里的 `PASSWORD`。
 
 ---
+
+### 13. 视频中文本地化 (`video-localize`)
+
+把 YouTube / Bilibili 视频制作成中文版本：校对中文字幕、按需生成中文配音，输出保留原声和中英字幕的 `.mkv`。另存可编辑的 `.srt` 字幕，方便继续剪辑和制作。
+
+- **选 `video-download`：** 主要想下载视频，或整理双语字幕。
+- **选 `video-localize`：** 想制作带中文音频的视频，用于观看或后续内容制作。
+- **使用示例：** “把这个 YouTube 视频做成中文字幕和中文配音版本：<链接>”。
+- **依赖：** `yt-dlp`、`node`、`ffmpeg`；配音另需单独安装 IndexTTS-2.5 环境及模型。配置方法见[技能说明](video-localize/SKILL.md)。
+
 
 ## 如何将技能添加到 Claude Code
 

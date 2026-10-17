@@ -1,0 +1,5 @@
+tts.json
+cookies/
+__pycache__/
+*.py[cod]
+.venv/

@@ -20,6 +20,7 @@ English | [中文](README_CN.md)
 | 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
 | 11 | [**Quick Paper Summary**](#11-quick-paper-summary-paper-summary-simple)<br>`paper-summary-simple` | Give it a title or a link, get back a structured Chinese summary that leads with what's worth borrowing | — |
 | 12 | [**VLN Research Feed**](#12-vln-research-feed-vln-feed)<br>`vln-feed` | Keeps a deduplicated local library of new VLN / VLA / embodied-navigation work from arXiv and WeChat, and writes each week's haul up as a structured Chinese research digest | Python 3 (+ Docker for WeChat) |
+| 13 | [**Chinese Video Localization**](#13-chinese-video-localization-video-localize)<br>`video-localize` | Creates a Chinese-localized video with proofread subtitles and optional Chinese dubbing; retains original audio | `yt-dlp` `node` `ffmpeg` (+ IndexTTS-2.5 for dubbing) |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -309,6 +310,16 @@ Keeps an incremental local library of the latest embodied-navigation work — VL
   - WeChat (optional): Docker, plus a WeChat Official Account of your own (a free personal subscription account is enough) to authorize `we-mp-rss`. Change `PASSWORD` in `we-mp-rss/docker-compose.yml` before the first start.
 
 ---
+
+### 13. Chinese Video Localization (`video-localize`)
+
+Turns a YouTube / Bilibili video into a Chinese-localized version: proofread Chinese subtitles, optional Chinese dubbing, and an `.mkv` retaining the original audio and bilingual subtitles. Separate `.srt` files remain editable for further production.
+
+- **Choose `video-download`** when you want to download the video and optionally prepare bilingual subtitles.
+- **Choose `video-localize`** when you want Chinese audio and a localized video for viewing or further editing.
+- **Example:** "Localize this YouTube video with Chinese subtitles and Chinese dubbing: <URL>".
+- **Requirements:** `yt-dlp`, `node`, `ffmpeg`; dubbing additionally requires a separately installed IndexTTS-2.5 environment and model weights. See [the skill instructions](video-localize/SKILL.md) for setup.
+
 
 ## How to Add Skills to Claude Code
 
