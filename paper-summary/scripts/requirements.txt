@@ -1,0 +1,18 @@
+# Paper Summary Scripts Dependencies
+
+# PDF processing
+pdf2image>=1.16.0
+
+# Image processing
+Pillow>=10.0.0
+
+# TF-ID model (figure and table detection)
+# Note: transformers 4.50+ has compatibility issues with Florence2
+# Use 4.45.0 to avoid GenerationMixin errors
+transformers==4.45.0
+torch>=2.0.0
+timm>=0.9.0
+einops>=0.7.0
+
+# Optional: for faster processing
+# accelerate>=0.20.0

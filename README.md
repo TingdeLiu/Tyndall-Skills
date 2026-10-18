@@ -21,6 +21,8 @@ English | [中文](README_CN.md)
 | 11 | [**Quick Paper Summary**](#11-quick-paper-summary-paper-summary-simple)<br>`paper-summary-simple` | Give it a title or a link, get back a structured Chinese summary that leads with what's worth borrowing | — |
 | 12 | [**VLN Research Feed**](#12-vln-research-feed-vln-feed)<br>`vln-feed` | Keeps a deduplicated local library of new VLN / VLA / embodied-navigation work from arXiv and WeChat, and writes each week's haul up as a structured Chinese research digest | Python 3 (+ Docker for WeChat) |
 | 13 | [**Chinese Video Localization**](#13-chinese-video-localization-video-localize)<br>`video-localize` | Creates a Chinese-localized video with proofread subtitles and optional Chinese dubbing; retains original audio | `yt-dlp` `node` `ffmpeg` (+ IndexTTS-2.5 for dubbing) |
+| 14 | [**Design System Migration**](#14-design-system-migration-claude-design-to-open-design)<br>`claude-design-to-open-design` | Converts a Claude Design export into an Open Design package and companion skill, with a Windows installer | Windows PowerShell + running Open Design |
+| 15 | [**Paper Summary with Figures**](#15-paper-summary-with-figures-paper-summary)<br>`paper-summary` | Reads a PDF, extracts selected figures, explains methods in Chinese, and archives Markdown with its images | Python + Poppler + TF-ID; FFmpeg optional |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -320,6 +322,27 @@ Turns a YouTube / Bilibili video into a Chinese-localized version: proofread Chi
 - **Example:** "Localize this YouTube video with Chinese subtitles and Chinese dubbing: <URL>".
 - **Requirements:** `yt-dlp`, `node`, `ffmpeg`; dubbing additionally requires a separately installed IndexTTS-2.5 environment and model weights. See [the skill instructions](video-localize/SKILL.md) for setup.
 
+
+### 14. Design System Migration (`claude-design-to-open-design`)
+
+Converts a Claude Design design-system export into two Open Design resources: a design-system package for tokens and guidelines, and a companion skill for components, templates and assets.
+
+- Preserves source values, provenance, intentional gaps and multiple visual surfaces.
+- Includes token mapping guidance, package contracts, troubleshooting notes and a Windows installer that checks workspace visibility.
+- **Requires:** Windows PowerShell 5.1+ and a running Open Design desktop app. Local API contracts are version-dependent; inspect the installed schema before conversion.
+- **Example:** “Convert this Claude Design export for Open Design and package it for someone else to install.”
+- See [the skill](claude-design-to-open-design/SKILL.md). No brand assets are bundled.
+
+### 15. Paper Summary with Figures (`paper-summary`)
+
+The PDF-based companion to `paper-summary-simple`: reads the full paper, selects figure pages, explains the method in Chinese and produces a local Markdown note with its images.
+
+- Leads with transferable takeaways; explains modules as input → processing → output, with small examples or diagrams for difficult concepts.
+- Uses TF-ID to crop selected figures and tables, then renames and archives the chosen images with the summary.
+- Supports a dry run and guarded working-directory cleanup. Optional lossless WebP replaces PNG only when decoded pixels match and the file is smaller.
+- **Requires:** Python 3.10+, Poppler and the bundled model dependencies for extraction. Archiving uses the Python standard library; FFmpeg is optional.
+- **Example:** “Summarize this PDF in Chinese with key original figures and save it to my notes folder.”
+- Start with [the quickstart](paper-summary/QUICKSTART.md); detailed instructions are in [the skill](paper-summary/SKILL.md).
 
 ## How to Add Skills to Claude Code
 

@@ -21,6 +21,8 @@
 | 11 | [**论文快速总结**](#11-论文快速总结-paper-summary-simple)<br>`paper-summary-simple` | 给个标题或链接，返回一份开头就讲清「哪里值得借鉴」的中文摘要 | 无 |
 | 12 | [**具身导航资料周报**](#12-具身导航资料周报-vln-feed)<br>`vln-feed` | 从 arXiv 和微信公众号增量收集 VLN / VLA / 具身导航新工作，去重入本地资料库，每周写成一份结构化中文研究周报 | Python 3（公众号另需 Docker） |
 | 13 | [**视频中文本地化**](#13-视频中文本地化-video-localize)<br>`video-localize` | 校对中文字幕、生成中文配音，制作可切换中文与原声音轨的视频 | `yt-dlp` `node` `ffmpeg`（配音另需 IndexTTS-2.5） |
+| 14 | [**设计系统迁移**](#14-设计系统迁移-claude-design-to-open-design)<br>`claude-design-to-open-design` | 将 Claude Design 导出转换成 Open Design 设计系统包与配套技能，附 Windows 安装器 | Windows PowerShell + 运行中的 Open Design |
+| 15 | [**论文精读与配图归档**](#15-论文精读与配图归档-paper-summary)<br>`paper-summary` | 阅读 PDF、按关键页抽图、中文讲解方法，归档 Markdown 与图片 | Python + Poppler + TF-ID；FFmpeg 可选 |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -320,6 +322,27 @@ flowchart TD
 - **使用示例：** “把这个 YouTube 视频做成中文字幕和中文配音版本：<链接>”。
 - **依赖：** `yt-dlp`、`node`、`ffmpeg`；配音另需单独安装 IndexTTS-2.5 环境及模型。配置方法见[技能说明](video-localize/SKILL.md)。
 
+
+### 14. 设计系统迁移 (`claude-design-to-open-design`)
+
+将 Claude Design 导出的设计系统转换成 Open Design 的两份资源：设计系统包保存 token 和品牌规范，配套技能保存组件、模板和素材。
+
+- 保留源数值、出处、故意留空的内容，以及不同视觉表面的区别。
+- 附 token 映射、包契约、踩坑记录和 Windows 安装器；安装后检查当前 workspace 中是否可见。
+- **依赖：** Windows PowerShell 5.1+ 和运行中的 Open Design 桌面版。本地接口可能随版本变化，转换前核对当前 schema。
+- **示例：** “把这个 Claude Design 导出包转换到 Open Design，并做成给别人安装的压缩包。”
+- 详见[技能说明](claude-design-to-open-design/SKILL.md)。仓库不附带品牌素材。
+
+### 15. 论文精读与配图归档 (`paper-summary`)
+
+`paper-summary-simple` 的 PDF 精读搭档：阅读全文、选择关键图所在页、中文讲清方法，再生成图片齐备的本地 Markdown 笔记。
+
+- 开头提炼可迁移的思想；按“输入 → 处理 → 输出”拆解模块，用小例子或图解解释难点。
+- 用 TF-ID 检测并裁出关键页的图表，按论文名重命名，与摘要一起归档。
+- 支持预演及工作目录清理守卫；可选无损 WebP，仅在解码像素一致且体积更小时替换 PNG。
+- **依赖：** 抽图需要 Python 3.10+、Poppler 和随包列出的模型依赖；归档脚本只用标准库，FFmpeg 可选。
+- **示例：** “精读这份 PDF，生成带关键原图的中文摘要，保存到我的笔记目录。”
+- 从[快速开始](paper-summary/QUICKSTART.md)安装环境，完整写作流程见[技能说明](paper-summary/SKILL.md)。
 
 ## 如何将技能添加到 Claude Code
 
