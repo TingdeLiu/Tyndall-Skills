@@ -16,7 +16,7 @@ English | [中文](README_CN.md)
 | 6 | [**Video + Bilingual Subtitles**](#6-video-download-with-bilingual-subtitles-video-download)<br>`video-download` | Downloads the video, de-rolls and proofreads the captions, archives it as one `.mkv` with both tracks | `yt-dlp` `node` `ffmpeg` |
 | 7 | [**Project Summary**](#7-project-summary-project-summary)<br>`project-summary` | Reads a repo (URL or local) and writes `architecture.md`, every diagram rendered twice — Mermaid first, ASCII as fallback | — |
 | 8 | [**Claude-Style HTML**](#8-claude-style-html-claude-html)<br>`claude-html` | Anthropic's visual language as a working design system: two templates, four diagram classes, zero JavaScript | — |
-| 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Re-explains jargon as one conclusion + one analogy + an ASCII diagram + a term-mapping table — and turns a list of options you can't choose between into a decision you can make | — |
+| 9 | [**Plain-Language Explainer**](#9-plain-language-explainer-speak-human)<br>`speak-human` | Explains development results, diagnoses and technical choices in terms of the user's project, preserving evidence and uncertainty | — |
 | 10 | [**Excalidraw Diagrams**](#10-excalidraw-diagram-generator-obsidian-excalidraw)<br>`obsidian-excalidraw` | Turns text into Obsidian-ready Excalidraw diagrams, tuned for AI model architectures (VLA, Transformer, Diffusion Policy) | Python 3 + Obsidian |
 | 11 | [**Quick Paper Summary**](#11-quick-paper-summary-paper-summary-simple)<br>`paper-summary-simple` | Give it a title or a link, get back a structured Chinese summary that leads with what's worth borrowing | — |
 | 12 | [**VLN Research Feed**](#12-vln-research-feed-vln-feed)<br>`vln-feed` | Keeps a deduplicated local library of new VLN / VLA / embodied-navigation work from arXiv and WeChat, and writes each week's haul up as a structured Chinese research digest | Python 3 (+ Docker for WeChat) |
@@ -260,16 +260,16 @@ A complete design system for producing HTML in Anthropic's / Claude's understate
 - **Setup & Prerequisites:** None for the HTML itself. The OpenSpec harvester needs Python 3 and an OpenSpec-managed project.
 
 ### 9. Plain-Language Explainer (`speak-human`)
-Re-explains jargon-dense content in plain language — one-sentence conclusion, a single everyday analogy carried all the way through, an ASCII diagram, what it means for *your* situation, and a term-mapping table. It changes how something is said, never what it says.
+Explains technical replies in terms of what happened, why it matters to the user's project, and whether they need to act or decide. Especially useful after development or debugging, when the assistant knows the implementation details but the user does not.
 
-- **Triggers:** "说人话", "讲人话", "听不懂", "太专业了", "用大白话解释", or `/speak-human` to redo the previous reply. Also works on pasted error messages, docs, paper excerpts, and contract clauses — and on a set of options an assistant handed back that you don't feel qualified to choose between.
+- **Triggers:** "说人话", "讲人话", "听不懂", "太专业了", "用大白话解释", "再简单点", or `/speak-human` to redo the previous reply. Also applies when first explaining development results, diagnoses or technical choices to users unfamiliar with the implementation, and to pasted errors or technical passages.
 - **Key Features:**
-  - **Fixed five-block output** so nothing important gets dropped — especially the "具体到你这件事" block, without which an analogy floats free and the reader still doesn't know what to do.
-  - **A separate structure for decisions.** When the ball has been passed back to you — "which of these three approaches do you want?" — restating the options isn't enough. This mode names what you are actually deciding, lays the options side by side on the questions you care about (not on parameter names), and marks which roads you can't reverse out of.
-  - **Three difficulty levels** that adjust on "还是不懂" (down a level, new analogy) or "不用这么啰嗦" (up a level).
-  - Hard language rules: no bare acronyms, one idea per sentence under 30 characters, numbers get a reference point (`300ms` → "about one blink"), no written-register filler.
-  - **Accuracy outranks simplicity** — caveats, limits and risks may never be deleted in the name of "keeping it simple", and a distorting analogy has to say where it distorts.
-  - Ten ASCII diagram templates (flow, layers, before/after, loop, timeline, proportion, containment, trade-off, **option comparison**, **decision tree**) with CJK column-width alignment handled, plus a picker table that maps what's in the text to which diagram to draw — and tells you when not to draw one.
+  - **Development summaries lead with observable behavior:** the original problem, the change, its effect, and what has actually been verified. Code changes, passing checks, real-use validation and deployment remain distinct.
+  - **Content follows the user's need:** understanding a result, explaining a problem, performing an action or choosing an option. No mandatory tutorial or invented next task.
+  - **Detail and length adjust independently:** a shorter answer keeps the same accessible language; an unclear answer gets missing context or a concrete example.
+  - **Technical names serve a purpose:** preserve exact paths, commands and terms needed for action or verification, while keeping unrelated implementation details out of the main explanation.
+  - **Evidence stays intact:** preserve uncertainty and limitations, correct known errors explicitly, and never invent measurements, paths, timelines or success criteria to make an explanation sound concrete.
+  - Optional analogies, tables and compact text diagrams, with examples of development summaries, uncertain diagnoses, user actions and technical choices.
 - **Setup & Prerequisites:** None.
 
 ### 10. Excalidraw Diagram Generator (`obsidian-excalidraw`)
