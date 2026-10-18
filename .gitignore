@@ -16,3 +16,6 @@ Thumbs.db
 
 # vln-feed: generated library (items, index, reports, dedupe state)
 vln-feed/output/
+
+# xiaohongshu: generated cards and phone previews
+xiaohongshu/output/

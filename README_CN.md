@@ -23,6 +23,7 @@
 | 13 | [**视频中文本地化**](#13-视频中文本地化-video-localize)<br>`video-localize` | 校对中文字幕、生成中文配音，制作可切换中文与原声音轨的视频 | `yt-dlp` `node` `ffmpeg`（配音另需 IndexTTS-2.5） |
 | 14 | [**设计系统迁移**](#14-设计系统迁移-claude-design-to-open-design)<br>`claude-design-to-open-design` | 将 Claude Design 导出转换成 Open Design 设计系统包与配套技能，附 Windows 安装器 | Windows PowerShell + 运行中的 Open Design |
 | 15 | [**论文精读与配图归档**](#15-论文精读与配图归档-paper-summary)<br>`paper-summary` | 阅读 PDF、按关键页抽图、中文讲解方法，归档 Markdown 与图片 | Python + Poppler + TF-ID；FFmpeg 可选 |
+| 16 | [**小红书文案与配图**](#16-小红书文案与配图-xiaohongshu)<br>`xiaohongshu` | 撰写文案、脚本检查字数，生成 3:4 竖版图与手机尺寸预览 | Python + Pillow；图表另需 Matplotlib |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -343,6 +344,16 @@ flowchart TD
 - **依赖：** 抽图需要 Python 3.10+、Poppler 和随包列出的模型依赖；归档脚本只用标准库，FFmpeg 可选。
 - **示例：** “精读这份 PDF，生成带关键原图的中文摘要，保存到我的笔记目录。”
 - 从[快速开始](paper-summary/QUICKSTART.md)安装环境，完整写作流程见[技能说明](paper-summary/SKILL.md)。
+
+### 16. 小红书文案与配图 (`xiaohongshu`)
+
+把源材料整理成小红书中文文案和 1080×1440 竖版配图，尤其适合论文解析与开源项目介绍。
+
+- 包含 UTF-16 长度检查、封面/图文/条形图模板、可配置中文字体，以及独立手机尺寸预览。
+- 区分原文证据、个人判断和研究设想；不会自动发帖，也不承诺流量。
+- **依赖：** Python 3.10+、Pillow；图表另需 Matplotlib，本机需有中文字体。字数检查只用标准库。
+- **示例：** “把这个项目介绍整理成小红书文案，并生成配套图片。”
+- 从[快速开始](xiaohongshu/QUICKSTART.md)运行自带的三页演示，演示数值明确标注为虚构。
 
 ## 如何将技能添加到 Claude Code
 

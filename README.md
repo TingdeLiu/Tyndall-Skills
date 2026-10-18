@@ -23,6 +23,7 @@ English | [中文](README_CN.md)
 | 13 | [**Chinese Video Localization**](#13-chinese-video-localization-video-localize)<br>`video-localize` | Creates a Chinese-localized video with proofread subtitles and optional Chinese dubbing; retains original audio | `yt-dlp` `node` `ffmpeg` (+ IndexTTS-2.5 for dubbing) |
 | 14 | [**Design System Migration**](#14-design-system-migration-claude-design-to-open-design)<br>`claude-design-to-open-design` | Converts a Claude Design export into an Open Design package and companion skill, with a Windows installer | Windows PowerShell + running Open Design |
 | 15 | [**Paper Summary with Figures**](#15-paper-summary-with-figures-paper-summary)<br>`paper-summary` | Reads a PDF, extracts selected figures, explains methods in Chinese, and archives Markdown with its images | Python + Poppler + TF-ID; FFmpeg optional |
+| 16 | [**Xiaohongshu Copy and Cards**](#16-xiaohongshu-copy-and-cards-xiaohongshu)<br>`xiaohongshu` | Drafts Chinese posts, checks text length, and renders 3:4 image cards with phone previews | Python + Pillow; Matplotlib for charts |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -343,6 +344,16 @@ The PDF-based companion to `paper-summary-simple`: reads the full paper, selects
 - **Requires:** Python 3.10+, Poppler and the bundled model dependencies for extraction. Archiving uses the Python standard library; FFmpeg is optional.
 - **Example:** “Summarize this PDF in Chinese with key original figures and save it to my notes folder.”
 - Start with [the quickstart](paper-summary/QUICKSTART.md); detailed instructions are in [the skill](paper-summary/SKILL.md).
+
+### 16. Xiaohongshu Copy and Cards (`xiaohongshu`)
+
+Turns source material into Chinese Xiaohongshu copy and a set of 1080×1440 image cards, with guidance for explaining papers and open-source projects.
+
+- Includes a UTF-16 length checker, cover/figure/bar-chart templates, configurable Chinese fonts and independent phone-size previews.
+- Keeps source evidence, interpretation and research ideas distinct. No automatic posting or promised engagement.
+- **Requires:** Python 3.10+, Pillow and Matplotlib for charts; a locally installed Chinese font. Text checking uses the standard library.
+- **Example:** “Turn this project introduction into a Xiaohongshu post with matching cards.”
+- Follow [the quickstart](xiaohongshu/QUICKSTART.md) for a self-contained three-page demo with clearly labeled fictional data.
 
 ## How to Add Skills to Claude Code
 
