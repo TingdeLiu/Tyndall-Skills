@@ -400,7 +400,7 @@ flowchart TD
 | `diagnosing-bugs` | 排查疑难 bug 和性能退化的固定流程 | [mattpocock/skills](https://github.com/mattpocock/skills) |
 | `prototype` · `research` · `teach` · `domain-modeling` · `wayfinder` · `git-guardrails-claude-code` · `writing-great-skills` · `setup-matt-pocock-skills` | 一次性原型、带出处的调研笔记、引导式学习、领域术语表与 ADR、跨会话的大任务规划、git 危险命令拦截、写 skill 的参考 | [mattpocock/skills](https://github.com/mattpocock/skills) |
 | `openspec-*`（6 个） | 规格驱动开发：提出变更，再实施、同步、归档 | [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)，需要安装 `openspec` CLI |
-| `skill-creator` · `frontend-design` · `mcp-builder` · `webapp-testing` · `canvas-design` · `algorithmic-art` · `theme-factory` · `web-artifacts-builder` · `slack-gif-creator` · `brand-guidelines` · `internal-comms` | Anthropic 官方示例 skill | [anthropics/skills](https://github.com/anthropics/skills) |
+| `skill-creator` · `frontend-design` · `mcp-builder` · `webapp-testing` · `canvas-design` · `algorithmic-art` · `theme-factory` · `web-artifacts-builder` · `slack-gif-creator` · `brand-guidelines` · `internal-comms` · `claude-api` · `discernment-nudge` · `academy-guide` | Anthropic 官方 skill（截至 2026-10 官方仓库里所有开源许可的都在） | [anthropics/skills](https://github.com/anthropics/skills) |
 | `mermaid-visualizer` · `obsidian-canvas-creator` | 文本转 Mermaid 图；文本转 Obsidian Canvas 思维导图 | [axtonliu/axton-obsidian-visual-skills](https://github.com/axtonliu/axton-obsidian-visual-skills) |
 | `orchestration` | 协调多个并行工作的 agent | [stablyai/orca](https://github.com/stablyai/orca)，需要 Orca 应用 |
 

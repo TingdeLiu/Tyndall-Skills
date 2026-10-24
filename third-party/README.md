@@ -16,21 +16,24 @@ Not included, on purpose: Anthropic's `docx` / `pdf` / `pptx` / `xlsx` (propriet
 
 ## Snapshot details
 
-Every copy matches the upstream commit below unless marked **modified**.
+Every copy matches the upstream commit below unless marked **modified**. Anthropic copies were last checked against `anthropics/skills` on 2026-10-24.
 
 | Skill | Upstream path | Commit | Notes |
 |---|---|---|---|
-| `anthropic/algorithmic-art` | `skills/algorithmic-art` | `34040c9` | |
-| `anthropic/brand-guidelines` | `skills/brand-guidelines` | `34040c9` | |
-| `anthropic/canvas-design` | `skills/canvas-design` | `34040c9` | |
-| `anthropic/frontend-design` | `skills/frontend-design` | `34040c9` | |
-| `anthropic/internal-comms` | `skills/internal-comms` | `34040c9` | |
-| `anthropic/mcp-builder` | `skills/mcp-builder` | `34040c9` | |
-| `anthropic/skill-creator` | `skills/skill-creator` | `34040c9` | **modified**: `quick_validate.py` reads `SKILL.md` as UTF-8, so non-ASCII skills validate on Windows |
-| `anthropic/slack-gif-creator` | `skills/slack-gif-creator` | `34040c9` | |
-| `anthropic/theme-factory` | `skills/theme-factory` | `34040c9` | |
-| `anthropic/web-artifacts-builder` | `skills/web-artifacts-builder` | `34040c9` | |
-| `anthropic/webapp-testing` | `skills/webapp-testing` | `34040c9` | |
+| `anthropic/academy-guide` | `skills/academy-guide` | `dbd4588` | points "how do I use Claude…" questions to matching Claude Academy courses |
+| `anthropic/claude-api` | `skills/claude-api` | `dbd4588` | Claude API / SDK reference; also ships built into Claude Code, so the copy here is for other agents or older versions |
+| `anthropic/discernment-nudge` | `skills/discernment-nudge` | `dbd4588` | after a substantive answer, adds 2–3 questions that help you check its facts and assumptions |
+| `anthropic/algorithmic-art` | `skills/algorithmic-art` | `dbd4588` | |
+| `anthropic/brand-guidelines` | `skills/brand-guidelines` | `dbd4588` | |
+| `anthropic/canvas-design` | `skills/canvas-design` | `dbd4588` | |
+| `anthropic/frontend-design` | `skills/frontend-design` | `dbd4588` | |
+| `anthropic/internal-comms` | `skills/internal-comms` | `dbd4588` | |
+| `anthropic/mcp-builder` | `skills/mcp-builder` | `dbd4588` | |
+| `anthropic/skill-creator` | `skills/skill-creator` | `dbd4588` | **modified**: `quick_validate.py` reads `SKILL.md` as UTF-8, so non-ASCII skills validate on Windows |
+| `anthropic/slack-gif-creator` | `skills/slack-gif-creator` | `dbd4588` | |
+| `anthropic/theme-factory` | `skills/theme-factory` | `dbd4588` | |
+| `anthropic/web-artifacts-builder` | `skills/web-artifacts-builder` | `dbd4588` | |
+| `anthropic/webapp-testing` | `skills/webapp-testing` | `dbd4588` | |
 | `mattpocock/grill-me` | `skills/productivity/grill-me` | `c55ee46` | thin `/grill-me` entry that calls `grilling` — install both |
 | `mattpocock/grilling` | `skills/productivity/grilling` | `c55ee46` | |
 | `mattpocock/handoff` | `skills/productivity/handoff` | `c55ee46` | |
