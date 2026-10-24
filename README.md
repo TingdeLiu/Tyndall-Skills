@@ -26,8 +26,9 @@ English | [中文](README_CN.md)
 | 16 | [**Xiaohongshu Copy and Cards**](#16-xiaohongshu-copy-and-cards-xiaohongshu)<br>`xiaohongshu` | Drafts Chinese posts, checks text length, and renders 3:4 image cards with phone previews | Python + Pillow; Matplotlib for charts |
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
+| 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
 
-→ [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
+→ [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
 ---
 
@@ -376,6 +377,34 @@ Maintains a VLN paper list split into a capped main page and an uncapped extende
 - **Requires:** Python 3. Built around the structure of my two VLN posts; set `BLOG_ROOT` to your blog repository.
 - **Example:** "Add this summary to the VLN list on the extended page, with its R2R-CE numbers."
 - Details in [the skill](vln-paper-insert/SKILL.md).
+
+### 19. VLN Instruction Writer (`vln-instruction`)
+
+Treats a navigation instruction as a description of a 3D trajectory, not free-form English: read the path first, then write.
+
+- Two genres: multi-step **routes** for VLN-CE episodes (20–35 words, can be written back to `{split}.json.gz`) and single-sentence **object-goal** commands ("Go to the desk on your right and stop.").
+- A standard-library checker prints the path's motion profile (turn sequence, elevation change, goal radius), then flags direction words that contradict the turns, stair words without ≥0.25 m of climb, typos, glued punctuation and missing stop actions.
+- The typo lexicon and acceptance rules come from [R2RA-RXR-VLNCE-Refined](https://github.com/TingdeLiu/R2RA-RXR-VLNCE-Refined).
+- **Requires:** Python 3, no packages.
+- **Example:** "Write an R2R-style instruction for episode 1234 in val_seen", "Check these instructions before I write them back."
+- Details in [the skill](vln-instruction/SKILL.md).
+
+## Third-Party Skills I Use
+
+Not mine — these are popular skills by other people that I use every day, copied into [`third-party/`](third-party/) so you can get them in one place. Each keeps its original license, and the upstream repo is always the place for the latest version. Full source and commit list in [third-party/README.md](third-party/README.md).
+
+| Skill | What it does | From |
+|---|---|---|
+| `grill-me` + `grilling` | Interviews you relentlessly, one round of questions at a time, until a plan has no unexamined branches | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `handoff` | Compresses the current session into a document another agent can pick up | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `diagnosing-bugs` | A disciplined loop for hard bugs and performance regressions | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `prototype` · `research` · `teach` · `domain-modeling` · `wayfinder` · `git-guardrails-claude-code` · `writing-great-skills` · `setup-matt-pocock-skills` | Throwaway prototypes, sourced research notes, guided learning, domain glossaries and ADRs, multi-session planning, git safety hooks, skill-writing reference | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `openspec-*` (6) | Spec-driven development: propose a change, then apply, sync and archive it | [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) — needs the `openspec` CLI |
+| `skill-creator` · `frontend-design` · `mcp-builder` · `webapp-testing` · `canvas-design` · `algorithmic-art` · `theme-factory` · `web-artifacts-builder` · `slack-gif-creator` · `brand-guidelines` · `internal-comms` | Anthropic's official example skills | [anthropics/skills](https://github.com/anthropics/skills) |
+| `mermaid-visualizer` · `obsidian-canvas-creator` | Text → Mermaid diagrams; text → Obsidian Canvas mind maps | [axtonliu/axton-obsidian-visual-skills](https://github.com/axtonliu/axton-obsidian-visual-skills) |
+| `orchestration` | Coordinates multiple agents working in parallel | [stablyai/orca](https://github.com/stablyai/orca) — needs the Orca app |
+
+Install them like any other skill here — e.g. `cp -r third-party/mattpocock/grilling ~/.claude/skills/`.
 
 ## How to Add Skills to Claude Code
 

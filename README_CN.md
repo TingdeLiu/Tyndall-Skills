@@ -26,8 +26,9 @@
 | 16 | [**小红书文案与配图**](#16-小红书文案与配图-xiaohongshu)<br>`xiaohongshu` | 撰写文案、脚本检查字数，生成 3:4 竖版图与手机尺寸预览 | Python + Pillow；图表另需 Matplotlib |
 | 17 | [**综述论文入库**](#17-综述论文入库-paper-insert)<br>`paper-insert` | 把写好的论文总结插进对应综述（VLA / VLM / 世界模型 / 空间智能），自动顺延序号并保持锚点不变 | Python 3 |
 | 18 | [**VLN 论文入库**](#18-vln-论文入库-vln-paper-insert)<br>`vln-paper-insert` | 一次把论文写进 VLN 论文列表（主篇 / 扩展篇）的正文、筛选标签、参考文献、会议表和排行榜 | Python 3 |
+| 19 | [**VLN 导航指令撰写**](#19-vln-导航指令撰写-vln-instruction)<br>`vln-instruction` | 撰写、改写、体检英文导航指令：R2R-CE / RxR-CE 路线指令对照 3D 轨迹校验，另含单目标物体指令 | Python 3 |
 
-→ [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
+→ [我常用的第三方技能](#我常用的第三方技能) · [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
 ---
 
@@ -376,6 +377,34 @@ flowchart TD
 - **依赖：** Python 3。按我那两篇 VLN 文章的结构编写，用前把 `BLOG_ROOT` 设为自己的博客仓库。
 - **示例：** “把这份总结加到 VLN 扩展篇，带上 R2R-CE 成绩。”
 - 详细说明见 [skill 文件](vln-paper-insert/SKILL.md)。
+
+### 19. VLN 导航指令撰写 (`vln-instruction`)
+
+把导航指令当作对一条 3D 轨迹的语言描述，而不是随手写的英文：先看轨迹，再落笔。
+
+- 两种体裁：VLN-CE episode 的多段**路线指令**（20–35 词，可直接写回 `{split}.json.gz`），和单句的**物体目标指令**（如 “Go to the desk on your right and stop.”）。
+- 附带纯标准库的检查脚本：先打印轨迹的运动剖面（转角序列、高程差、目标半径），再标出与转角相反的方向词、高程差不足 0.25 m 却提到楼梯、错字、粘连标点和缺失的停止动作。
+- 错字词表和验收规则来自 [R2RA-RXR-VLNCE-Refined](https://github.com/TingdeLiu/R2RA-RXR-VLNCE-Refined)。
+- **依赖：** Python 3，无需安装任何包。
+- **示例：** “给 val_seen 里 1234 号 episode 写一条 R2R 风格指令”“这批指令写回数据集前帮我检查一遍。”
+- 详细说明见 [skill 文件](vln-instruction/SKILL.md)。
+
+## 我常用的第三方技能
+
+这些**不是我写的**，是别人做的、很受欢迎、我每天都在用的 skill，拷贝到 [`third-party/`](third-party/) 方便你一次拿全。每个都保留原许可证，想要最新版请去上游仓库。完整的来源和对应 commit 见 [third-party/README.md](third-party/README.md)。
+
+| 技能 | 用途 | 出处 |
+|---|---|---|
+| `grill-me` + `grilling` | 一轮一轮地追问你，直到方案里没有没想清楚的分支 | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `handoff` | 把当前会话压缩成一份文档，交给另一个 agent 接着干 | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `diagnosing-bugs` | 排查疑难 bug 和性能退化的固定流程 | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `prototype` · `research` · `teach` · `domain-modeling` · `wayfinder` · `git-guardrails-claude-code` · `writing-great-skills` · `setup-matt-pocock-skills` | 一次性原型、带出处的调研笔记、引导式学习、领域术语表与 ADR、跨会话的大任务规划、git 危险命令拦截、写 skill 的参考 | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| `openspec-*`（6 个） | 规格驱动开发：提出变更，再实施、同步、归档 | [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec)，需要安装 `openspec` CLI |
+| `skill-creator` · `frontend-design` · `mcp-builder` · `webapp-testing` · `canvas-design` · `algorithmic-art` · `theme-factory` · `web-artifacts-builder` · `slack-gif-creator` · `brand-guidelines` · `internal-comms` | Anthropic 官方示例 skill | [anthropics/skills](https://github.com/anthropics/skills) |
+| `mermaid-visualizer` · `obsidian-canvas-creator` | 文本转 Mermaid 图；文本转 Obsidian Canvas 思维导图 | [axtonliu/axton-obsidian-visual-skills](https://github.com/axtonliu/axton-obsidian-visual-skills) |
+| `orchestration` | 协调多个并行工作的 agent | [stablyai/orca](https://github.com/stablyai/orca)，需要 Orca 应用 |
+
+安装方式和本仓库其他 skill 一样，例如 `cp -r third-party/mattpocock/grilling ~/.claude/skills/`。
 
 ## 如何将技能添加到 Claude Code
 
