@@ -24,6 +24,8 @@
 | 14 | [**设计系统迁移**](#14-设计系统迁移-claude-design-to-open-design)<br>`claude-design-to-open-design` | 将 Claude Design 导出转换成 Open Design 设计系统包与配套技能，附 Windows 安装器 | Windows PowerShell + 运行中的 Open Design |
 | 15 | [**论文精读与配图归档**](#15-论文精读与配图归档-paper-summary)<br>`paper-summary` | 阅读 PDF、按关键页抽图、中文讲解方法，归档 Markdown 与图片 | Python + Poppler + TF-ID；FFmpeg 可选 |
 | 16 | [**小红书文案与配图**](#16-小红书文案与配图-xiaohongshu)<br>`xiaohongshu` | 撰写文案、脚本检查字数，生成 3:4 竖版图与手机尺寸预览 | Python + Pillow；图表另需 Matplotlib |
+| 17 | [**综述论文入库**](#17-综述论文入库-paper-insert)<br>`paper-insert` | 把写好的论文总结插进对应综述（VLA / VLM / 世界模型 / 空间智能），自动顺延序号并保持锚点不变 | Python 3 |
+| 18 | [**VLN 论文入库**](#18-vln-论文入库-vln-paper-insert)<br>`vln-paper-insert` | 一次把论文写进 VLN 论文列表（主篇 / 扩展篇）的正文、筛选标签、参考文献、会议表和排行榜 | Python 3 |
 
 → [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -354,6 +356,26 @@ flowchart TD
 - **依赖：** Python 3.10+、Pillow；图表另需 Matplotlib，本机需有中文字体。字数检查只用标准库。
 - **示例：** “把这个项目介绍整理成小红书文案，并生成配套图片。”
 - 从[快速开始](xiaohongshu/QUICKSTART.md)运行自带的三页演示，演示数值明确标注为虚构。
+
+### 17. 综述论文入库 (`paper-insert`)
+
+把 `paper-summary` 生成的总结插进[我博客](https://tingdeliu.github.io)上对应的综述，附一棵判断 VLM 和空间智能归属的决策树。
+
+- 默认追加到论文章节末尾；也可以指定插在某篇论文之后，后续章节序号自动顺延，原有 HTML 锚点保持不变。
+- 同时更新文章的 `date:`，让列表按最近更新排序。`--topic vln` 会转交给 `vln-paper-insert`。
+- **依赖：** Python 3。目标文件和章节标题对应我的博客，用在自己的博客上时改脚本里的 `MAP`。
+- **示例：** “把这份总结插进 VLA 综述，放在 InternVLA-A1 后面。”
+- 详细说明见 [skill 文件](paper-insert/SKILL.md)。
+
+### 18. VLN 论文入库 (`vln-paper-insert`)
+
+维护分成「主篇（有上限）+ 扩展篇（不限）」两页的 VLN 论文列表，一篇新论文要出现的地方一次改齐。
+
+- 写入带锚点的正文章节、筛选器 `TAG_MAP`、编号参考文献、会议 / 期刊表（仅已发表论文）和按 SR 排序的排行榜行，并按规则重新加粗。
+- 插入前先问放哪一篇；主篇满了会按你的选择把一篇旧论文调到扩展篇。另附脚本同步两页的跨页筛选，并刷新前列模型要素矩阵。
+- **依赖：** Python 3。按我那两篇 VLN 文章的结构编写，用前把 `BLOG_ROOT` 设为自己的博客仓库。
+- **示例：** “把这份总结加到 VLN 扩展篇，带上 R2R-CE 成绩。”
+- 详细说明见 [skill 文件](vln-paper-insert/SKILL.md)。
 
 ## 如何将技能添加到 Claude Code
 

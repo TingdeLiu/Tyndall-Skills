@@ -24,6 +24,8 @@ English | [中文](README_CN.md)
 | 14 | [**Design System Migration**](#14-design-system-migration-claude-design-to-open-design)<br>`claude-design-to-open-design` | Converts a Claude Design export into an Open Design package and companion skill, with a Windows installer | Windows PowerShell + running Open Design |
 | 15 | [**Paper Summary with Figures**](#15-paper-summary-with-figures-paper-summary)<br>`paper-summary` | Reads a PDF, extracts selected figures, explains methods in Chinese, and archives Markdown with its images | Python + Poppler + TF-ID; FFmpeg optional |
 | 16 | [**Xiaohongshu Copy and Cards**](#16-xiaohongshu-copy-and-cards-xiaohongshu)<br>`xiaohongshu` | Drafts Chinese posts, checks text length, and renders 3:4 image cards with phone previews | Python + Pillow; Matplotlib for charts |
+| 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
+| 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 
 → [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -354,6 +356,26 @@ Turns source material into Chinese Xiaohongshu copy and a set of 1080×1440 imag
 - **Requires:** Python 3.10+, Pillow and Matplotlib for charts; a locally installed Chinese font. Text checking uses the standard library.
 - **Example:** “Turn this project introduction into a Xiaohongshu post with matching cards.”
 - Follow [the quickstart](xiaohongshu/QUICKSTART.md) for a self-contained three-page demo with clearly labeled fictional data.
+
+### 17. Survey Paper Insert (`paper-insert`)
+
+Takes a summary produced by `paper-summary` and inserts it into one of the survey posts on [my blog](https://tingdeliu.github.io), with a decision tree for papers that sit between VLM and spatial intelligence.
+
+- Appends to the end of the paper section, or inserts after a named paper and shifts the following section numbers while keeping their HTML anchors.
+- Updates the post's `date:` so the list stays sorted by last update. `--topic vln` hands off to `vln-paper-insert`.
+- **Requires:** Python 3. The target files and headings match my blog; edit the `MAP` in the script to use it on yours.
+- **Example:** "Insert this summary into the VLA survey, right after InternVLA-A1."
+- Details in [the skill](paper-insert/SKILL.md).
+
+### 18. VLN Paper Insert (`vln-paper-insert`)
+
+Maintains a VLN paper list split into a capped main page and an uncapped extended page, touching every place a new paper has to appear.
+
+- Writes the section with an anchor, the filter's `TAG_MAP`, the numbered reference, the venue table (published papers only) and SR-sorted leaderboard rows, re-applying bold by rule.
+- Always asks which page first; when the main page is full it moves an older paper of your choice to the extended page. Companion scripts sync the cross-page filter and refresh the top-model feature matrix.
+- **Requires:** Python 3. Built around the structure of my two VLN posts; set `BLOG_ROOT` to your blog repository.
+- **Example:** "Add this summary to the VLN list on the extended page, with its R2R-CE numbers."
+- Details in [the skill](vln-paper-insert/SKILL.md).
 
 ## How to Add Skills to Claude Code
 
