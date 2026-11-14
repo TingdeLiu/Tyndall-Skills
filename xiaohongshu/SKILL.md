@@ -32,12 +32,15 @@ description: Writes and formats copywriting drafts optimized for Xiaohongshu (�
 - **其他引流链接**：非论文原链接的项目或推广链接，默认不在正文放完整 URL。
   正文写「GitHub 搜 用户名，仓库 xxx」，完整链接放**评论区置顶**或**个人简介**，并在交付时提醒用户。
 - **研究启发要具体**：技术论文解析需要回答「这对我们意味着什么、可以如何利用、怎样验证」，不能只补一句赞叹或泛泛的未来方向。区分论文已验证的结果、个人判断和待验证设想；至少把最有价值的一个方向写成具体做法与验证问题。写论文解析或用户要求更多思考时，读 [references/paper-thinking.md](references/paper-thinking.md)。
+- **推广作者自己的综述或长篇导读**：先读 [references/survey-promo.md](references/survey-promo.md)，固定用「带你看懂X」读者导向版式，**优先于下面的「封面选题」规则**；技巧型、判断型钩子放内页标题，不上封面。
 - **短板要写**。技术类读者吃这套，也降低被质疑的风险。
 - **压字数时的删除优先级**：图片已表达的内容 > 次要技术细节 > 泛标签 > 修饰词。核心数据和主线论点一个都不能删。
 
 ## 封面选题
 
 决定点击率的不是排版，是**封面选了哪个故事**。默认行为很容易变成「拿正文第一节当封面」，而第一节往往是统计节 —— 那是筛选流程的副产品，读者不关心某个榜单这周有没有更新。
+
+（以下针对论文解析与资讯汇总；推广自己的综述时按 [references/survey-promo.md](references/survey-promo.md)。）
 
 从正文各节里挑，优先级从高到低：
 
@@ -66,13 +69,16 @@ python <skill目录>/scripts/make_cards.py config.json
 演示配图为仓库原创示意图，图表数据是虚构值，不代表平台指标或实验结果。
 配置中的相对路径以配置文件所在目录为基准；字体、署名和引流文案均可自行设置。
 
-**三种页面类型**
+**四种页面类型**
 
 | type | 用途 | 关键字段 |
 |---|---|---|
 | `cover` | 封面：一个问题或结论 + 一幅主体图，或一个有意义的主数字；卖点按需精简 | `line1` `line2` `metric` `points` `footer`；插图版用 `hero` `hero_label` `max_h` |
 | `figure` | 引用原图 + 要点，可插一个大数字强调块 | `image` `crop_bottom` `max_h` `stat` `bullets` |
 | `bar` | 自绘横向对比条形图 | `series` `legend` `xlim` `bullets` |
+| `artwork` | 自绘整页（1080×1440 SVG 截成的 3:4 PNG），原样缩放，不加模板元素 | `image` |
+
+自绘 SVG 的公用函数与综述封面、阅读入口页模板在 `scripts/svgkit.py`。
 
 `bullets` 里以 `*` 开头的行会被加粗高亮。
 

@@ -8,6 +8,7 @@
     cover   封面：两行大标题 + 主数字 + 要点 + 可选 footer；给 hero 则用插图替代主数字
     figure  图文页：kicker + 标题 + 副标题 + 原图 + 可选 stat 块 + 要点
     bar     横向条形图页：自绘对比图 + 要点
+    artwork 整页图：把 3:4 的自绘整页（如 1080x1440 SVG 截成的 PNG）缩放成发布图，不加模板元素
 
 约定:
     - bullets 里以 "*" 开头的行 = 加粗高亮行
@@ -85,8 +86,8 @@ class Deck:
         if not isinstance(pages, list) or not pages:
             raise ValueError("pages 必须是非空页面列表")
         for page in pages:
-            if page.get("type") not in {"cover", "figure", "bar"}:
-                raise ValueError("页面 type 只支持 cover、figure、bar")
+            if page.get("type") not in {"cover", "figure", "bar", "artwork"}:
+                raise ValueError("页面 type 只支持 cover、figure、bar、artwork")
             name = page.get("name", page["type"])
             if not isinstance(name, str) or not name or any(c in name for c in '/\\:*?"<>|'):
                 raise ValueError("页面 name 应是文件名，不能包含路径或保留字符")
@@ -309,6 +310,13 @@ class Deck:
         self.footer(d)
         os.remove(tmp)
         return c
+
+    def artwork(self, p):
+        """Full-page artwork drawn elsewhere (e.g. a 1080x1440 SVG rendered at 2x)."""
+        with Image.open(os.path.join(self.src, p["image"].lstrip("/\\"))) as im:
+            if abs(im.width * H - im.height * W) > im.width:
+                raise ValueError("artwork 需要 3:4 图片，收到 %dx%d" % im.size)
+            return im.convert("RGB").resize((W, H), Image.Resampling.LANCZOS)
 
     def run(self):
         made = []
