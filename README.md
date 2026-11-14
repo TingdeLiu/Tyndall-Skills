@@ -27,6 +27,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
+| 20 | [**Memory Keeper**](#20-memory-keeper-memory-keeper)<br>`memory-keeper` | Turns the stories you and your family tell in chat into a Markdown memory vault on your own computer — interview your parents, look back, draft letters to loved ones | None (Python 3 optional) |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -388,6 +389,18 @@ Treats a navigation instruction as a description of a 3D trajectory, not free-fo
 - **Requires:** Python 3, no packages.
 - **Example:** "Write an R2R-style instruction for episode 1234 in val_seen", "Check these instructions before I write them back."
 - Details in [the skill](vln-instruction/SKILL.md).
+
+### 20. Memory Keeper (`memory-keeper`)
+
+Write down your parents' stories while they can still tell them. Memories you mention in chat get a few follow-up questions, are written up, and saved to a local folder you choose.
+
+- On first use it suggests a vault folder (detecting a Documents folder redirected to OneDrive) and finds it again afterwards. One Markdown file per memory, plus people profiles, letter drafts and a generated index, cross-linked with `[[links]]` so Obsidian opens it as-is.
+- Three ways to interview family: question by question at their side, a prepared question list, or splitting a recording transcript into separate memories. Each memory records who told it and is written in their voice.
+- Records only what was said, never padding with invented details; asks before saving and says where it saved. Has explicit guidance for grief, self-harm signals and other sensitive moments.
+- Letters are saved as drafts only; delivery on a date or "after I'm gone" needs the [Memory app](https://github.com/TingdeLiu/Memory).
+- **Requires:** nothing. Indexing and stats use Python 3 (standard library only); without it the AI maintains the index by hand.
+- **Example:** "I keep thinking about my childhood lately", "I want to interview my dad when I'm home for the holidays", "What have I told you about my grandma?"
+- Details in [the skill](memory-keeper/SKILL.md).
 
 ## Third-Party Skills I Use
 

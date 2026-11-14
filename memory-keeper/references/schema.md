@@ -1,0 +1,161 @@
+# 记忆库数据格式（schema v1）
+
+所有文件都是 UTF-8 编码的 Markdown，开头是 YAML frontmatter。字段保持简单：只用 `键: 值` 和 `键: [a, b]` 两种写法，不用嵌套，这样脚本和以后的 Memory app 都能稳定解析。每个文件都带 `schema: 1`，格式升级时用来迁移。
+
+## 配置文件
+
+位置：`~/.memory-keeper/config.json`（不在记忆库里，这样换文件夹不丢配置）。
+
+```json
+{
+  "schema": 1,
+  "vault_path": "C:/Users/xxx/Documents/我的记忆",
+  "auto_save": false,
+  "language": "zh",
+  "created": "2026-11-14"
+}
+```
+
+## 目录结构
+
+```
+<vault_path>/
+├── README.md          ← 给用户看的说明（init 时生成）
+├── INDEX.md           ← 总索引，由脚本生成，AI 回顾时先读它
+├── profile.md         ← 关于记忆库主人
+├── memories/          ← 一段记忆一个文件
+├── people/            ← 一个人一个档案
+└── capsules/          ← 信件 / 时间胶囊
+```
+
+## 文件命名
+
+- 记忆：`memories/<记录日期>-<标题>.md`，如 `memories/2026-11-14-外婆的院子.md`
+- 人物：`people/<称呼>.md`，如 `people/外婆.md`。用户平时怎么叫这个人就怎么命名。
+- 胶囊：`capsules/<记录日期>-<标题>.md`，如 `capsules/2026-11-14-给女儿的十八岁.md`
+- 标题里去掉 `/ \ : * ? " < > |` 这些文件名不允许的字符。重名时在末尾加 `-2`、`-3`。
+- 文件名（不含 `.md`）就是这个条目的 id，文件之间用 `[[id]]` 互相链接（Obsidian 也能直接识别）。
+
+## 记忆 `memories/*.md`
+
+```markdown
+---
+schema: 1
+type: memory
+title: 外婆的院子
+summary: 每年暑假在外婆家院子里乘凉、吃西瓜，外婆用蒲扇给我扇风。
+narrator: 我
+event_date: 1990s 夏天
+recorded: 2026-11-14
+people: [外婆]
+places: [江西老家]
+mood: 温暖
+tags: [童年, 暑假]
+---
+
+（正文：讲述者第一人称的叙述，长度跟着素材走，一般不超过 600 字）
+
+## 原话
+
+> 「外婆那把蒲扇，扇一下就要说一句『心静自然凉』。」
+
+## 相关
+
+- 人物：[[外婆]]
+```
+
+| 字段 | 必填 | 说明 |
+|---|---|---|
+| `title` | 是 | 简短、具体，像一篇短文的标题 |
+| `summary` | 是 | 一句话摘要，会进入 INDEX.md |
+| `narrator` | 是 | 讲述者。用户本人填「我」，采访家人时填称呼，如「爸爸」 |
+| `event_date` | 否 | 事情发生的时间，允许模糊：`1998`、`1990s 夏天`、`大学二年级` |
+| `recorded` | 是 | 记录日期，`YYYY-MM-DD` |
+| `people` | 否 | 涉及的人，用与 `people/` 文件名一致的称呼 |
+| `places` | 否 | 地点 |
+| `mood` | 否 | 一个词：温暖、快乐、平静、怀念、遗憾、难过、骄傲、复杂 等 |
+| `tags` | 否 | 2～4 个标签 |
+
+## 人物 `people/*.md`
+
+```markdown
+---
+schema: 1
+type: person
+name: 外婆
+relation: 外婆
+birth: 1932
+alive: false
+---
+
+（简介：用户讲过的关于这个人的要点，几句话即可，随记忆增加慢慢补充）
+
+## 相关记忆
+
+- [[2026-11-14-外婆的院子]]
+```
+
+`birth`、`alive` 不知道就不写。
+
+## 胶囊 `capsules/*.md`
+
+```markdown
+---
+schema: 1
+type: capsule
+title: 给女儿的十八岁
+to: 女儿
+deliver_mode: date
+deliver_value: 2040-06-01
+recorded: 2026-11-14
+status: draft
+---
+
+（信的正文）
+```
+
+- `deliver_mode`：`date`（某天）、`location`（某地）、`event`（某个时刻，由用户决定）、`after_gone`（我不在以后）
+- `deliver_value`：日期、地点名或事件描述；`after_gone` 时留空
+- `status`：skill 只会写 `draft`。送达由 Memory app 负责。
+
+## profile.md
+
+```markdown
+---
+schema: 1
+type: profile
+name: 小明
+---
+
+## 关于我
+
+（基本信息：在哪长大、做什么、家里有谁，用户愿意说多少写多少）
+
+## 说话方式
+
+（用户的口头禅、语气特点，写作时参考）
+```
+
+## INDEX.md
+
+由 `python scripts/memory_vault.py index <vault_path>` 生成，不要手工大改。格式：
+
+```markdown
+# 记忆索引
+
+共 3 段记忆 · 2 位人物 · 1 封信
+
+## 记忆
+
+- 2026-11-14 · [[2026-11-14-外婆的院子]] · 讲述：我 · 外婆 · 温暖 — 每年暑假在外婆家院子里乘凉……
+
+## 人物
+
+- [[外婆]] · 外婆 · 2 段记忆
+
+## 信件
+
+- [[2026-11-14-给女儿的十八岁]] · 给 女儿 · date 2040-06-01 · draft
+```
+
+脚本无法运行时，手动按上面格式追加一行即可，下次脚本运行会重新生成整个文件。
