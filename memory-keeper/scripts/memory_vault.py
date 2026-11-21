@@ -9,6 +9,8 @@ Usage:
   python memory_vault.py search  [words ...] [--person P] [--tag T] [--type memory|person|capsule]
                                  [--limit N] [--no-private] [--vault <vault_path>]
   python memory_vault.py timeline [--person P] [--vault <vault_path>]
+  python memory_vault.py export  [--person P] [--narrator N] [--title T] [--include-private]
+                                 [--out file.html] [--vault <vault_path>]
   python memory_vault.py check   [<vault_path>] [--fix]
   python memory_vault.py index   [<vault_path>]
   python memory_vault.py stats   [<vault_path>]
@@ -386,6 +388,7 @@ README_ZH = """# 我的记忆
 - `memories/`：一段记忆一个文件
 - `people/`：人物档案
 - `capsules/`：写给某人的信
+- `exports/`：导出的书，用浏览器打开，可以打印成 PDF
 - `INDEX.md`：总索引（自动生成）
 - `TIMELINE.md`：按事情发生的年份排列的时间线（自动生成）
 - `profile.md`：关于你
@@ -402,6 +405,7 @@ This folder is managed by Memory Keeper and holds your and your family's stories
 - `memories/`: one file per memory
 - `people/`: one profile per person
 - `capsules/`: letters to someone
+- `exports/`: exported books; open in a browser and print to PDF
 - `INDEX.md`: generated index
 - `TIMELINE.md`: generated timeline, ordered by when things happened
 - `profile.md`: about you
@@ -1032,6 +1036,322 @@ def cmd_stats(args) -> None:
     )
 
 
+# --------------------------------------------------------------------- export
+
+BOOK_TEXT = {
+    "zh": {
+        "default_title": "我的记忆",
+        "person_title": "{}的故事",
+        "narrator_title": "{}讲的故事",
+        "recorded_on": "整理于 {}",
+        "told_by": "讲述：{}",
+        "narrators": "讲述者：{}",
+        "contents": "目录",
+        "count": "共 {} 段记忆",
+        "unknown": "时间未知",
+        "decade": "{} 年代",
+        "people": "书里的人",
+        "born": "{} 年生",
+        "tbc": "还需要确认的地方",
+        "tbc_note": "下面这些地方讲述时没听清，或前后说法不一，下次可以再问问。",
+        "quotes": {"原话", "in their words", "in my words", "in her words", "in his words", "quotes"},
+        "related": {"相关", "related"},
+        "sep": "、",
+        "joiner": "",
+        "colophon": "本书由 Memory Keeper 根据讲述整理，只收录讲述者说过的内容。",
+        "empty": "记忆库里还没有符合条件的记忆。",
+    },
+    "en": {
+        "default_title": "My Memories",
+        "person_title": "Stories of {}",
+        "narrator_title": "Stories told by {}",
+        "recorded_on": "Compiled {}",
+        "told_by": "told by {}",
+        "narrators": "Told by {}",
+        "contents": "Contents",
+        "count": "{} memories",
+        "unknown": "Date unknown",
+        "decade": "The {}s",
+        "people": "People in this book",
+        "born": "born {}",
+        "tbc": "Still to confirm",
+        "tbc_note": "These were unclear or told in different ways; worth asking again.",
+        "quotes": {"原话", "in their words", "in my words", "in her words", "in his words", "quotes"},
+        "related": {"相关", "related"},
+        "sep": ", ",
+        "joiner": " ",
+        "colophon": "Compiled by Memory Keeper from what was told, and nothing else.",
+        "empty": "No memories match yet.",
+    },
+}
+TBC_RE = re.compile(r"[（(](?:待确认|to confirm)[^）)]*[）)]", re.I)
+
+BOOK_CSS = """
+:root { --paper:#fbf8f2; --ink:#2b2723; --muted:#7a7068; --rule:#e4dccf; --accent:#a0522d; --tbc:#fbeed3; }
+* { box-sizing:border-box; }
+html { background:#ece6db; }
+body { margin:0; color:var(--ink); background:#ece6db;
+  font-family:"Songti SC","STSong","SimSun","Noto Serif CJK SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+  font-size:17px; line-height:1.9; -webkit-font-smoothing:antialiased; }
+.sheet { background:var(--paper); max-width:720px; margin:32px auto; padding:72px 72px 64px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.06); }
+.ui { font-family:-apple-system,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif; }
+.cover { min-height:880px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+.cover h1 { font-size:44px; letter-spacing:.08em; margin:0 0 24px; font-weight:600; }
+.cover .rule { width:64px; height:2px; background:var(--accent); margin:0 auto 24px; }
+.cover p { margin:4px 0; color:var(--muted); font-size:16px; }
+.toc h2, .chapter > h2, .appendix > h2 { font-size:28px; font-weight:600; margin:0 0 32px; letter-spacing:.04em; }
+.toc ol { list-style:none; padding:0; margin:0; }
+.toc li { display:flex; gap:12px; padding:6px 0; border-bottom:1px dotted var(--rule); }
+.toc li a { color:inherit; text-decoration:none; flex:1; }
+.toc li .when { color:var(--muted); font-size:14px; white-space:nowrap; }
+.toc .group { margin-top:20px; font-size:14px; color:var(--accent); letter-spacing:.1em; border:0; }
+.chapter > h2 { color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:12px; }
+article { margin:0 0 56px; }
+article h3 { font-size:23px; margin:0 0 4px; font-weight:600; }
+article .meta { color:var(--muted); font-size:14px; margin:0 0 20px; }
+article p { margin:0 0 1em; text-align:justify; }
+article h4 { font-size:15px; color:var(--muted); font-weight:normal; letter-spacing:.1em; margin:24px 0 8px; }
+blockquote { margin:0 0 12px; padding:2px 0 2px 18px; border-left:3px solid var(--accent); color:#4a423b; font-style:normal; }
+article ul { margin:0 0 1em; padding-left:1.4em; }
+.tbc { background:var(--tbc); border-radius:3px; padding:0 3px; }
+.appendix dl { margin:0; }
+.appendix dt { font-weight:600; margin-top:16px; }
+.appendix dd { margin:4px 0 0; color:#4a423b; }
+.appendix a { color:var(--accent); text-decoration:none; }
+.appendix .note { color:var(--muted); font-size:15px; margin:-16px 0 20px; }
+.colophon { text-align:center; color:var(--muted); font-size:13px; margin-top:48px; }
+.empty { text-align:center; color:var(--muted); }
+@media (max-width:760px) {
+  body { font-size:16px; }
+  .sheet { margin:0; padding:40px 16px; box-shadow:none; }
+  .cover { min-height:70vh; }
+  .cover h1 { font-size:34px; }
+}
+@media print {
+  @page { size:A5; margin:18mm 16mm 20mm; }
+  html, body { background:#fff; }
+  body { font-size:11pt; line-height:1.8; }
+  .sheet { box-shadow:none; margin:0; padding:0; max-width:none; background:#fff; }
+  .cover { min-height:auto; height:170mm; }
+  .sheet + .sheet { break-before:page; }
+  article { break-inside:auto; }
+  article h3, article .meta { break-after:avoid; }
+  .toc li a::after { content:""; }
+}
+"""
+
+
+def esc(text: str) -> str:
+    return (str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def inline_md(text: str) -> str:
+    """Escape, then render [[links]] as plain names, **bold**, and highlight 待确认 notes."""
+    out = esc(text)
+    out = re.sub(r"\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]+))?\]\]",
+                 lambda m: (m.group(2) or m.group(1)).strip(), out)
+    out = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", out)
+    out = TBC_RE.sub(lambda m: f'<span class="tbc">{m.group(0)}</span>', out)
+    return out
+
+
+def body_to_html(body: str, bt: dict) -> str:
+    """Small Markdown renderer for memory bodies: paragraphs, quotes, lists, sub-headings.
+
+    The memory's own "related" section is left out: in a book, cross-links are noise.
+    """
+    html, para, quote, items = [], [], [], []
+    skipping = False
+
+    def flush() -> None:
+        if para:
+            html.append(f"<p>{inline_md(bt['joiner'].join(para))}</p>")
+            para.clear()
+        if quote:
+            html.append(f"<blockquote>{inline_md(bt['joiner'].join(quote))}</blockquote>")
+            quote.clear()
+        if items:
+            html.append("<ul>" + "".join(f"<li>{inline_md(i)}</li>" for i in items) + "</ul>")
+            items.clear()
+
+    for raw in body.splitlines():
+        line = raw.strip()
+        if line.startswith("## ") or line.startswith("# "):
+            flush()
+            heading = line.lstrip("#").strip()
+            skipping = heading.lower() in bt["related"]
+            if not skipping:
+                html.append(f"<h4>{inline_md(heading)}</h4>")
+            continue
+        if skipping:
+            continue
+        if not line:
+            flush()
+        elif line.startswith(">"):
+            if para or items:
+                flush()
+            text = line.lstrip(">").strip()
+            if text:
+                quote.append(text)
+            else:
+                flush()
+        elif re.match(r"^[-*] ", line):
+            if para or quote:
+                flush()
+            items.append(line[2:].strip())
+        else:
+            if quote or items:
+                flush()
+            para.append(line)
+    flush()
+    return "\n".join(html)
+
+
+def cmd_export(args) -> None:
+    vault = resolve_vault(args.vault)
+    require_vault(vault)
+    lang = vault_language(vault)
+    t, bt = TEXT[lang], BOOK_TEXT[lang]
+
+    entries = []
+    private_excluded = 0
+    for path in sorted((vault / "memories").glob("*.md")):
+        meta, body = split_frontmatter(path.read_text(encoding="utf-8"))
+        if not meta:
+            continue
+        if args.person and not matches_person(meta, args.person):
+            continue
+        if args.narrator and narrator_label(meta, t) != narrator_label({"narrator": args.narrator}, t):
+            continue
+        if is_private(meta) and not args.include_private:
+            private_excluded += 1
+            continue
+        entries.append((path.stem, meta, body))
+    entries.sort(key=lambda e: (event_year(e[1]) is None, event_year(e[1]) or 0, e[1].get("recorded", ""), e[0]))
+
+    if args.title:
+        title = args.title
+    elif args.person:
+        title = bt["person_title"].format(narrator_label({"narrator": args.person}, t))
+    elif args.narrator:
+        title = bt["narrator_title"].format(args.narrator)
+    else:
+        title = bt["default_title"]
+
+    narrators = []
+    for _, meta, _ in entries:
+        label = narrator_label(meta, t)
+        if label not in narrators:
+            narrators.append(label)
+
+    def group_of(meta: dict) -> str:
+        year = event_year(meta)
+        return bt["unknown"] if year is None else bt["decade"].format(year // 10 * 10)
+
+    def when_of(meta: dict) -> str:
+        return when_text(meta)
+
+    # Cover
+    parts = [f'<section class="sheet cover"><h1>{esc(title)}</h1><div class="rule"></div>']
+    if narrators:
+        parts.append(f"<p>{esc(bt['narrators'].format(bt['sep'].join(narrators)))}</p>")
+    parts.append(f"<p>{esc(bt['count'].format(len(entries)))}</p>")
+    parts.append(f"<p>{esc(bt['recorded_on'].format(today()))}</p></section>")
+
+    if not entries:
+        parts.append(f'<section class="sheet"><p class="empty">{esc(bt["empty"])}</p></section>')
+    else:
+        # Contents
+        toc = [f'<section class="sheet toc"><h2>{esc(bt["contents"])}</h2><ol>']
+        current = None
+        for i, (stem, meta, _) in enumerate(entries, 1):
+            group = group_of(meta)
+            if group != current:
+                toc.append(f'<li class="group ui">{esc(group)}</li>')
+                current = group
+            toc.append(f'<li><a href="#m{i}">{esc(meta.get("title", stem))}</a>'
+                       f'<span class="when">{esc(when_of(meta))}</span></li>')
+        toc.append("</ol></section>")
+        parts.append("".join(toc))
+
+        # Chapters, one per decade (or "date unknown")
+        current, chapter = None, []
+        for i, (stem, meta, body) in enumerate(entries, 1):
+            group = group_of(meta)
+            if group != current:
+                if chapter:
+                    parts.append("".join(chapter) + "</section>")
+                chapter = [f'<section class="sheet chapter"><h2>{esc(group)}</h2>']
+                current = group
+            meta_line = [x for x in (when_of(meta), bt["told_by"].format(narrator_label(meta, t))) if x]
+            chapter.append(
+                f'<article id="m{i}"><h3>{inline_md(meta.get("title", stem))}</h3>'
+                f'<p class="meta ui">{esc(" · ".join(meta_line))}</p>{body_to_html(body, bt)}</article>'
+            )
+        parts.append("".join(chapter) + "</section>")
+
+        # People who appear in the book and have a real intro
+        names = []
+        for _, meta, _ in entries:
+            for p in linked_people(meta):
+                if p not in names:
+                    names.append(p)
+        people_html = []
+        for name in names:
+            path = vault / "people" / f"{name}.md"
+            if not path.exists():
+                continue
+            pmeta, pbody = split_frontmatter(path.read_text(encoding="utf-8"))
+            intro = section_texts(pbody).get("", "")
+            if not intro or intro in PERSON_STUBS:
+                continue
+            label = name + (f"（{bt['born'].format(pmeta['birth'])}）" if lang == "zh" and pmeta.get("birth") else
+                            f" ({bt['born'].format(pmeta['birth'])})" if pmeta.get("birth") else "")
+            people_html.append(f"<dt>{esc(label)}</dt><dd>{inline_md(' '.join(intro.split()))}</dd>")
+        if people_html:
+            parts.append(f'<section class="sheet appendix"><h2>{esc(bt["people"])}</h2><dl>'
+                         + "".join(people_html) + "</dl></section>")
+
+        # Things still to confirm
+        tbc = []
+        for i, (stem, meta, body) in enumerate(entries, 1):
+            for line in body.splitlines():
+                if TBC_RE.search(line) and not line.lstrip().startswith("- "):
+                    tbc.append(f'<dt><a href="#m{i}">{esc(meta.get("title", stem))}</a></dt>'
+                               f"<dd>{inline_md(line.strip().lstrip('>').strip())}</dd>")
+        if tbc:
+            parts.append(f'<section class="sheet appendix"><h2>{esc(bt["tbc"])}</h2>'
+                         f'<p class="note ui">{esc(bt["tbc_note"])}</p><dl>' + "".join(tbc) + "</dl>"
+                         f'<p class="colophon ui">{esc(bt["colophon"])}</p></section>')
+        else:
+            parts.append(f'<p class="colophon ui">{esc(bt["colophon"])}</p>')
+
+    html = (
+        f'<!doctype html>\n<html lang="{"zh-CN" if lang == "zh" else "en"}">\n<head>\n<meta charset="utf-8">\n'
+        f'<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>{esc(title)}</title>\n'
+        f"<style>{BOOK_CSS}</style>\n</head>\n<body>\n" + "\n".join(parts) + "\n</body>\n</html>\n"
+    )
+
+    out_dir = vault / "exports"
+    out_dir.mkdir(exist_ok=True)
+    out = Path(args.out).expanduser() if args.out else out_dir / f"{safe_name(title)}-{today()}.html"
+    write_file(out, html)
+    tbc_count = sum(1 for _, _, body in entries for line in body.splitlines() if TBC_RE.search(line))
+    emit(
+        {
+            "written": out.as_posix(),
+            "title": title,
+            "memories": len(entries),
+            "private_excluded": private_excluded,
+            "private_included": sum(1 for _, m, _ in entries if is_private(m)),
+            "to_confirm": tbc_count,
+            "undated": sum(1 for _, m, _ in entries if event_year(m) is None),
+        }
+    )
+
+
 def documents_dir() -> Path:
     """The user's real Documents folder (Windows may redirect it, e.g. to OneDrive)."""
     if sys.platform == "win32":
@@ -1108,6 +1428,15 @@ def main() -> None:
     p_suggest = sub.add_parser("suggest", help="print the recommended vault path")
     p_suggest.add_argument("--language", choices=("zh", "en"), default="zh")
     p_suggest.set_defaults(func=cmd_suggest)
+
+    p_export = sub.add_parser("export", help="write a printable book (self-contained HTML) to <vault>/exports/")
+    p_export.add_argument("--person", help="only memories about this person")
+    p_export.add_argument("--narrator", help="only memories told by this person")
+    p_export.add_argument("--title")
+    p_export.add_argument("--include-private", action="store_true", help="also include memories tagged 私密 / private")
+    p_export.add_argument("--out", help="output path (default: <vault>/exports/<title>-<date>.html)")
+    p_export.add_argument("--vault")
+    p_export.set_defaults(func=cmd_export)
 
     p_timeline = sub.add_parser("timeline", help="memories ordered by when they happened, as JSON")
     p_timeline.add_argument("--person")

@@ -27,6 +27,7 @@
 ├── memories/          ← 一段记忆一个文件
 ├── people/            ← 一个人一个档案
 ├── capsules/          ← 信件 / 时间胶囊
+├── exports/           ← export 生成的书（HTML），可以随时删掉重新生成
 └── .trash/            ← remove 移过来的条目，脚本不读它，用户确认后自己清空
 ```
 
