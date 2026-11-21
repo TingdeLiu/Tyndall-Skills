@@ -183,6 +183,66 @@ def safe_name(name: str) -> str:
     return re.sub(r"\s+", " ", name)
 
 
+SELF_NARRATORS = {"", "我", "本人", "me", "i", "myself"}
+
+
+def linked_people(meta: dict) -> list[str]:
+    """Everyone a memory links to: its `people`, plus the narrator when it is not the user."""
+    people = list(as_list(meta.get("people")))
+    narrator = safe_name(str(meta.get("narrator") or ""))
+    if narrator.lower() not in SELF_NARRATORS and narrator not in people:
+        people.append(narrator)
+    return people
+
+
+def bigrams(text: str) -> set[str]:
+    """Character bigrams, which work for Chinese titles as well as English ones."""
+    text = re.sub(r"[\W_]+", "", text.lower())
+    if len(text) < 2:
+        return {text} if text else set()
+    return {text[i:i + 2] for i in range(len(text) - 1)}
+
+
+def similar_memories(vault: Path, meta: dict, limit: int = 3) -> list[dict]:
+    """Existing memories that may tell the same story as `meta` (by title, summary and people)."""
+    target = bigrams(f"{meta.get('title', '')}{meta.get('summary', '')}")
+    title = safe_name(str(meta.get("title", ""))).lower()
+    mine = set(linked_people(meta))
+    found = []
+    for stem, other in read_entries(vault / "memories"):
+        theirs = bigrams(f"{other.get('title', '')}{other.get('summary', '')}")
+        score = len(target & theirs) / len(target | theirs) if target and theirs else 0.0
+        shared = sorted(mine & set(linked_people(other)))
+        same_title = bool(title) and safe_name(str(other.get("title", ""))).lower() == title
+        if same_title or score >= 0.35 or (shared and score >= 0.2):
+            found.append(
+                {
+                    "id": stem,
+                    "title": other.get("title", ""),
+                    "summary": other.get("summary", ""),
+                    "narrator": other.get("narrator", ""),
+                    "shared_people": shared,
+                    "score": round(score, 2),
+                    "same_title": same_title,
+                }
+            )
+    found.sort(key=lambda d: (d["same_title"], d["score"]), reverse=True)
+    return found[:limit]
+
+
+def section_texts(body: str) -> dict[str, str]:
+    """Map each `## heading` (and '' for text before the first one) to its stripped content."""
+    sections, current, buf = {}, "", []
+    for line in body.splitlines():
+        if line.startswith("## "):
+            sections[current] = "\n".join(buf).strip()
+            current, buf = line[3:].strip(), []
+        else:
+            buf.append(line)
+    sections[current] = "\n".join(buf).strip()
+    return sections
+
+
 def unique_stem(folder: Path, stem: str) -> str:
     candidate, n = stem, 2
     while (folder / f"{candidate}.md").exists():
@@ -318,7 +378,7 @@ def build_index(vault: Path, language: str | None = None) -> dict:
 
     mention_count: dict[str, int] = {}
     for _, meta in memories:
-        for person in as_list(meta.get("people")):
+        for person in linked_people(meta):
             mention_count[person] = mention_count.get(person, 0) + 1
 
     lines = [
@@ -484,7 +544,8 @@ def cmd_add(args) -> None:
         stem = unique_stem(folder, f"{meta['recorded']}-{title}")
 
     body = body.strip("\n")
-    people = as_list(meta.get("people")) if kind == "memory" else []
+    people = linked_people(meta) if kind == "memory" else []
+    duplicates = similar_memories(vault, meta) if kind == "memory" else []
     if people and not any(f"[[{p}]]" in body for p in people):
         links = t["sep"].join(f"[[{p}]]" for p in people)
         body += f"\n\n{t['related']}\n\n{t['related_people'].format(links)}"
@@ -495,6 +556,7 @@ def cmd_add(args) -> None:
         "id": stem,
         "people_created": [],
         "backlinks_added": [],
+        "possible_duplicates": duplicates,
         "dry_run": args.dry_run,
     }
     if args.dry_run:
@@ -560,7 +622,7 @@ def cmd_search(args) -> None:
                 continue
             meta, body = split_frontmatter(text)
             if args.person:
-                names = as_list(meta.get("people")) + ([meta.get("to")] if meta.get("to") else [])
+                names = linked_people(meta) + ([meta.get("to")] if meta.get("to") else [])
                 if kind == "person":
                     names.append(path.stem)
                 if args.person not in names and f"[[{args.person}]]" not in body:
@@ -618,7 +680,7 @@ def cmd_check(args) -> None:
     # 2. People referenced by memories but without a profile.
     referenced: dict[str, list[str]] = {}
     for stem, meta in memories:
-        for person in as_list(meta.get("people")):
+        for person in linked_people(meta):
             referenced.setdefault(person, []).append(stem)
     for person, stems in sorted(referenced.items()):
         if (people_dir / f"{person}.md").exists():
@@ -677,11 +739,26 @@ def cmd_stats(args) -> None:
     for _, meta in memories:
         n = meta.get("narrator") or "我"
         narrators[n] = narrators.get(n, 0) + 1
-        for p in as_list(meta.get("people")):
+        for p in linked_people(meta):
             mentions[p] = mentions.get(p, 0) + 1
 
     known = {stem for stem, _ in people}
     missing_people = sorted(p for p in mentions if p not in known)
+
+    # What still needs filling in: empty profile.md sections, people with no intro yet.
+    stubs = {TEXT["zh"]["person_stub"], TEXT["en"]["person_stub"]}
+    profile_empty: list[str] = []
+    profile_path = vault / "profile.md"
+    if profile_path.exists():
+        pmeta, pbody = split_frontmatter(profile_path.read_text(encoding="utf-8"))
+        if not pmeta.get("name"):
+            profile_empty.append("name")
+        profile_empty += [h for h, text in section_texts(pbody).items() if h and not text]
+    people_need_intro = []
+    for path in sorted((vault / "people").glob("*.md")):
+        intro = section_texts(split_frontmatter(path.read_text(encoding="utf-8"))[1]).get("", "")
+        if not intro or intro in stubs:
+            people_need_intro.append(path.stem)
 
     emit(
         {
@@ -692,6 +769,8 @@ def cmd_stats(args) -> None:
             "by_narrator": narrators,
             "most_mentioned": sorted(mentions.items(), key=lambda kv: -kv[1])[:5],
             "people_without_profile": missing_people,
+            "profile_empty_sections": profile_empty,
+            "people_need_intro": people_need_intro,
         }
     )
 
