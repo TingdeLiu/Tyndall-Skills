@@ -76,10 +76,10 @@ tags: [童年, 暑假]
 | `event_date` | 否 | 事情发生的时间，照用户的原话写，允许模糊：`1998`、`1990s 夏天`、`大学二年级` |
 | `year` | 否 | 用于时间线排序的年份：`1998` 或年代 `1990s`。`event_date` 里已经有四位年份时可以不填；只在能从用户说过的事实推出时填 |
 | `recorded` | 是 | 记录日期，`YYYY-MM-DD` |
-| `people` | 否 | 涉及的人，用与 `people/` 文件名一致的称呼 |
+| `people` | 否 | 涉及的人，用与 `people/` 文件名一致的称呼。家人讲到用户本人时写「我」（英文库写 `me`），不会建档案 |
 | `places` | 否 | 地点 |
 | `mood` | 否 | 一个词：温暖、快乐、平静、怀念、遗憾、难过、骄傲、复杂 等 |
-| `tags` | 否 | 2～4 个标签。加上 `私密`（英文库用 `private`）后，INDEX 和时间线不显示摘要，`search --no-private` 会排除它 |
+| `tags` | 否 | 2～4 个标签。加上 `私密`（英文库用 `private`）后，INDEX 和时间线只显示标题，`search --no-private` 会排除它，详见 safety.md |
 
 ## 人物 `people/*.md`
 
@@ -100,7 +100,7 @@ alive: false
 - [[2026-11-14-外婆的院子]]
 ```
 
-`birth`、`alive` 不知道就不写。
+`birth`、`alive`、`relation` 不知道就不写。脚本自动建的档案只有 `name`，`relation` 等知道了再补。
 
 一段记忆链接到的人物 = `people` 里的人 + 讲述者（讲述者是用户本人时除外）。他们的档案都要在「相关记忆」里列出这段记忆。
 
@@ -133,6 +133,7 @@ status: draft
 - `deliver_mode`：`date`（某天）、`location`（某地）、`event`（某个时刻，由用户决定）、`after_gone`（我不在以后）
 - `deliver_value`：日期、地点名或事件描述；`after_gone` 时留空
 - `status`：skill 只会写 `draft`。送达由 Memory app 负责。
+- `tags`（可选）：信里引用了私密内容时写 `[私密]`，INDEX 里会标出，`search --no-private` 会排除它。
 
 ## profile.md
 
