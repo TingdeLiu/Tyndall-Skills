@@ -984,11 +984,18 @@ def cmd_stats(args) -> None:
     t = TEXT[vault_language(vault)]
     narrators: dict[str, int] = {}
     mentions: dict[str, int] = {}
+    # Same rule as INDEX.md and `check`: private memories do not count towards anyone, and a person
+    # named only in private memories is neither "missing a profile" nor a candidate for a hook.
+    private_names: set[str] = set()
     for _, meta in memories:
         n = narrator_label(meta, t)
         narrators[n] = narrators.get(n, 0) + 1
+        if is_private(meta):
+            private_names.update(linked_people(meta))
+            continue
         for p in linked_people(meta):
             mentions[p] = mentions.get(p, 0) + 1
+    private_only = private_names - set(mentions)
 
     known = {stem for stem, _ in people}
     missing_people = sorted(p for p in mentions if p not in known)
@@ -1005,7 +1012,7 @@ def cmd_stats(args) -> None:
     people_need_intro = []
     for path in sorted((vault / "people").glob("*.md")):
         intro = section_texts(split_frontmatter(path.read_text(encoding="utf-8"))[1]).get("", "")
-        if not intro or intro in stubs:
+        if (not intro or intro in stubs) and path.stem not in private_only:
             people_need_intro.append(path.stem)
 
     emit(
