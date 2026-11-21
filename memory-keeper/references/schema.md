@@ -25,7 +25,8 @@
 ├── profile.md         ← 关于记忆库主人
 ├── memories/          ← 一段记忆一个文件
 ├── people/            ← 一个人一个档案
-└── capsules/          ← 信件 / 时间胶囊
+├── capsules/          ← 信件 / 时间胶囊
+└── .trash/            ← remove 移过来的条目，脚本不读它，用户确认后自己清空
 ```
 
 ## 文件命名
@@ -35,6 +36,8 @@
 - 胶囊：`capsules/<记录日期>-<标题>.md`，如 `capsules/2026-11-14-给女儿的十八岁.md`
 - 标题里去掉 `/ \ : * ? " < > |` 这些文件名不允许的字符。重名时在末尾加 `-2`、`-3`。
 - 文件名（不含 `.md`）就是这个条目的 id，文件之间用 `[[id]]` 互相链接（Obsidian 也能直接识别）。
+- 用 `add` 归档时以上规则由脚本处理：草稿里不用写 `schema`，`recorded` 不写就取今天，记忆正文没链接到 `people` 里的人时会自动补一个「相关」小节。
+- 列表字段里的项用 `,`、`，` 或 `、` 分隔，所以人名、标签本身不要含这几个符号。
 
 ## 记忆 `memories/*.md`
 
@@ -138,7 +141,7 @@ name: 小明
 
 ## INDEX.md
 
-由 `python scripts/memory_vault.py index <vault_path>` 生成，不要手工大改。格式：
+由 `python scripts/memory_vault.py index <vault_path>` 生成（`add`、`remove`、`check --fix` 也会顺带重建），不要手工大改。英文记忆库（`language: en`）的标题和标签用英文。格式：
 
 ```markdown
 # 记忆索引

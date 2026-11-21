@@ -398,7 +398,8 @@ Write down your parents' stories while they can still tell them. Memories you me
 - Three ways to interview family: question by question at their side, a prepared question list, or splitting a recording transcript into separate memories. Each memory records who told it and is written in their voice.
 - Records only what was said, never padding with invented details; asks before saving and says where it saved. Has explicit guidance for grief, self-harm signals and other sensitive moments.
 - Letters are saved as drafts only; delivery on a date or "after I'm gone" needs the [Memory app](https://github.com/TingdeLiu/Memory).
-- **Requires:** nothing. Indexing and stats use Python 3 (standard library only); without it the AI maintains the index by hand.
+- A helper script files each entry (file name, people profiles, backlinks, index in one step), searches by person, tag or keyword, moves deletions to a `.trash/` folder instead of erasing them, and runs a health check that finds and fixes missing profiles, backlinks and dead links.
+- **Requires:** nothing. The helper script uses Python 3 (standard library only); without it the AI does the same steps by hand.
 - **Example:** "I keep thinking about my childhood lately", "I want to interview my dad when I'm home for the holidays", "What have I told you about my grandma?"
 - Details in [the skill](memory-keeper/SKILL.md).
 
