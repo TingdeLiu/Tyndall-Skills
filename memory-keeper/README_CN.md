@@ -1,6 +1,6 @@
 # Memory Keeper · 家庭记忆
 
-[English](README.md) · [听 3 秒敲门声](https://raw.githubusercontent.com/TingdeLiu/Tyndall-Skills/main/memory-keeper/examples/knock.wav) · [下载整张示例卡](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-zh.zip)
+[English](README.md) · [听 3 秒敲门声](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [下载整张示例卡](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-zh.zip)
 
 **你还记得外公怎么敲门吗？** 把那两轻一重的敲门声，和你认出他的那句话放在一起，做成一张家人能点开听的记忆卡。你可以在 Codex 或 Claude Code 里跟它聊，故事和原件都存在自己选的文件夹里。
 
@@ -34,4 +34,4 @@ npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keep
 
 每篇故事都是能直接打开和编辑的 Markdown 文件。备份时复制整个记忆库，照片和声音就能跟着搬家。聊天内容会经过你使用的 AI 服务。记忆卡带上你点名的**完整原件**，包括时间标记之外的录音，以及照片里原有的拍摄信息。分享标为私密的故事需要明确确认。
 
-如果你和家人试了一次，很想知道你们最想留下什么、在哪一步卡住了。公开反馈请用虚构例子，家人的原话可以留在自己的库里。[到 GitHub 提建议](https://github.com/TingdeLiu/Tyndall-Skills/issues)
+打算下次回家再试，可以先在仓库右上角点 **Star**，到时候从收藏里找回来。如果试用时卡在哪一步，欢迎用虚构例子来提建议。[收藏仓库](https://github.com/TingdeLiu/Tyndall-Skills) · [反馈使用体验](https://github.com/TingdeLiu/Tyndall-Skills/issues)

@@ -4,7 +4,7 @@
 
 [English](README.md) | 中文
 
-**听听《外公的敲门声》。** 轻轻两下，停一停，再重重一下。打开示例卡就能听，也能把自己家人的声音和照片做成这样一张卡。[试试家庭记忆技能](memory-keeper/README_CN.md)
+**《外公的敲门声》**。轻轻两下，停一停，再重重一下。把自己家人的声音和照片做成这样一张卡，下次想念时还能听。[听 3 秒敲门声](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [做自己的家庭记忆卡](memory-keeper/README_CN.md)
 
 ## 技能一览
 

@@ -4,7 +4,7 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
-**Listen to a family memory.** Grandpa knocked twice, waited, then knocked once more. Open the example card to hear it, or make one with your own family’s photos and recordings. [Try Memory Keeper](memory-keeper/README.md)
+**Grandpa’s knock.** Two light knocks, a pause, then a louder one. Make a card with the sounds and photos your family would recognize. [Hear the three-second knock](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [Make your own family story card](memory-keeper/README.md)
 
 ## Skills at a Glance
 
