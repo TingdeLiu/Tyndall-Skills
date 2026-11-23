@@ -4,6 +4,8 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
+**Listen to a family memory.** Grandpa knocked twice, waited, then knocked once more. Open the example card to hear it, or make one with your own family’s photos and recordings. [Try Memory Keeper](memory-keeper/README.md)
+
 ## Skills at a Glance
 
 | # | Skill | What it does | Needs |
@@ -27,7 +29,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
-| 20 | [**Memory Keeper**](#20-memory-keeper-memory-keeper)<br>`memory-keeper` | Turns the stories you and your family tell in chat into a Markdown memory vault on your own computer — interview your parents, look back, draft letters to loved ones | None (Python 3 optional) |
+| 20 | [**Memory Keeper**](memory-keeper/README.md)<br>`memory-keeper` | Record family stories and make an offline card with a photo, a voice or a video | Python 3 for cards and media |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -392,17 +394,18 @@ Treats a navigation instruction as a description of a 3D trajectory, not free-fo
 
 ### 20. Memory Keeper (`memory-keeper`)
 
-Write down your parents' stories while they can still tell them. Memories you mention in chat get a few follow-up questions, are written up, and saved to a local folder you choose.
+Write down your parents' stories while they can still tell them. Save a line in their own words or sit down for a longer interview. Keep the stories, recordings, photos and original videos in a local folder you choose.
 
 - On first use it suggests a vault folder (detecting a Documents folder redirected to OneDrive) and finds it again afterwards. One Markdown file per memory, plus people profiles, letter drafts and a generated index, cross-linked with `[[links]]` so Obsidian opens it as-is.
-- Three ways to interview family: question by question at their side, a prepared question list, or splitting a recording transcript into separate memories. Each memory records who told it and is written in their voice.
+- Interview family in person, prepare questions or work through a transcript across several days. Each saved story links to the original lines, and the remaining segments are available next time.
+- For a family recipe or craft, link photos to individual steps and mark the relevant times in audio or video. Add originals to existing memories at any time. The printable book contains the story text.
 - Records only what was said, never padding with invented details; asks before saving and says where it saved. Notices when a story has been told before and asks whether to add to the earlier one; a family member's version of the same event is kept separately and cross-linked. Facts you mention in passing fill in your profile and people's profiles over time, without a questionnaire. Memories tagged private show only their title in the index and timeline, don't create profiles for the people in them or feed facts into profiles, and are left out of letters unless you say otherwise; the files themselves are not encrypted. Has explicit guidance for grief, self-harm signals and other sensitive moments.
 - Turns the vault into a book: a single HTML file with a cover, contents, one chapter per decade, the people in it and a list of what still needs confirming, laid out to print as an A5 booklet or PDF. Can be limited to one person's stories or one narrator's; private memories stay out unless you ask.
 - Letters are saved as drafts only; delivery on a date or "after I'm gone" needs the [Memory app](https://github.com/TingdeLiu/Memory).
 - A helper script files each entry (file name, people profiles, backlinks, index in one step), keeps a timeline ordered by when things happened (fuzzy dates like "second year of college" stay as told), searches by person, tag or keyword, moves deletions to a `.trash/` folder instead of erasing them, and runs a health check that finds and fixes missing profiles, backlinks and dead links.
-- **Requires:** nothing. The helper script uses Python 3 (standard library only); without it the AI does the same steps by hand.
+- Text memories can be filed by hand. Archiving media, tracking interview progress and generating indexes use the Python 3 standard library.
 - **Example:** "I keep thinking about my childhood lately", "I want to interview my dad when I'm home for the holidays", "What have I told you about my grandma?"
-- Details in [the skill](memory-keeper/SKILL.md).
+- [Try a playable card and make your own](memory-keeper/README.md) · [Skill instructions](memory-keeper/SKILL.md)
 
 ## Third-Party Skills I Use
 

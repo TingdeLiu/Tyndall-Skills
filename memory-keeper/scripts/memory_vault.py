@@ -5,6 +5,11 @@ Usage:
   python memory_vault.py suggest [--language zh|en]
   python memory_vault.py init    <vault_path> [--auto-save] [--language zh|en]
   python memory_vault.py add     <draft.md | -> [--vault <vault_path>] [--dry-run]
+                                 [--attach file]... [--interview id --segment n]
+  python memory_vault.py media   <memory_id> [file ...] [--step n] [--at 00:12–00:20]
+  python memory_vault.py card    <memory_id> [--media media/path]... [--include-private]
+  python memory_vault.py interview start|list|show --help
+  python memory_vault.py alias   <person> <alternate_name>
   python memory_vault.py remove  <id> [--vault <vault_path>]
   python memory_vault.py search  [words ...] [--person P] [--tag T] [--type memory|person|capsule]
                                  [--limit N] [--no-private] [--vault <vault_path>]
@@ -32,6 +37,9 @@ import shutil
 import sys
 from pathlib import Path
 
+import memory_card
+import memory_sources as sources
+
 SCHEMA = 1
 CONFIG_PATH = Path(
     os.environ.get("MEMORY_KEEPER_CONFIG") or Path.home() / ".memory-keeper" / "config.json"
@@ -50,7 +58,7 @@ REQUIRED = {
 KEY_ORDER = {
     "memory": ("schema", "type", "title", "summary", "narrator", "event_date", "year",
                "recorded", "people", "places", "mood", "tags"),
-    "person": ("schema", "type", "name", "relation", "birth", "alive"),
+    "person": ("schema", "type", "name", "aliases", "relation", "birth", "alive"),
     "capsule": ("schema", "type", "title", "to", "deliver_mode", "deliver_value",
                 "recorded", "status", "tags"),
 }
@@ -135,8 +143,7 @@ def totals_text(t: dict, m: int, p: int, c: int) -> str:
 
 def write_file(path: Path, text: str) -> None:
     """Write UTF-8 with LF line endings on every platform, so the vault never mixes CRLF and LF."""
-    with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(text)
+    sources.atomic_bytes(path, text.encode("utf-8"))
 
 # Make stdout UTF-8 on Windows consoles that default to a legacy code page.
 for _stream in (sys.stdout, sys.stderr):
@@ -229,6 +236,48 @@ def as_list(value) -> list[str]:
 def safe_name(name: str) -> str:
     name = ILLEGAL_CHARS.sub("", name).strip().strip(".")
     return re.sub(r"\s+", " ", name)
+
+
+def person_aliases(vault: Path) -> dict:
+    names = {}
+    for stem, meta in read_entries(vault / "people"):
+        for alias in [stem, *as_list(meta.get("aliases"))]:
+            if alias in names and names[alias] != stem:
+                raise ValueError(f"ambiguous person alias: {alias} ({names[alias]}, {stem})")
+            names[alias] = stem
+    return names
+
+
+def canonical_people(meta, aliases):
+    """Resolve older entries too, including names that only ever appeared in a private story."""
+    meta = meta.copy()
+    if "people" in meta:
+        meta["people"] = list(dict.fromkeys(aliases.get(p, p) for p in as_list(meta["people"])))
+    for key in ("narrator", "to"):
+        if key in meta:
+            meta[key] = aliases.get(meta[key], meta[key])
+    return meta
+
+
+def cmd_alias(args) -> None:
+    vault = resolve_vault(args.vault)
+    names = person_aliases(vault)
+    stem = names.get(args.person)
+    if not stem:
+        raise ValueError(f"person not found: {args.person}")
+    alias = args.alias.strip()
+    if not alias or safe_name(alias) != alias or re.search(r"[,，、\[\]]", alias) or is_self(alias):
+        raise ValueError("choose a distinct name that fits a person field")
+    if alias in names and names[alias] != stem:
+        raise ValueError(f"{alias} already refers to {names[alias]}")
+    path = vault / "people" / f"{stem}.md"
+    meta, body = split_frontmatter(path.read_text(encoding="utf-8"))
+    aliases = as_list(meta.get("aliases"))
+    if alias != stem and alias not in aliases:
+        aliases.append(alias)
+        meta["aliases"] = aliases
+        write_file(path, dump_frontmatter(meta) + "\n" + body)
+    emit({"person": stem, "aliases": aliases})
 
 
 SELF_NARRATORS = {"", "我", "本人", "me", "i", "myself"}
@@ -386,6 +435,8 @@ README_ZH = """# 我的记忆
 这个文件夹由 Memory Keeper 管理，里面是你和家人的故事。
 
 - `memories/`：一段记忆一个文件
+- `media/` 保存照片、录音和视频原件，从记忆的「原始素材」可以打开
+- `interviews/` 保存采访转写和分段记录
 - `people/`：人物档案
 - `capsules/`：写给某人的信
 - `exports/`：导出的书，用浏览器打开，可以打印成 PDF
@@ -394,7 +445,7 @@ README_ZH = """# 我的记忆
 - `profile.md`：关于你
 - `.trash/`：删掉的条目先放在这里，确认不要了再自己清空
 
-所有文件都是普通 Markdown，你可以直接打开、修改、备份。
+故事使用普通 Markdown。备份或搬家时请复制整个文件夹，让故事和原件一起走。
 放进 iCloud / OneDrive 等同步盘可以在多台设备上使用。
 """
 
@@ -403,6 +454,8 @@ README_EN = """# My Memories
 This folder is managed by Memory Keeper and holds your and your family's stories.
 
 - `memories/`: one file per memory
+- `media/` holds original photos, audio and video linked from each memory
+- `interviews/` holds interview transcripts and segment plans
 - `people/`: one profile per person
 - `capsules/`: letters to someone
 - `exports/`: exported books; open in a browser and print to PDF
@@ -411,7 +464,7 @@ This folder is managed by Memory Keeper and holds your and your family's stories
 - `profile.md`: about you
 - `.trash/`: removed entries land here; empty it yourself once you are sure
 
-Everything is plain Markdown: open, edit and back it up freely.
+Stories are plain Markdown. Back up the whole folder to keep the originals with their stories.
 """
 
 
@@ -484,7 +537,7 @@ def render_index(vault: Path, language: str | None = None) -> dict:
     for stem, meta in memories:
         if is_private(meta):
             # Only the (neutral) title: date as told, people, mood and summary all give the story away.
-            lines.append(f"- {meta.get('recorded', '?')} · [[{stem}]] · {t['private']}")
+            lines.append(f"- [[{stem}]] · {t['private']}")
             continue
         parts = [meta.get("recorded", "?"), f"[[{stem}]]", t["narrator"].format(narrator_label(meta, t))]
         if meta.get("event_date"):
@@ -507,6 +560,9 @@ def render_index(vault: Path, language: str | None = None) -> dict:
 
     lines += ["", t["capsules"], ""]
     for stem, meta in capsules:
+        if is_private(meta):
+            lines.append(f"- [[{stem}]] · {t['private']}")
+            continue
         deliver = " ".join(x for x in (meta.get("deliver_mode", ""), meta.get("deliver_value", "")) if x)
         lines.append(
             f"- [[{stem}]] · " + t["to"].format(meta.get("to") or "?")
@@ -539,12 +595,17 @@ def when_text(meta: dict) -> str:
     return told or year
 
 
-def timeline_items(memories: list, people: list, person: str | None = None) -> list[dict]:
+def timeline_items(memories: list, people: list, person: str | None = None, include_private=False) -> list[dict]:
     """Memories (and known births) ordered by event year; items without a year come last."""
     items = []
     for stem, meta in memories:
+        private = is_private(meta)
+        if private and not include_private and person:
+            continue
         if person and not matches_person(meta, person):
             continue
+        if private and not include_private:
+            meta = {"title": meta.get("title", stem)}
         items.append(
             {
                 "id": stem,
@@ -555,7 +616,7 @@ def timeline_items(memories: list, people: list, person: str | None = None) -> l
                 "title": meta.get("title", stem),
                 "narrator": meta.get("narrator", ""),
                 "summary": meta.get("summary", ""),
-                "private": is_private(meta),
+                "private": private,
             }
         )
     for stem, meta in people:
@@ -580,7 +641,6 @@ def render_timeline(t: dict, memories: list, people: list) -> str:
             lines.append(f"- {item['when']} · " + t["born"].format(item["id"]))
             continue
         if item["private"]:
-            # The decade heading already places it; the date as told could give the story away.
             lines.append(f"- [[{item['id']}]] · {t['private']}")
             continue
         parts = [item["when"]] if item["when"] else []
@@ -595,7 +655,11 @@ def render_timeline(t: dict, memories: list, people: list) -> str:
 def cmd_timeline(args) -> None:
     vault = resolve_vault(args.vault)
     require_vault(vault)
-    items = timeline_items(read_entries(vault / "memories"), read_entries(vault / "people"), args.person)
+    memories = read_entries(vault / "memories")
+    if args.person:
+        memories = [(stem, canonical_people(meta, args.aliases)) for stem, meta in memories]
+    items = timeline_items(memories, read_entries(vault / "people"),
+                           args.person, args.include_private)
     emit({"count": len(items), "undated": sum(1 for i in items if i["year"] is None), "items": items})
 
 
@@ -673,11 +737,20 @@ def drop_links(path: Path, stems: set[str], headings: set[str] = RELATED_HEADING
 
 def ensure_people_line(body: str, people: list[str], t: dict) -> str:
     """Make sure the memory body links its people, inside its existing related section if it has one."""
-    if not people or any(f"[[{p}]]" in body for p in people):
-        return body
     line = t["related_people"].format(t["sep"].join(f"[[{p}]]" for p in people))
     lines = body.split("\n")
     bounds = related_section_bounds(lines, MEMORY_RELATED_HEADINGS)
+    if bounds:
+        start, end = bounds
+        for i in range(start + 1, end):
+            if re.fullmatch(r"- (?:人物：|People: )(?:\[\[[^\]]+\]\](?:(?:、|, )|$))+", lines[i]):
+                if people:
+                    lines[i] = line
+                else:
+                    lines.pop(i)
+                return "\n".join(lines)
+    if not people or all(f"[[{p}]]" in body for p in people):
+        return body
     if not bounds:
         return body + f"\n\n{t['related']}\n\n{line}"
     start, _ = bounds
@@ -697,7 +770,98 @@ def create_person_stub(vault: Path, name: str, t: dict, stems: list[str]) -> Pat
     return path
 
 
+def finish_entry(vault, stem, people, t, report):
+    for person in people:
+        person_path = vault / "people" / f"{person}.md"
+        if person_path.exists():
+            if add_backlink(person_path, stem, t):
+                report["backlinks_added"].append(person)
+        else:
+            create_person_stub(vault, person, t, [stem])
+            report["people_created"].append(person)
+    build_index(vault)
+
+
 # ------------------------------------------------------------------------ add
+
+def read_memory(vault, entry_id):
+    stem = entry_id[:-3] if entry_id.endswith(".md") else entry_id
+    if not stem or Path(stem).name != stem:
+        raise ValueError("expected a memory id")
+    path = vault / "memories" / f"{stem}.md"
+    if path.resolve().parent != vault.resolve() / "memories":
+        raise ValueError("expected a memory inside this vault")
+    text = path.read_text(encoding="utf-8")
+    meta = parse_frontmatter(text)
+    if meta.get("type") != "memory":
+        raise ValueError("expected a memory entry")
+    return path, text, meta
+
+
+def cmd_media(args) -> None:
+    vault = resolve_vault(args.vault)
+    path, text, meta = read_memory(vault, args.id)
+    if args.step is not None and args.step < 1:
+        raise ValueError("step numbers start at 1")
+    if args.at is not None and not re.fullmatch(sources.TIME_RANGE, args.at):
+        raise ValueError("use a timestamp or range, for example 02:17 or 02:17–03:04")
+    if (args.step is not None or args.at is not None) and not (args.files or args.reuse):
+        raise ValueError("supply the file to associate with this step or timestamp")
+    session_media = []
+    if meta.get("interview"):
+        session_media = sources.read_interview(vault, meta["interview"])["media"]
+    if args.files or args.reuse:
+        refs = []
+        if args.reuse:
+            available = {m["path"]: m for m in session_media + sources.linked_media(text)}
+            if args.reuse not in available or not (vault / args.reuse).is_file():
+                raise ValueError("choose an existing path from the memory's list of media")
+            refs.append(available[args.reuse])
+        refs.extend(sources.archive_media(vault, sources.media_inputs(args.files)))
+        updated = sources.add_sources(text, refs, vault_language(vault), step=args.step, at=args.at)
+        if updated != text:
+            write_file(path, updated)
+        text = updated
+    report = {"id": path.stem, "media": sources.linked_media(text)}
+    if meta.get("interview"):
+        report["interview_media"] = session_media
+    emit(report)
+
+
+def interview_progress(session, entries):
+    ids = {str(m.get("segment")): stem for stem, m in entries if m.get("interview") == session["id"]}
+    return [{"segment": i, "lines": bounds, "memory": ids.get(str(i)),
+             "status": "confirmed" if str(i) in ids else "pending"}
+            for i, bounds in enumerate(session["ranges"], 1)]
+
+
+def cmd_interview(args) -> None:
+    vault = resolve_vault(args.vault)
+    entries = read_entries(vault / "memories")
+    if args.action == "list":
+        items = []
+        for path in sorted((vault / "interviews").glob("*/session.json")):
+            session = sources.read_interview(vault, path.parent.name)
+            progress = interview_progress(session, entries)
+            items.append({"id": session["id"], "title": session["title"], "total": len(progress),
+                          "pending": sum(s["status"] == "pending" for s in progress)})
+        emit({"interviews": items})
+        return
+    if args.action == "start":
+        session = sources.start_interview(vault, args.transcript, args.starts, args.title,
+                                          sources.media_inputs(args.attach))
+    else:
+        session = sources.read_interview(vault, args.id)
+    progress = interview_progress(session, entries)
+    transcript = sources.interview_dir(vault, session["id"]) / "transcript.txt"
+    report = {"id": session["id"], "title": session["title"], "media": session["media"],
+              "transcript": transcript.relative_to(vault).as_posix(), "segments": progress}
+    if args.action == "show" and args.segment is not None:
+        first, last = sources.get_range(session, args.segment)
+        report["segment"] = progress[args.segment-1]
+        report["text"] = "\n".join(transcript.read_text(encoding="utf-8-sig").splitlines()[first-1:last])
+    emit(report)
+
 
 def cmd_add(args) -> None:
     vault = resolve_vault(args.vault)
@@ -732,14 +896,49 @@ def cmd_add(args) -> None:
     for key in LIST_KEYS:
         if key in meta:
             meta[key] = [safe_name(v) if key == "people" else v for v in as_list(meta[key])]
+    if kind in ("memory", "capsule"):
+        meta = canonical_people(meta, person_aliases(vault))
 
     missing = [k for k in REQUIRED[kind] if not meta.get(k)]
     if missing:
         sys.exit(f"error: missing required field(s): {', '.join(missing)}")
 
+    files = sources.media_inputs(args.attach)
+    session_id = args.interview or meta.get("interview")
+    number = args.segment if args.segment is not None else meta.get("segment")
+    if (number is not None) != bool(session_id):
+        raise ValueError("an interview id and segment number must be supplied together")
+    if kind != "memory" and (session_id or files):
+        raise ValueError("sources can be attached to memory entries")
+    session = None
+    transcript_link = None
+    if session_id:
+        session = sources.read_interview(vault, session_id)
+        number = int(number)
+        first, last = sources.get_range(session, number)
+        progress = interview_progress(session, read_entries(vault / "memories"))
+        existing = progress[number-1]["memory"]
+        if existing:
+            report = {"id": existing, "written": f"memories/{existing}.md", "already_saved": True,
+                      "dry_run": args.dry_run, "possible_duplicates": [], "people_created": [],
+                      "backlinks_added": [], "people_skipped_private": []}
+            if not args.dry_run:
+                stored = parse_frontmatter((vault / report["written"]).read_text(encoding="utf-8"))
+                names = linked_people(stored)
+                if is_private(stored):
+                    names = [name for name in names if (vault / "people" / f"{name}.md").is_file()]
+                finish_entry(vault, existing, names, t, report)
+            emit(report)
+            return
+        meta.update(interview=session_id, segment=str(number))
+        label = f"原始转写，第 {first}–{last} 行" if t is TEXT["zh"] else f"Transcript, lines {first}–{last}"
+        transcript_link = f"- [{label}](../interviews/{session_id}/transcript.txt)"
+
     folder = vault / TYPE_DIR[kind]
     if kind == "person":
         stem = safe_name(meta["name"])
+        if stem in person_aliases(vault) and not (folder / f"{stem}.md").exists():
+            raise ValueError(f"person name already used as an alias: {stem}")
         if (folder / f"{stem}.md").exists():
             sys.exit(f"error: person already exists: people/{stem}.md (edit that file instead)")
     else:
@@ -770,22 +969,18 @@ def cmd_add(args) -> None:
         "dry_run": args.dry_run,
     }
     if args.dry_run:
+        report["attachments"] = [f.name for f in files]
         report["people_created"] = [p for p in people if not (vault / "people" / f"{p}.md").exists()]
         report["backlinks_added"] = [p for p in people if p not in report["people_created"]]
         emit(report)
         return
 
-    write_file(target, dump_frontmatter(meta) + "\n" + body + "\n")
-    for person in people:
-        person_path = vault / "people" / f"{person}.md"
-        if person_path.exists():
-            if add_backlink(person_path, stem, t):
-                report["backlinks_added"].append(person)
-        else:
-            create_person_stub(vault, person, t, [stem])
-            report["people_created"].append(person)
-
-    build_index(vault, None)
+    refs = (session["media"] if session else []) + sources.archive_media(vault, files)
+    body = sources.add_sources(body, refs, vault_language(vault), transcript_link)
+    if refs:
+        report["media"] = sources.linked_media(body)
+    write_file(target, dump_frontmatter(meta) + "\n" + body.rstrip("\n") + "\n")
+    finish_entry(vault, stem, people, t, report)
     emit(report)
 
 
@@ -845,6 +1040,7 @@ def cmd_search(args) -> None:
                 continue
             meta, body = split_frontmatter(text)
             if args.person:
+                meta = canonical_people(meta, args.aliases)
                 hit = (
                     matches_person(meta, args.person)
                     or meta.get("to") == args.person
@@ -944,6 +1140,67 @@ def cmd_check(args) -> None:
                 issues.append({"file": f"people/{person}.md", "problem": f"missing backlink to [[{stem}]]"})
 
     # 4. Broken [[links]] anywhere in the vault.
+    # Only standalone generated bullets belong to the reverse index. Preserve authored notes.
+    memory_ids = {stem for stem, _ in memories}
+    for path in sorted(people_dir.glob("*.md")):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        bounds = related_section_bounds(lines)
+        if not bounds:
+            continue
+        start, end = bounds
+        expected = set(referenced.get(path.stem, []))
+        stale = []
+        for i in range(start + 1, end):
+            match = re.fullmatch(r"- \[\[([^\]]+)\]\]", lines[i].strip())
+            if match and match[1] in memory_ids and match[1] not in expected:
+                stale.append(i)
+        if stale and args.fix:
+            for i in reversed(stale):
+                lines.pop(i)
+            write_file(path, "\n".join(lines) + "\n")
+            fixed.append(f"removed stale backlinks in people/{path.name}")
+        elif stale:
+            issues.append({"file": f"people/{path.name}", "problem": "stale backlinks: " + ", ".join(lines[i] for i in stale)})
+
+    sessions = {}
+    for path in sorted((vault / "interviews").glob("*/session.json")):
+        try:
+            session = sources.read_interview(vault, path.parent.name)
+            sessions[session["id"]] = session
+            for ref in [f"interviews/{session['id']}/transcript.txt", *(m["path"] for m in session["media"])]:
+                if not (vault / ref).is_file():
+                    issues.append({"file": path.relative_to(vault).as_posix(), "problem": f"missing original: {ref}"})
+        except (ValueError, KeyError, OSError) as exc:
+            issues.append({"file": path.relative_to(vault).as_posix(), "problem": str(exc)})
+    for stem, meta in memories:
+        path = vault / "memories" / f"{stem}.md"
+        try:
+            raw = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            issues.append({"file": f"memories/{path.name}", "problem": str(exc)})
+            continue
+        if meta.get("interview") or meta.get("segment"):
+            try:
+                sources.get_range(sessions[meta["interview"]], int(meta["segment"]))
+            except (KeyError, ValueError, TypeError):
+                issues.append({"file": f"memories/{path.name}", "problem": "unknown interview segment"})
+        for ref in sources.linked_media(raw):
+            if not (vault / ref["path"]).is_file():
+                issues.append({"file": f"memories/{path.name}", "problem": f"missing original: {ref['path']}"})
+        if meta and meta.get("type") == "memory":
+            _, body = split_frontmatter(raw)
+            names = linked_people(meta)
+            if is_private(meta):
+                names = [name for name in names if (people_dir / f"{name}.md").is_file()]
+            updated = ensure_people_line(body, names, t)
+            if updated != body:
+                if args.fix:
+                    header = raw[:len(raw) - len(body)]
+                    write_file(path, header + updated)
+                    fixed.append(f"updated people links in memories/{path.name}")
+                else:
+                    issues.append({"file": f"memories/{path.name}", "problem": "out of date people links"})
+
     all_stems = {p.stem for sub in SUBDIRS for p in (vault / sub).glob("*.md")}
     headings = {"people": RELATED_HEADINGS, "memories": MEMORY_RELATED_HEADINGS}
 
@@ -1163,6 +1420,7 @@ def body_to_html(body: str, bt: dict) -> str:
     The memory's own "related" section is left out: in a book, cross-links are noise.
     """
     html, para, quote, items = [], [], [], []
+    list_tag = "ul"
     skipping = False
 
     def flush() -> None:
@@ -1173,7 +1431,7 @@ def body_to_html(body: str, bt: dict) -> str:
             html.append(f"<blockquote>{inline_md(bt['joiner'].join(quote))}</blockquote>")
             quote.clear()
         if items:
-            html.append("<ul>" + "".join(f"<li>{inline_md(i)}</li>" for i in items) + "</ul>")
+            html.append(f"<{list_tag}>" + "".join(f"<li>{inline_md(i)}</li>" for i in items) + f"</{list_tag}>")
             items.clear()
 
     for raw in body.splitlines():
@@ -1197,16 +1455,34 @@ def body_to_html(body: str, bt: dict) -> str:
                 quote.append(text)
             else:
                 flush()
-        elif re.match(r"^[-*] ", line):
-            if para or quote:
+        elif marker := re.match(r"^([-*]|\d+[.)])\s+(.+)", line):
+            tag = "ol" if marker[1][0].isdigit() else "ul"
+            if para or quote or tag != list_tag:
                 flush()
-            items.append(line[2:].strip())
+            list_tag = tag
+            items.append(marker[2])
         else:
             if quote or items:
                 flush()
             para.append(line)
     flush()
     return "\n".join(html)
+
+
+def cmd_card(args) -> None:
+    vault = resolve_vault(args.vault)
+    path, text, meta = read_memory(vault, args.id)
+    private = is_private(meta)
+    if private and not args.include_private:
+        raise ValueError("private memory: confirm sharing it and add --include-private")
+    lang = vault_language(vault)
+    _, body = split_frontmatter(text)
+    lines, _ = sources.source_lines(body)
+    story = body_to_html("\n".join(lines), BOOK_TEXT[lang])
+    byline = BOOK_TEXT[lang]["told_by"].format(narrator_label(meta, TEXT[lang]))
+    context = " · ".join(filter(None, (when_text(meta), byline)))
+    emit(memory_card.build_card(vault, path.stem, meta["title"], context, story, lang, private,
+                                sources.linked_media(body), args.media))
 
 
 def cmd_export(args) -> None:
@@ -1221,6 +1497,8 @@ def cmd_export(args) -> None:
         meta, body = split_frontmatter(path.read_text(encoding="utf-8"))
         if not meta:
             continue
+        if args.person or args.narrator:
+            meta = canonical_people(meta, args.aliases)
         if args.person and not matches_person(meta, args.person):
             continue
         if args.narrator and narrator_label(meta, t) != narrator_label({"narrator": args.narrator}, t):
@@ -1228,7 +1506,8 @@ def cmd_export(args) -> None:
         if is_private(meta) and not args.include_private:
             private_excluded += 1
             continue
-        entries.append((path.stem, meta, body))
+        public_lines, _ = sources.source_lines(body)
+        entries.append((path.stem, meta, "\n".join(public_lines)))
     entries.sort(key=lambda e: (event_year(e[1]) is None, event_year(e[1]) or 0, e[1].get("recorded", ""), e[0]))
 
     if args.title:
@@ -1255,6 +1534,9 @@ def cmd_export(args) -> None:
 
     # Cover
     parts = [f'<section class="sheet cover"><h1>{esc(title)}</h1><div class="rule"></div>']
+    private_label = "私密版" if lang == "zh" else "Private edition"
+    if args.include_private:
+        parts.append(f'<p><strong>{private_label}</strong></p>')
     if narrators:
         parts.append(f"<p>{esc(bt['narrators'].format(bt['sep'].join(narrators)))}</p>")
     parts.append(f"<p>{esc(bt['count'].format(len(entries)))}</p>")
@@ -1336,7 +1618,15 @@ def cmd_export(args) -> None:
 
     out_dir = vault / "exports"
     out_dir.mkdir(exist_ok=True)
-    out = Path(args.out).expanduser() if args.out else out_dir / f"{safe_name(title)}-{today()}.html"
+    edition = f"-{private_label}" if args.include_private else ""
+    basename = f"{safe_name(title)}-{today()}{edition}"
+    out = Path(args.out).expanduser() if args.out else out_dir / f"{basename}.html"
+    if args.out and out.exists():
+        raise ValueError(f"export already exists, choose a new output filename: {out}")
+    version = 1
+    while out.exists():
+        version += 1
+        out = out_dir / f"{basename}-{version}.html"
     write_file(out, html)
     tbc_count = sum(1 for _, _, body in entries for line in body.splitlines() if TBC_RE.search(line))
     emit(
@@ -1395,7 +1685,40 @@ def main() -> None:
     p_add.add_argument("draft", help="path to a draft .md with frontmatter, or - for stdin")
     p_add.add_argument("--vault")
     p_add.add_argument("--dry-run", action="store_true", help="report what would happen, write nothing")
+    p_add.add_argument("--attach", action="append", default=[], metavar="FILE", help="archive a media original (repeatable)")
+    p_add.add_argument("--interview", help="source interview id")
+    p_add.add_argument("--segment", type=int, help="confirmed segment number within the interview")
     p_add.set_defaults(func=cmd_add)
+
+    p_media = sub.add_parser("media", help="list or attach original audio, images and video on an existing memory")
+    p_media.add_argument("id")
+    p_media.add_argument("files", nargs="*")
+    p_media.add_argument("--step", type=int, help="step number in an ordered memory")
+    p_media.add_argument("--at", help="source timestamp or range, e.g. 00:12–00:29")
+    p_media.add_argument("--reuse", metavar="MEDIA_PATH", help="reuse a listed original without importing it again")
+    p_media.add_argument("--vault")
+    p_media.set_defaults(func=cmd_media)
+
+    p_alias = sub.add_parser("alias", help="assign a confirmed alternate name to a person")
+    p_alias.add_argument("person")
+    p_alias.add_argument("alias")
+    p_alias.add_argument("--vault")
+    p_alias.set_defaults(func=cmd_alias)
+
+    interview = sub.add_parser("interview", help="archive a transcript and resume its segments")
+    actions = interview.add_subparsers(dest="action", required=True)
+    start = actions.add_parser("start", help="archive a UTF-8 transcript and optional media")
+    start.add_argument("transcript")
+    start.add_argument("--title")
+    start.add_argument("--starts", type=int, nargs="+", help="first source line of each segment (1-based)")
+    start.add_argument("--attach", action="append", default=[], metavar="FILE")
+    show = actions.add_parser("show", help="show segment progress, or the source text of one segment")
+    show.add_argument("id")
+    show.add_argument("--segment", type=int)
+    listing = actions.add_parser("list", help="find ongoing interviews")
+    for action in (start, show, listing):
+        action.add_argument("--vault")
+        action.set_defaults(func=cmd_interview)
 
     p_remove = sub.add_parser("remove", help="move an entry to .trash/ and clean its backlinks")
     p_remove.add_argument("id", help="file name without .md, e.g. 2026-11-14-外婆的院子")
@@ -1429,6 +1752,13 @@ def main() -> None:
     p_suggest.add_argument("--language", choices=("zh", "en"), default="zh")
     p_suggest.set_defaults(func=cmd_suggest)
 
+    card = sub.add_parser("card", help="package one story and explicitly selected originals in an offline ZIP")
+    card.add_argument("id", help="memory id")
+    card.add_argument("--media", action="append", default=[], metavar="MEDIA_PATH", help="include this complete original listed on the story (repeatable)")
+    card.add_argument("--include-private", action="store_true", help="allow sharing this private memory")
+    card.add_argument("--vault")
+    card.set_defaults(func=cmd_card)
+
     p_export = sub.add_parser("export", help="write a printable book (self-contained HTML) to <vault>/exports/")
     p_export.add_argument("--person", help="only memories about this person")
     p_export.add_argument("--narrator", help="only memories told by this person")
@@ -1440,13 +1770,40 @@ def main() -> None:
 
     p_timeline = sub.add_parser("timeline", help="memories ordered by when they happened, as JSON")
     p_timeline.add_argument("--person")
+    p_timeline.add_argument("--include-private", action="store_true", help="include private dates and summaries")
     p_timeline.add_argument("--vault")
     p_timeline.set_defaults(func=cmd_timeline)
 
     sub.add_parser("config", help="show the current config").set_defaults(func=cmd_config)
 
     args = parser.parse_args()
-    args.func(args)
+    try:
+        if args.command == "init":
+            target = Path(args.vault).expanduser()
+            target.mkdir(parents=True, exist_ok=True)
+            with sources.vault_lock(target):
+                args.func(args)
+            return
+        if args.command not in {"config", "suggest"}:
+            vault = resolve_vault(args.vault)
+            require_vault(vault)
+            if args.command in {"search", "timeline", "export"} and (args.person or getattr(args, "narrator", None)):
+                args.aliases = person_aliases(vault)
+                args.person = args.aliases.get(args.person, args.person)
+                if getattr(args, "narrator", None):
+                    args.narrator = args.aliases.get(args.narrator, args.narrator)
+            changes = (args.command in {"remove", "index", "export", "card", "alias"}
+                       or (args.command == "add" and not args.dry_run)
+                       or (args.command == "check" and args.fix)
+                       or (args.command == "media" and (args.files or args.reuse))
+                       or (args.command == "interview" and args.action == "start"))
+            if changes:
+                with sources.vault_lock(vault):
+                    args.func(args)
+                return
+        args.func(args)
+    except (OSError, ValueError) as exc:
+        parser.exit(1, f"error: {exc}\n")
 
 
 if __name__ == "__main__":
