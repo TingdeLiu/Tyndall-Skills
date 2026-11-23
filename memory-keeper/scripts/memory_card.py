@@ -12,14 +12,14 @@ from memory_sources import MEDIA_EXTENSIONS
 
 
 LABELS = {
-    "zh": ("家庭记忆卡", "随故事保存的原件", "打开原件", "步骤", "私密版"),
-    "en": ("Family story card", "From the family archive", "Open original", "Step", "Private edition"),
+    "zh": ("记忆卡", "随故事保存的原件", "打开原件", "步骤", "私密版"),
+    "en": ("Story card", "Originals shared with this story", "Open original", "Step", "Private edition"),
 }
 READER_TEXT = {
-    "zh": ("可以提问的家庭回忆录", "你想问这段往事什么？", "找相关原文",
-           "按词查找这份回忆录里的段落。想进一步聊，可以把这份 ZIP 和问题一起交给装了 Memory Keeper 的 Codex。",
+    "zh": ("分享给你的回忆", "你想问这段往事什么？", "找相关原文",
+           "按词查找这份回忆录里的段落。想进一步聊，可以把这份 ZIP 和问题一起交给装了「独家记忆」 的 Codex。",
            "这份回忆录里没有找到匹配的原文。", "查看本篇素材"),
-    "en": ("A family memoir you can ask about", "What would you like to ask?", "Find passages",
+    "en": ("Memories shared with you", "What would you like to ask?", "Find passages",
            "Find matching words in these stories. For a conversation, give this ZIP and your question to Codex with Memory Keeper installed.",
            "No matching passage was found in these stories.", "See this story’s originals"),
 }
@@ -159,12 +159,12 @@ def build_card(vault, stories, lang, selected):
     page = (f'<!doctype html>\n<html lang="{"zh-CN" if lang == "zh" else "en"}"><head>'
             f'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{escape(title)}</title><style>{CSS}</style></head><body><main>'
-            f'<p class="meta">Memory Keeper · {kind}{marker}</p>{contents}</main>'
+            f'<p class="meta">{"独家记忆" if lang == "zh" else "Memory Keeper"} · {kind}{marker}</p>{contents}</main>'
             f'<script>{reader}</script></body></html>\n')
 
     folder = vault / "exports"
     folder.mkdir(exist_ok=True)
-    stem = stories[0]["stem"] if single else ("家庭回忆录" if lang == "zh" else "Family memoir")
+    stem = stories[0]["stem"] if single else ("我的回忆" if lang == "zh" else "My memories")
     basename = f"{stem}-{'记忆卡' if lang == 'zh' else 'card'}" + (f"-{edition}" if private else "")
     target = folder / f"{basename}.zip"
     version = 1

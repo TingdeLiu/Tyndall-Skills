@@ -12,7 +12,7 @@ Usage:
   python memory_vault.py interview start|list|show --help
   python memory_vault.py alias   <person> <alternate_name>
   python memory_vault.py remove  <id> [--vault <vault_path>]
-  python memory_vault.py search  [words ...] [--person P] [--tag T] [--type memory|person|capsule]
+  python memory_vault.py search  [words ...] [--mine] [--person P] [--tag T] [--type memory|person|capsule]
                                  [--limit N] [--no-private] [--vault <vault_path>]
   python memory_vault.py timeline [--person P] [--vault <vault_path>]
   python memory_vault.py export  [--person P] [--narrator N] [--title T] [--include-private]
@@ -433,7 +433,7 @@ def require_vault(vault: Path) -> None:
 
 README_ZH = """# 我的记忆
 
-这个文件夹由 Memory Keeper 管理，里面是你和家人的故事。
+这是你的个人记忆库。把想留住的经历放在这里，以后和 AI 聊天时，它可以按话题找回你讲过的事。
 
 - `memories/`：一段记忆一个文件
 - `media/` 保存照片、录音和视频原件，从记忆的「原始素材」可以打开
@@ -452,7 +452,7 @@ README_ZH = """# 我的记忆
 
 README_EN = """# My Memories
 
-This folder is managed by Memory Keeper and holds your and your family's stories.
+This is your personal memory vault. Keep experiences you want to remember here so your AI can find them when they come up in a later conversation.
 
 - `memories/`: one file per memory
 - `media/` holds original photos, audio and video linked from each memory
@@ -1032,6 +1032,8 @@ def cmd_search(args) -> None:
     require_vault(vault)
     words = [w.lower() for w in args.words]
     kinds = [args.type] if args.type else list(TYPE_DIR)
+    if args.mine:
+        kinds = [kind for kind in kinds if kind == "memory"]
     results = []
     for kind in kinds:
         for path in sorted((vault / TYPE_DIR[kind]).glob("*.md")):
@@ -1040,6 +1042,8 @@ def cmd_search(args) -> None:
             except (OSError, UnicodeDecodeError):
                 continue
             meta, body = split_frontmatter(text)
+            if args.mine and not (meta.get("narrator") and is_self(meta["narrator"])):
+                continue
             if args.person:
                 meta = canonical_people(meta, args.aliases)
                 hit = (
@@ -1316,7 +1320,7 @@ BOOK_TEXT = {
         "related": {"相关", "related"},
         "sep": "、",
         "joiner": "",
-        "colophon": "本书由 Memory Keeper 根据讲述整理，只收录讲述者说过的内容。",
+        "colophon": "本书由 「独家记忆」 根据讲述整理，只收录讲述者说过的内容。",
         "empty": "记忆库里还没有符合条件的记忆。",
     },
     "en": {
@@ -1732,6 +1736,7 @@ def main() -> None:
     p_search = sub.add_parser("search", help="find entries by words, person, tag or type")
     p_search.add_argument("words", nargs="*", help="all words must appear (case-insensitive)")
     p_search.add_argument("--person")
+    p_search.add_argument("--mine", action="store_true", help="only memories explicitly narrated by the vault owner")
     p_search.add_argument("--tag")
     p_search.add_argument("--type", choices=tuple(TYPE_DIR))
     p_search.add_argument("--limit", type=int, default=20)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "独家记忆"
+  short_description: "留下自己的经历，让以后的 AI 聊天接得上你曾经讲过的事。"
+  default_prompt: "用 $memory-keeper 陪我聊聊最近的生活。"

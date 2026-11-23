@@ -49,6 +49,25 @@ class ArchiveTest(unittest.TestCase):
         path.write_bytes(data)
         return path
 
+    def test_personal_chat_finds_own_recollections_across_sessions(self):
+        def save(title, narrator, tags=""):
+            draft = STORY.replace("包粽子", title).replace("narrator: 我", f"narrator: {narrator}")
+            return self.cli("add", "-", draft=draft.replace("people: [外婆]", f"people: [我]\ntags: [{tags}]"))["id"]
+
+        my_story = save("搬家后学做饭", "我")
+        english = save("第二次搬家", "me")
+        interview = save("妈妈记得我搬家", "妈妈")
+        private = save("搬家的另一个原因", "我", "private")
+        legacy = self.vault / "memories" / "搬家旧笔记.md"
+        legacy.write_text(STORY.replace("narrator: 我\n", ""), encoding="utf-8")
+        everyday = self.cli("search", "搬家", "--mine", "--no-private")["results"]
+        self.assertEqual({r["id"] for r in everyday}, {my_story, english})
+        self.assertTrue(all((self.vault / r["path"]).is_file() for r in everyday))
+        self.assertEqual({r["id"] for r in self.cli("search", "搬家", "--mine")["results"]},
+                         {my_story, english, private})
+        self.assertIn(interview, {r["id"] for r in self.cli("search", "搬家", "--person", "我")["results"]})
+        self.assertEqual(self.cli("search", "--type", "person", "--mine")["count"], 0)
+
     def test_attach_originals_to_new_and_old_memory(self):
         files = [self.fixture("原声.m4a", b"voice"), self.fixture("折叶[1].heic", b"photo"),
                  self.fixture("手法.MOV", b"video" * 300000)]

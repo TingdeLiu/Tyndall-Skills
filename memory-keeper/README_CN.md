@@ -1,43 +1,35 @@
-# 再讲一遍 · 可以提问的家庭回忆录
+# 独家记忆
 
-[English](README.md) · [听 3 秒敲门声](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [下载整张示例卡](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-zh.zip)
+把只属于你的经历留下来。以后和 AI 聊天，你可以从今天最想说的那句开始。它能翻回你愿意记下的往事，接着聊。每段记忆都是你自己文件夹里的 Markdown，照片、录音和视频也可以一起留。安装名为 `memory-keeper`。[English](README.md)
 
-**「你当时怎么知道门外是外公？」** 家人可以从你留下的故事里找答案，再点开录音听那两轻一重。平时在 Codex 或 Claude Code 里讲一件小事就能开始。文字、照片和原声存在你选的文件夹里。安装名是 `memory-keeper`。
+## 两次聊天，中间可以隔很久
 
-[![《外公的敲门声》记忆卡截图，正文下方可以播放敲门声](examples/knock-zh.png)](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-zh.zip)
+下面是一个虚构的例子。
 
-**先问一张。** 下载示例，解压后打开 `index.html`，输入「外公怎么敲门」，点结果回到原文，再听那三声。浏览器断网也能按词找段落。故事是虚构的，敲门声为合成示例。
+**第一次，你想记一件小事。**「帮我记一下。第一次一个人搬家，头几天连饭都吃得很随便。后来找到楼下卖豆浆的小店，每天早上有个地方去，才慢慢觉得自己住下来了。」AI 给你看整理好的文字，确认后存到你的记忆库。
 
-## 做自己的第一张卡
+**过了几个月，你又想聊聊。**「下个月要搬家了，心里有点乱。」如果当初那段经历跟今天有关，AI 可以接一句：「你上次说，找到楼下那家豆浆店，才觉得自己住下来了。这回让你心里乱的是什么？」
 
-用 Codex 的话，可以直接在对话里发这句：
+你也可以说「这次我挺期待的，今天就想跟你说说」。它会跟着你今天的感受聊。闲聊本身不会自动变成一篇记录。你想核对它记得对不对，可以问「我当时怎么说的？」，打开原文看。
+
+## 开始用
+
+在 Codex 里直接发这句：
 
 ```text
-请安装这个家庭记忆技能：https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
+请安装「独家记忆」：https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-Codex 和 Claude Code 也可以在项目目录运行下面的命令，再选择自己用的工具。安装器用 Node.js。做记忆卡、保存原件和导出成书用 Python 3 标准库。[安装器要求](https://github.com/vercel-labs/skills#install-a-skill)
+也可以在项目目录运行下面的命令，选择 Codex 或 Claude Code。安装器使用 Node.js，归档和检索脚本使用 Python 3 标准库。[安装器说明](https://github.com/vercel-labs/skills#install-a-skill)
 
 ```sh
 npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-1. **先留一句话。**「帮我记一下，外公来我家，轻轻敲两下，等一等，再重重敲一下。我在屋里就知道是他。」第一次它会推荐一个文件夹，把整理好的文字给你过目。
-2. **配上一件原件。** 给它一段本地录音或一张照片，说「把这个和刚才的故事放在一起」。记录一道家常菜或一门手艺时，还可以告诉它哪张照片、视频里的哪几秒对应哪一步。
-3. **做给一个人。**「把这个故事和刚才那段录音做张卡，我想给姐姐听。」成品在记忆库的 `exports/` 文件夹里，你自己决定发给谁。
+想先试聊，可以说「陪我聊聊最近的事」。第一次说「这段我想留下来」时，再选一个存放记忆的文件夹。以后，只要用的 AI 有权读取这个库，就可以接着聊。换聊天工具时，也可以只给它看你选的一篇 Markdown。聊天中用到的内容会经过你使用的 AI 服务。
 
-## 家人怎么跟它聊
+## 有些故事，你也许想留给家人
 
-姐姐可以直接把 ZIP 的本地路径给装了这个技能的 Codex，说「只根据这份回忆录回答。你怎么知道来的是外公？请给我看原文。」接着问「他为什么从来不按门铃？」故事只记下了敲门的习惯，Codex 应当告诉她，外公的原因没有留下记录。每段回答都可以按篇名、段落号回到原文，有录音的篇目也能打开原件。
+哪怕只是想让将来的自己重新听一段声音，也可以把原始录音和故事放在一起。如果希望自己离世后，家人还能听你讲往事，可以提前挑好愿意留下的故事，做成可打印的回忆录，或者带原声的离线记忆卡，把成品交给信任的人保管。交给谁、什么时候交，由你安排。
 
-你可以选多篇故事分享。收件人无需建立自己的记忆库。你自己使用时，第一次选定库，往后就能直接问「我跟你讲过外公哪些事？」。让它照你的措辞写信，得到的是 AI 代拟的草稿。想听真实声音，可以回放留下的录音；这个技能没有声音克隆或实时变声通话功能。
-
-## 下次回家时，还能这样用
-
-- **出发前**说「我想问问我妈第一次上班的事，帮我想个开头，一次问一个问题」。
-- **回家后**说「接着整理上次那份采访」。保存过的转写会记住进度，每段整理好的故事都能找到原文行号。
-- **过生日前**说「把外婆讲过的故事做成一本书」。浏览器打开就可以打印，也能另存成 PDF。
-
-每篇故事都是能直接打开和编辑的 Markdown 文件。备份时复制整个记忆库，照片和声音就能跟着搬家。聊天内容会经过你使用的 AI 服务。记忆卡带上你点名的**完整原件**，包括时间标记之外的录音，以及照片里原有的拍摄信息。分享标为私密的故事需要明确确认。
-
-打算下次回家再试，可以先在仓库右上角点 **Star**，到时候从收藏里找回来。如果试用时卡在哪一步，欢迎用虚构例子来提建议。[收藏仓库](https://github.com/TingdeLiu/Tyndall-Skills) · [反馈使用体验](https://github.com/TingdeLiu/Tyndall-Skills/issues)
+《外公的敲门声》是一张虚构的示例卡。下载并解压 ZIP，打开 `index.html`，可以问「外公怎么敲门」，再听那三声。家人也可以把这份 ZIP 给装了技能的 Codex，只围绕你选好的故事提问。卡里包含选中素材的完整原件，声音来自你留下的录音。[听 3 秒示例](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [下载示例卡](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-zh.zip) · [预览](examples/knock-zh.png)

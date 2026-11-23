@@ -21,7 +21,7 @@
 ```
 <vault_path>/
 ├── README.md          ← 给用户看的说明（init 时生成）
-├── INDEX.md           ← 总索引，由脚本生成，AI 回顾时先读它
+├── INDEX.md           ← 总索引，想浏览整库时打开
 ├── TIMELINE.md        ← 时间线，由脚本按事情发生的年份生成
 ├── profile.md         ← 关于记忆库主人
 ├── memories/          ← 一段记忆一个文件
@@ -29,7 +29,7 @@
 ├── capsules/          ← 信件 / 时间胶囊
 ├── media/             ← 首次添加素材时建立，保存原格式二进制文件
 ├── interviews/        ← 每次采访的原始转写、行号分段和媒体清单
-├── exports/           ← 可打印的书（HTML）和单篇家庭记忆卡（ZIP）
+├── exports/           ← 本人选好后导出的回忆录（HTML）和记忆卡（ZIP）
 └── .trash/            ← remove 移过来的条目，脚本不读它，用户确认后自己清空
 ```
 

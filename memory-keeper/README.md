@@ -1,43 +1,35 @@
-# Tell Me Again · A family memoir you can ask about
+# 独家记忆 · Your personal memory journal
 
-[中文](README_CN.md) · [Hear the three-second knock](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [Download the example card](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-en.zip)
+Keep the moments you want to remember. The next time you talk to your AI, you can start with what’s on your mind today. It can draw on experiences you chose to save. Your stories are Markdown files in a folder you control, alongside any photos, recordings or video you keep with them. The skill installs as `memory-keeper`. [中文](README_CN.md)
 
-**“How did you know it was Grandpa at the door?”** Let your family find what you wrote and play the three knocks you saved. Start with one story in Codex or Claude Code. The words, photos and recordings live in a folder you choose. The skill installs as `memory-keeper`.
+## Two conversations, months apart
 
-[![A family story card with Grandpa’s knock and a playable recording](examples/knock-en.png)](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-en.zip)
+Here’s a fictional example.
 
-**Ask the example.** Extract the ZIP and open `index.html`. Try “How did Grandpa knock?”, follow the result back to the passage, and press play. The browser finds matching passages offline. The story is fictional and the sound is synthesized.
+**When you want to remember something.** “Save this for me. When I first moved out on my own, I hardly bothered with meals. Then I found a little place downstairs that sold soy milk. Having somewhere to go for breakfast made it feel like I lived there.” The AI shows you a draft and saves it to your journal when you confirm.
 
-## Make your first card
+**When you just want to talk.** Months later, you say, “I’m moving again next month. My head’s all over the place.” Your AI can pick up that thread. “You once told me finding that little breakfast place helped you feel settled. What’s on your mind about this move?”
 
-If you use Codex, paste this into a chat:
+You can say, “Actually, I’m looking forward to this one. I just felt like talking.” Today’s conversation follows how you feel now. An ordinary chat doesn't create a journal entry. Ask “What did I actually say?” to see the original passage.
+
+## Get started
+
+In Codex, paste this request.
 
 ```text
-Install the memory-keeper skill from https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
+Install my personal memory journal from https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-For Codex or Claude Code, you can also run the following in your project and choose your agent. The installer uses Node.js. Making cards, archiving media and exporting books use Python 3 and its standard library. [Installer requirements](https://github.com/vercel-labs/skills#install-a-skill)
+Or run this in your project and select Codex or Claude Code. The installer uses Node.js. The archiving and search tools use the Python 3 standard library. [Installer instructions](https://github.com/vercel-labs/skills#install-a-skill)
 
 ```sh
 npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-1. **Start with one sentence.** “Help me save a memory. Grandpa always knocked twice, waited, then knocked once more. I knew it was him.” The skill suggests a folder and shows you the draft.
-2. **Add something you can hear or see.** Give the agent a local recording or photo and say “Keep this with the story.” For a recipe or a craft, you can also mark which step a photo or video shows.
-3. **Make something for one person.** “Make a card for my sister with Grandpa’s story and that recording.” You get a ZIP in the vault’s `exports/` folder. You choose who gets a copy.
+Try “I feel like talking about my week.” Choose a folder when you first have something you want to keep. A compatible AI with access to that folder can use it in a later chat. If you change tools, you can also give the new one a single Markdown entry you choose. Material discussed in chat goes through the AI service you use.
 
-## Have a conversation with the stories
+## If you want to leave something for loved ones
 
-Your sister can give the ZIP path to Codex with this skill installed and ask, “Use only this memoir. How did you know Grandpa had arrived? Show me the passage.” Then try “Why did he never ring the bell?” The story describes his habit and leaves his reasons unrecorded. Codex can cite a story and paragraph and point to any recording you shared with it.
+Keep an original recording with its story, even if the only person you have in mind is your future self. If you’d like someone to hear your stories after you’re gone, you can prepare a printable memoir or an offline card with selected recordings, and leave a copy with someone you trust. You decide who gets it and arrange the handoff yourself.
 
-Select one or several stories to share. Recipients can use the package without setting up a vault. On your own computer, select your vault once and ask about it on later visits. Codex can draft text in a style grounded in the stories. Voice playback uses the actual recordings you provide. The skill has no voice cloning or live voice calls.
-
-## Come back to it
-
-- **Before a visit** — “Help me interview Mum about her first job. Give me one question to start with.”
-- **After a visit** — “Pick up where we left off in her interview.” A saved transcript keeps its place, and each filed story points back to the lines it came from.
-- **For a birthday** — “Make a printable book of Grandma’s stories.” The book opens in a browser and prints to paper or PDF.
-
-Each story is a Markdown file you can open and edit. Back up the whole vault to keep stories and originals together. Conversations go through the AI service you use. A card includes the stories and complete media files you select, including any recording beyond a marked time and any embedded photo metadata. Private stories require an explicit choice to share.
-
-Planning to try this on your next visit home? **Star** the repository so you can find it then. If something gets in the way of making a first card, tell us where you got stuck. Please use made-up examples in public issues. [Star the repository](https://github.com/TingdeLiu/Tyndall-Skills) · [Leave feedback](https://github.com/TingdeLiu/Tyndall-Skills/issues)
+*Grandpa’s knock* is a fictional example of a card you could leave. Extract the ZIP, open `index.html`, look up “How did Grandpa knock?” and play the three knocks. A recipient can also give the ZIP to Codex with this skill and ask about just those stories. Each selected media file is included in full, and playback uses the recording you supply. [Hear the example](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [Download the card](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-en.zip) · [Preview](examples/knock-en.png)
