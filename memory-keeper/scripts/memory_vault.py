@@ -7,7 +7,8 @@ Usage:
   python memory_vault.py add     <draft.md | -> [--vault <vault_path>] [--dry-run]
                                  [--attach file]... [--interview id --segment n]
   python memory_vault.py media   <memory_id> [file ...] [--step n] [--at 00:12–00:20]
-  python memory_vault.py card    <memory_id> [--media media/path]... [--include-private]
+  python memory_vault.py card    <memory_id> [more_ids ...] [--media media/path]... [--include-private]
+  python memory_vault.py read-share <shared.zip | extracted_folder> [--story s1]
   python memory_vault.py interview start|list|show --help
   python memory_vault.py alias   <person> <alternate_name>
   python memory_vault.py remove  <id> [--vault <vault_path>]
@@ -1471,18 +1472,21 @@ def body_to_html(body: str, bt: dict) -> str:
 
 def cmd_card(args) -> None:
     vault = resolve_vault(args.vault)
-    path, text, meta = read_memory(vault, args.id)
-    private = is_private(meta)
-    if private and not args.include_private:
-        raise ValueError("private memory: confirm sharing it and add --include-private")
     lang = vault_language(vault)
-    _, body = split_frontmatter(text)
-    lines, _ = sources.source_lines(body)
-    story = body_to_html("\n".join(lines), BOOK_TEXT[lang])
-    byline = BOOK_TEXT[lang]["told_by"].format(narrator_label(meta, TEXT[lang]))
-    context = " · ".join(filter(None, (when_text(meta), byline)))
-    emit(memory_card.build_card(vault, path.stem, meta["title"], context, story, lang, private,
-                                sources.linked_media(body), args.media))
+    stories = {}
+    for entry_id in args.ids:
+        path, text, meta = read_memory(vault, entry_id)
+        private = is_private(meta)
+        if private and not args.include_private:
+            raise ValueError("private memory: confirm sharing it and add --include-private")
+        _, body = split_frontmatter(text)
+        lines, _ = sources.source_lines(body)
+        byline = BOOK_TEXT[lang]["told_by"].format(narrator_label(meta, TEXT[lang]))
+        stories[path.stem] = {"stem": path.stem, "title": meta["title"], "private": private,
+                             "context": " · ".join(filter(None, (when_text(meta), byline))),
+                             "html": body_to_html("\n".join(lines), BOOK_TEXT[lang]),
+                             "refs": sources.linked_media(body)}
+    emit(memory_card.build_card(vault, list(stories.values()), lang, args.media))
 
 
 def cmd_export(args) -> None:
@@ -1752,12 +1756,16 @@ def main() -> None:
     p_suggest.add_argument("--language", choices=("zh", "en"), default="zh")
     p_suggest.set_defaults(func=cmd_suggest)
 
-    card = sub.add_parser("card", help="package one story and explicitly selected originals in an offline ZIP")
-    card.add_argument("id", help="memory id")
+    card = sub.add_parser("card", help="package selected stories and originals in a searchable offline ZIP")
+    card.add_argument("ids", nargs="+", help="one or more memory ids, in reading order")
     card.add_argument("--media", action="append", default=[], metavar="MEDIA_PATH", help="include this complete original listed on the story (repeatable)")
     card.add_argument("--include-private", action="store_true", help="allow sharing this private memory")
     card.add_argument("--vault")
     card.set_defaults(func=cmd_card)
+
+    shared = sub.add_parser("read-share", help="read a shared memoir without accessing the recipient's vault")
+    shared.add_argument("package", help="ZIP, extracted folder, or stories.json")
+    shared.add_argument("--story", help="shared story id from the listing, e.g. s1")
 
     p_export = sub.add_parser("export", help="write a printable book (self-contained HTML) to <vault>/exports/")
     p_export.add_argument("--person", help="only memories about this person")
@@ -1778,6 +1786,9 @@ def main() -> None:
 
     args = parser.parse_args()
     try:
+        if args.command == "read-share":
+            emit(memory_card.read_share(args.package, args.story))
+            return
         if args.command == "init":
             target = Path(args.vault).expanduser()
             target.mkdir(parents=True, exist_ok=True)

@@ -17,10 +17,10 @@ CLI = HERE.parent / "scripts" / "memory_vault.py"
 STORIES = {
     "zh": ("外公的敲门声", "我", "小时候的周末", "敲门暗号.wav",
            "外公来我家，总是轻轻敲两下，停一下，再敲重重的一下。我在屋里听见，连猫眼都不用看。",
-           "我妈问我怎么知道是他。我说，别人都按门铃。", "虚构故事 · 敲门声为合成示例"),
+           "我妈问我怎么知道是他。我说，别人都按门铃。", "虚构故事 · 音效为合成示例"),
     "en": ("Grandpa’s knock", "me", "Weekends when I was little", "The door knock.wav",
            "Grandpa always knocked twice, waited, then knocked once more, louder. I could tell it was him without looking through the peephole.",
-           "Mum asked how I knew. I told her everyone else rang the bell.", "Fictional story · synthesized knocks"),
+           "Mum asked how I knew. I told her everyone else rang the bell.", "Fictional story · synthesized audio"),
 }
 
 

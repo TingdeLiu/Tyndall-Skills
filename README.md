@@ -29,7 +29,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
-| 20 | [**Memory Keeper**](memory-keeper/README.md)<br>`memory-keeper` | Record family stories and make an offline card with a photo, a voice or a video | Python 3 for cards and media |
+| 20 | [**Tell Me Again**](memory-keeper/README.md)<br>`memory-keeper` | A family memoir you can ask about in Codex, with links back to passages and original recordings | Python 3 for cards and media |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 

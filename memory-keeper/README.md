@@ -1,12 +1,12 @@
-# Memory Keeper
+# Tell Me Again · A family memoir you can ask about
 
 [中文](README_CN.md) · [Hear the three-second knock](https://cdn.jsdelivr.net/gh/TingdeLiu/Tyndall-Skills@cdada5c/memory-keeper/examples/knock.wav) · [Download the example card](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-en.zip)
 
-**What did your grandpa’s knock sound like?** Save the story in his words, keep the recording beside it, and make a card your family can listen to. Memory Keeper works in Codex and Claude Code. The stories live in a folder you choose.
+**“How did you know it was Grandpa at the door?”** Let your family find what you wrote and play the three knocks you saved. Start with one story in Codex or Claude Code. The words, photos and recordings live in a folder you choose. The skill installs as `memory-keeper`.
 
 [![A family story card with Grandpa’s knock and a playable recording](examples/knock-en.png)](https://github.com/TingdeLiu/Tyndall-Skills/raw/refs/heads/main/memory-keeper/examples/knock-en.zip)
 
-**Try it before installing.** Download the example above, extract the ZIP, and open `index.html` in a browser. Press play to hear the two light knocks and the louder one. The story is fictional and the sound is synthesized. Your family opens a card the same way, even offline.
+**Ask the example.** Extract the ZIP and open `index.html`. Try “How did Grandpa knock?”, follow the result back to the passage, and press play. The browser finds matching passages offline. The story is fictional and the sound is synthesized.
 
 ## Make your first card
 
@@ -26,12 +26,18 @@ npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keep
 2. **Add something you can hear or see.** Give the agent a local recording or photo and say “Keep this with the story.” For a recipe or a craft, you can also mark which step a photo or video shows.
 3. **Make something for one person.** “Make a card for my sister with Grandpa’s story and that recording.” You get a ZIP in the vault’s `exports/` folder. You choose who gets a copy.
 
+## Have a conversation with the stories
+
+Your sister can give the ZIP path to Codex with this skill installed and ask, “Use only this memoir. How did you know Grandpa had arrived? Show me the passage.” Then try “Why did he never ring the bell?” The story describes his habit and leaves his reasons unrecorded. Codex can cite a story and paragraph and point to any recording you shared with it.
+
+Select one or several stories to share. Recipients can use the package without setting up a vault. On your own computer, select your vault once and ask about it on later visits. Codex can draft text in a style grounded in the stories. Voice playback uses the actual recordings you provide. The skill has no voice cloning or live voice calls.
+
 ## Come back to it
 
 - **Before a visit** — “Help me interview Mum about her first job. Give me one question to start with.”
 - **After a visit** — “Pick up where we left off in her interview.” A saved transcript keeps its place, and each filed story points back to the lines it came from.
 - **For a birthday** — “Make a printable book of Grandma’s stories.” The book opens in a browser and prints to paper or PDF.
 
-Each story is a Markdown file you can open and edit. Back up the whole vault to keep stories and originals together. Conversations go through the AI service you use. A card includes the one story and the complete media files you select, including any recording beyond a marked time and any embedded photo metadata. Private stories require an explicit choice to share.
+Each story is a Markdown file you can open and edit. Back up the whole vault to keep stories and originals together. Conversations go through the AI service you use. A card includes the stories and complete media files you select, including any recording beyond a marked time and any embedded photo metadata. Private stories require an explicit choice to share.
 
 Planning to try this on your next visit home? **Star** the repository so you can find it then. If something gets in the way of making a first card, tell us where you got stuck. Please use made-up examples in public issues. [Star the repository](https://github.com/TingdeLiu/Tyndall-Skills) · [Leave feedback](https://github.com/TingdeLiu/Tyndall-Skills/issues)

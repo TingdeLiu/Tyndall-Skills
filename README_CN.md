@@ -29,7 +29,7 @@
 | 17 | [**综述论文入库**](#17-综述论文入库-paper-insert)<br>`paper-insert` | 把写好的论文总结插进对应综述（VLA / VLM / 世界模型 / 空间智能），自动顺延序号并保持锚点不变 | Python 3 |
 | 18 | [**VLN 论文入库**](#18-vln-论文入库-vln-paper-insert)<br>`vln-paper-insert` | 一次把论文写进 VLN 论文列表（主篇 / 扩展篇）的正文、筛选标签、参考文献、会议表和排行榜 | Python 3 |
 | 19 | [**VLN 导航指令撰写**](#19-vln-导航指令撰写-vln-instruction)<br>`vln-instruction` | 撰写、改写、体检英文导航指令：R2R-CE / RxR-CE 路线指令对照 3D 轨迹校验，另含单目标物体指令 | Python 3 |
-| 20 | [**家庭记忆**](memory-keeper/README_CN.md)<br>`memory-keeper` | 采访家人、保存原件，把一段故事和选中的照片、声音或视频做成离线记忆卡 | 做卡和保存原件用 Python 3 |
+| 20 | [**再讲一遍**](memory-keeper/README_CN.md)<br>`memory-keeper` | 可以提问的家庭回忆录。家人用 Codex 问选好的故事，按段落回看原文、重听原声 | 做卡和保存原件用 Python 3 |
 
 → [我常用的第三方技能](#我常用的第三方技能) · [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 

@@ -95,11 +95,11 @@ class ArchiveTest(unittest.TestCase):
         self.assertNotEqual(self.run_cli("card", story, "--media", hidden).returncode, 0)
         self.assertNotEqual(self.run_cli("card", story, "--media", "../profile.md").returncode, 0)
         with zipfile.ZipFile(self.cli("card", story)["written"]) as archive:
-            self.assertEqual(archive.namelist(), ["index.html"])
+            self.assertEqual(archive.namelist(), ["index.html", "stories.json"])
             self.assertNotIn("做法.mov", archive.read("index.html").decode())
         card = self.cli("card", story, "--media", selection, "--media", selection)
         with zipfile.ZipFile(card["written"]) as archive:
-            self.assertEqual(archive.namelist(), ["index.html", "media/1.mov"])
+            self.assertEqual(archive.namelist(), ["index.html", "stories.json", "media/1.mov"])
             self.assertEqual(archive.read("media/1.mov"), clip.read_bytes())
             page = archive.read("index.html").decode()
             self.assertIn("包粽子 &amp; &lt;米&gt;", page)
@@ -122,6 +122,51 @@ class ArchiveTest(unittest.TestCase):
         self.assertIn("私密版", first["written"])
         with zipfile.ZipFile(first["written"]) as archive:
             self.assertIn("私密版", archive.read("index.html").decode())
+
+    def test_family_can_question_two_stories_without_access_to_a_vault(self):
+        voice = self.fixture("妈妈的声音.wav", b"family original")
+        first = self.cli("add", "-", "--attach", voice, draft=STORY)["id"]
+        second = self.cli("add", "-", draft=STORY.replace("包粽子", "车站")
+                          .replace("我\npeople", "妈妈\npeople") + "\n> 她送我到车站。\n")["id"]
+        private = self.cli("add", "-", draft=STORY.replace("包粽子", "未分享的信")
+                           .replace("type: memory", "type: memory\ntags: [private]"))["id"]
+        self.assertNotEqual(self.run_cli("card", first, private).returncode, 0)
+        original = self.cli("media", first)["media"][0]["path"]
+        package = self.cli("card", second, first, second, "--media", original)
+        self.assertEqual(package["stories"], 2)
+        # A recipient may even have a broken private configuration. The shared reader
+        # must never consult it, including on a follow-up or an unknown story id.
+        Path(self.env["MEMORY_KEEPER_CONFIG"]).write_text("not valid JSON", encoding="utf-8")
+        path = Path(package["written"])
+        with zipfile.ZipFile(path) as bundle:
+            page = bundle.read("index.html").decode()
+            data = bundle.read("stories.json").decode()
+            bundle.extractall(self.root / "received")
+        for unseen in (private, "未分享的信", original, str(self.vault)):
+            self.assertNotIn(unseen, data + page)
+        listing = self.cli("read-share", path)["stories"]
+        self.assertEqual([s["title"] for s in listing], ["车站", "包粽子"])
+        self.assertIn("妈妈", listing[0]["context"])
+        station = self.cli("read-share", self.root / "received", "--story", "s1")
+        quoted = next(p for p in station["passages"] if p["kind"] == "quotation")
+        self.assertEqual(quoted["text"], "她送我到车站。")
+        self.assertIn(f'id="{quoted["anchor"]}"', page)
+        self.assertEqual(station["media"], [])
+        kitchen = self.cli("read-share", path, "--story", "s2")
+        media = kitchen["media"][0]
+        self.assertEqual((self.root / "received" / media["file"]).read_bytes(), voice.read_bytes())
+        self.assertIn(f'id="{media["anchor"]}"', page)
+        self.assertNotEqual(self.run_cli("read-share", path, "--story", "s3").returncode, 0)
+
+    def test_recipient_can_recognize_an_old_card_without_a_vault(self):
+        old = self.root / "old.zip"
+        with zipfile.ZipFile(old, "w") as bundle:
+            bundle.writestr("index.html", "<p>Family story</p>")
+        Path(self.env["MEMORY_KEEPER_CONFIG"]).unlink()
+        result = self.run_cli("read-share", old)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("index.html", result.stderr)
+        self.assertFalse(Path(self.env["MEMORY_KEEPER_CONFIG"]).exists())
 
     def test_interview_progress_and_concurrent_retry(self):
         text = "\ufeff外婆说，先折叶。\r\n要折出一个角。\r\n\r\n然后填米。\r\n"
