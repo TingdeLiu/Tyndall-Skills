@@ -1,6 +1,6 @@
 # 首次引导
 
-用户想记录时，帮他把第一段自己的记忆存好；用户只想聊天时，先陪他聊此刻想说的事，等他想留下一段再建库。
+用户想长期保留一段经历或朋友的性格时，再帮他选一个文件夹。只想聊天时，先聊此刻想说的事。
 
 ## 步骤
 
@@ -24,7 +24,7 @@
 python scripts/memory_vault.py init "<vault_path>"
 ```
 
-它会创建目录结构、`README.md`、`profile.md`、`INDEX.md`，并写好 `~/.memory-keeper/config.json`。
+它会创建目录结构、`README.md`、`profile.md`、`SOUL.md`、`INDEX.md`，并写好 `~/.memory-keeper/config.json`。英文库运行 `init "<vault_path>" --language en`。
 
 没有 Python 时，手动创建上述目录和文件，内容参照 [schema.md](schema.md)。
 
@@ -36,6 +36,7 @@ python scripts/memory_vault.py init "<vault_path>"
 
 根据用户来的目的选开场问题：
 
+- 用户来设定聊天朋友 → 按已确认的要求修改 `SOUL.md`，用设定好的口吻开始聊。
 - 用户只是想聊天 → 接住今天的话题。用户有了想记录的经历，再走保存流程。
 - 用户明确想采访亲人 → 进入「采访家人」流程，先问想采访谁。
 - 用户没说具体想做什么 → 问一个**轻、具体、人人都有答案**的问题，例如：

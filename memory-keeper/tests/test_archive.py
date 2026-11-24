@@ -49,6 +49,25 @@ class ArchiveTest(unittest.TestCase):
         path.write_bytes(data)
         return path
 
+    def test_new_chat_loads_the_selected_companion_and_owner(self):
+        soul = self.vault / "SOUL.md"
+        self.assertIn("坦率", soul.read_text(encoding="utf-8"))
+        soul.write_text("# 阿栗\n说话直一点。\n", encoding="utf-8")
+        (self.vault / "profile.md").write_text("# 我叫小棠\n", encoding="utf-8")
+        self.cli("init", self.vault)
+        second = self.root / "another vault"
+        self.cli("init", second, "--language", "en")
+        self.assertIn("candid", self.cli("chat-context")["companion"])
+        self.assertEqual(self.cli("chat-context", "--vault", self.vault), {
+            "vault": self.vault.resolve().as_posix(),
+            "companion": "# 阿栗\n说话直一点。\n",
+            "owner_profile": "# 我叫小棠\n",
+        })
+        old_soul = second / "SOUL.md"
+        old_soul.unlink()
+        self.assertIn("candid", self.cli("chat-context")["companion"])
+        self.assertFalse(old_soul.exists())
+
     def test_personal_chat_finds_own_recollections_across_sessions(self):
         def save(title, narrator, tags=""):
             draft = STORY.replace("包粽子", title).replace("narrator: 我", f"narrator: {narrator}")
@@ -113,9 +132,12 @@ class ArchiveTest(unittest.TestCase):
         hidden = self.cli("media", story)["interview_media"][0]["path"]
         self.assertNotEqual(self.run_cli("card", story, "--media", hidden).returncode, 0)
         self.assertNotEqual(self.run_cli("card", story, "--media", "../profile.md").returncode, 0)
+        (self.vault / "SOUL.md").write_text("私人聊天设定", encoding="utf-8")
         with zipfile.ZipFile(self.cli("card", story)["written"]) as archive:
             self.assertEqual(archive.namelist(), ["index.html", "stories.json"])
             self.assertNotIn("做法.mov", archive.read("index.html").decode())
+            for name in archive.namelist():
+                self.assertNotIn("私人聊天设定", archive.read(name).decode())
         card = self.cli("card", story, "--media", selection, "--media", selection)
         with zipfile.ZipFile(card["written"]) as archive:
             self.assertEqual(archive.namelist(), ["index.html", "stories.json", "media/1.mov"])

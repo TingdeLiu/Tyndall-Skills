@@ -24,6 +24,7 @@
 ├── INDEX.md           ← 总索引，想浏览整库时打开
 ├── TIMELINE.md        ← 时间线，由脚本按事情发生的年份生成
 ├── profile.md         ← 关于记忆库主人
+├── SOUL.md            ← 主人给 AI 聊天朋友定的性格，可直接编辑
 ├── memories/          ← 一段记忆一个文件
 ├── people/            ← 一个人一个档案
 ├── capsules/          ← 信件 / 时间胶囊

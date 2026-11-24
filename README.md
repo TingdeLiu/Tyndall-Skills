@@ -4,7 +4,7 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
-**独家记忆 · Your personal memory journal.** Save a memory of moving out on your own. Months later, when you’re facing another move, your AI can pick up where you left off. [Read the two conversations](memory-keeper/README.md)
+**独家记忆 · An AI chat companion.** Choose your AI friend’s personality and the experiences you want it to remember. Pick up the conversation in a new chat. [Get started](memory-keeper/README.md)
 
 ## Skills at a Glance
 
@@ -29,7 +29,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
-| 20 | [**独家记忆 · Personal memory journal**](memory-keeper/README.md)<br>`memory-keeper` | Keep your experiences, draw on them in later AI chats, and choose which stories to pass on to loved ones | Python 3 for archiving and search |
+| 20 | [**独家记忆 · AI chat companion**](memory-keeper/README.md)<br>`memory-keeper` | Choose a personality for your AI friend and revisit saved experiences in fresh chats | Python 3 for archiving and search |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -392,9 +392,9 @@ Treats a navigation instruction as a description of a 3D trajectory, not free-fo
 - **Example:** "Write an R2R-style instruction for episode 1234 in val_seen", "Check these instructions before I write them back."
 - Details in [the skill](vln-instruction/SKILL.md).
 
-### 20. Personal memory journal (`memory-keeper`)
+### 20. AI chat companion (`memory-keeper`)
 
-Start with an experience you want to remember. It lives in your own folder, ready to revisit when it comes up in a later conversation.
+Save the experiences you want to revisit in later chats. Give your AI friend a name and choose how you like it to talk with you.
 
 - On first use it suggests a vault folder (detecting a Documents folder redirected to OneDrive) and finds it again afterwards. One Markdown file per memory, plus people profiles, letter drafts and a generated index, cross-linked with `[[links]]` so Obsidian opens it as-is.
 - Everyday chat can draw on stories you have told. You can also interview relatives and resume work on their transcripts, with each account attributed to its teller.

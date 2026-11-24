@@ -444,6 +444,7 @@ README_ZH = """# 我的记忆
 - `INDEX.md`：总索引（自动生成）
 - `TIMELINE.md`：按事情发生的年份排列的时间线（自动生成）
 - `profile.md`：关于你
+- `SOUL.md`：你希望 AI 聊天朋友有什么性格、怎么跟你说话
 - `.trash/`：删掉的条目先放在这里，确认不要了再自己清空
 
 故事使用普通 Markdown。备份或搬家时请复制整个文件夹，让故事和原件一起走。
@@ -463,10 +464,16 @@ This is your personal memory vault. Keep experiences you want to remember here s
 - `INDEX.md`: generated index
 - `TIMELINE.md`: generated timeline, ordered by when things happened
 - `profile.md`: about you
+- `SOUL.md`: the personality and conversational style you want your AI friend to have
 - `.trash/`: removed entries land here; empty it yourself once you are sure
 
 Stories are plain Markdown. Back up the whole folder to keep the originals with their stories.
 """
+
+DEFAULT_SOUL = {
+    "zh": "# 我的 AI 聊天朋友\n\n温和、坦率。听我把话说完，有不同看法也可以直说。\n",
+    "en": "# My AI chat companion\n\nWarm and candid. Hear me out and tell me when you see things differently.\n",
+}
 
 
 def cmd_init(args) -> None:
@@ -477,6 +484,7 @@ def cmd_init(args) -> None:
 
     zh = args.language == "zh"
     write_if_missing(vault / "README.md", README_ZH if zh else README_EN)
+    write_if_missing(vault / "SOUL.md", DEFAULT_SOUL[args.language])
     write_if_missing(
         vault / "profile.md",
         f"---\nschema: {SCHEMA}\ntype: profile\nname:\n---\n\n"
@@ -503,6 +511,17 @@ def cmd_init(args) -> None:
 def write_if_missing(path: Path, content: str) -> None:
     if not path.exists():
         write_file(path, content)
+
+
+def cmd_chat_context(args) -> None:
+    vault = resolve_vault(args.vault)
+    soul = vault / "SOUL.md"
+    profile = vault / "profile.md"
+    emit({
+        "vault": vault.resolve().as_posix(),
+        "companion": soul.read_text(encoding="utf-8-sig") if soul.exists() else DEFAULT_SOUL[vault_language(vault)],
+        "owner_profile": profile.read_text(encoding="utf-8-sig") if profile.exists() else "",
+    })
 
 
 # ---------------------------------------------------------------------- index
@@ -1743,6 +1762,10 @@ def main() -> None:
     p_search.add_argument("--no-private", action="store_true", help="leave out entries tagged 私密 / private")
     p_search.add_argument("--vault")
     p_search.set_defaults(func=cmd_search)
+
+    p_chat = sub.add_parser("chat-context", help="read the companion style and owner profile for a personal chat")
+    p_chat.add_argument("--vault", help="use this vault instead of the configured one")
+    p_chat.set_defaults(func=cmd_chat_context)
 
     p_check = sub.add_parser("check", help="find missing fields, profiles, backlinks and dead links")
     p_check.add_argument("vault", nargs="?")
