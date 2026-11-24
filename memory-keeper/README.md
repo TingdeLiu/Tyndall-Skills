@@ -1,10 +1,10 @@
 # memory-keeper · An AI chat companion
 
-**Help your AI get to know you, one conversation at a time.** [中文](README_CN.md)
+**Let your AI get to know you through everyday conversation.** [中文](README_CN.md)
 
-Pick a line from a conversation that you want it to remember, or let it interview you. When a related subject comes up in a new chat, it can find your original words and pick up the thread.
+With chat memory on, the AI picks up on experiences you describe, what matters to you and how you like to talk. It also has a voice of its own. Feedback helps it learn when to offer a candid opinion and when to listen.
 
-> “Interview me, one question at a time. When we finish, let me choose what to keep for next time.”
+> You once mentioned that rehearsing the first line helped before an interview. Next time the subject comes up, it can offer to play the interviewer and let you try your opening.
 
 ## Get started
 
@@ -20,11 +20,17 @@ Or run this in your project and select Codex or Claude Code. The installer uses 
 npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-Start chatting as soon as the skill is installed. Choose your folder the first time you want to keep a story or set a lasting preference. Use the skill in a fresh chat with access to the same folder to pick up where you left off. Your stories live in Markdown files alongside any photos, recordings and videos you keep. You can edit your companion’s personality in `SOUL.md`. Material discussed in chat goes through the AI service you use.
+Choose a local folder and whether to enable automatic chat memory. Then talk naturally in any chat using this skill with access to that folder. You can say “Skip this part,” “Pause automatic memory” or “What made you think that about me?” Material used in chat goes through the AI service you choose.
 
-## Try it with a conversation you already had
+## What carries over
 
-Paste an excerpt and say “Help me pick what I'd like to come back to.” The AI shows you your own words and lets you choose which parts to save. Later, ask “What did I actually say?” to find the original note. You can correct it at any time.
+| File | What it holds |
+|---|---|
+| `profile.md` | Your portrait, including preferences and the situations where they apply. |
+| `SOUL.md` | The companion’s name, personality and habits it develops from your interactions. |
+| `memories/` | Your experiences and original words, with optional photos, recordings and videos. |
+
+Learned notes link to the recollection behind them. You can correct an impression, change the companion’s voice or pause saving.
 
 <details>
 <summary>Share selected stories with loved ones</summary>

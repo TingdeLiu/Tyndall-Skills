@@ -60,6 +60,7 @@ class ArchiveTest(unittest.TestCase):
         self.assertIn("candid", self.cli("chat-context")["companion"])
         self.assertEqual(self.cli("chat-context", "--vault", self.vault), {
             "vault": self.vault.resolve().as_posix(),
+            "chat_memory": "unset",
             "companion": "# 阿栗\n说话直一点。\n",
             "owner_profile": "# 我叫小棠\n",
             "memories": [],
@@ -68,6 +69,52 @@ class ArchiveTest(unittest.TestCase):
         old_soul.unlink()
         self.assertIn("candid", self.cli("chat-context")["companion"])
         self.assertFalse(old_soul.exists())
+
+    def test_everyday_chat_grows_two_sourced_documents_and_pause_is_per_vault(self):
+        def draft(words, profile, habit):
+            return (f"---\ntype: memory\ntitle: 面试开场\nsummary: 面试前的习惯\nnarrator: 我\n"
+                    f"chat_topic: 面试准备\nprofile_note: {profile}\ncompanion_note: {habit}\n---\n"
+                    f"## 原话\n\n> {words}\n")
+        first = draft("我面试前喜欢练第一句。你刚才陪我试了那遍就挺好。", "面试前练开场会安心。", "先陪他练一句。")
+        self.cli("init", self.vault, "--auto-save")
+        self.assertNotEqual(self.run_cli("add", "-", "--from-chat", draft=first).returncode, 0)
+        soul = self.vault / "SOUL.md"
+        soul.write_text("# 阿栗\n我很坦率，也可以不同意你。\n", encoding="utf-8")
+        self.cli("chat-memory", "on")
+        for invalid in [first.replace("narrator: 我", "narrator: 妈妈"),
+                        first.replace("narrator: 我", "narrator: 我\ntags: [私密]"),
+                        first.replace("## 原话", "## 摘要")]:
+            self.assertNotEqual(self.run_cli("add", "-", "--from-chat", draft=invalid).returncode, 0)
+        with ThreadPoolExecutor(2) as pool:
+            attempts = list(pool.map(lambda _: self.cli("add", "-", "--from-chat", draft=first), range(2)))
+        self.assertEqual(len({a["id"] for a in attempts}), 1)
+        self.assertTrue(any(a.get("already_saved") for a in attempts))
+        old_id = attempts[0]["id"]
+        self.assertIn(old_id, soul.read_text(encoding="utf-8"))
+        again = self.cli("chat-context")
+        self.assertIn("练开场会安心", again["owner_profile"])
+        self.assertNotIn("先陪他练一句", again["owner_profile"])
+        self.assertIn("先陪他练一句", again["companion"])
+        self.assertIn("我很坦率", again["companion"])
+        second = draft("现在面试我更喜欢自己准备。留点时间给我。", "现在喜欢自己准备。", "给他留出准备时间。")
+        new = self.cli("add", "-", "--from-chat", draft=second)
+        self.assertNotIn("练开场会安心", self.cli("chat-context")["owner_profile"])
+        self.assertIn("自己准备", (self.vault / "profile.md").read_text(encoding="utf-8"))
+        self.cli("chat-memory", "off")
+        self.assertNotEqual(self.run_cli("add", "-", "--from-chat", draft=second).returncode, 0)
+        self.assertIn("给他留出准备时间", self.cli("chat-context")["companion"])
+        newpath = self.vault / new["written"]
+        newpath.write_text(newpath.read_text(encoding="utf-8").replace("type: memory", "type: memory\ntags: [private]"), encoding="utf-8")
+        self.assertNotIn("给他留出准备时间", self.cli("chat-context")["companion"])
+        self.cli("chat-memory", "on")
+        self.assertEqual(self.cli("add", "-", "--from-chat", draft=second), {"already_saved": True, "dry_run": False})
+        self.cli("chat-memory", "off")
+        self.cli("remove", old_id)
+        self.assertNotIn("给他留出准备时间", soul.read_text(encoding="utf-8"))
+        self.assertNotIn("先陪他练一句", soul.read_text(encoding="utf-8"))
+        self.cli("init", self.root / "other", "--language", "en")
+        self.assertEqual(self.cli("chat-memory")["chat_memory"], "unset")
+        self.assertEqual(self.cli("chat-memory", "--vault", self.vault)["chat_memory"], "off")
 
     def test_personal_chat_finds_own_recollections_across_sessions(self):
         def save(title, narrator, tags=""):

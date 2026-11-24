@@ -4,7 +4,7 @@
 
 [English](README.md) | 中文
 
-**memory-keeper · 让 AI 越聊越懂你。** 从聊天或一次个人采访里留下你想记住的话，换个对话也能接着聊。[开始聊天](memory-keeper/README_CN.md)
+**memory-keeper · 让 AI 越聊越懂你。** 开启后，AI 在日常聊天中积累个人画像，慢慢形成与你相处的习惯。[开始聊天](memory-keeper/README_CN.md)
 
 ## 技能一览
 
@@ -29,7 +29,7 @@
 | 17 | [**综述论文入库**](#17-综述论文入库-paper-insert)<br>`paper-insert` | 把写好的论文总结插进对应综述（VLA / VLM / 世界模型 / 空间智能），自动顺延序号并保持锚点不变 | Python 3 |
 | 18 | [**VLN 论文入库**](#18-vln-论文入库-vln-paper-insert)<br>`vln-paper-insert` | 一次把论文写进 VLN 论文列表（主篇 / 扩展篇）的正文、筛选标签、参考文献、会议表和排行榜 | Python 3 |
 | 19 | [**VLN 导航指令撰写**](#19-vln-导航指令撰写-vln-instruction)<br>`vln-instruction` | 撰写、改写、体检英文导航指令：R2R-CE / RxR-CE 路线指令对照 3D 轨迹校验，另含单目标物体指令 | Python 3 |
-| 20 | [**memory-keeper**](memory-keeper/README_CN.md) | 从聊天和个人采访里留住你的经历，以后按话题找回原话 | 归档和检索用 Python 3 |
+| 20 | [**memory-keeper**](memory-keeper/README_CN.md) | 从日常聊天积累个人画像，让 AI 的性格和相处方式延续到下次 | 归档和检索用 Python 3 |
 
 → [我常用的第三方技能](#我常用的第三方技能) · [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -394,9 +394,9 @@ flowchart TD
 
 ### 20. memory-keeper
 
-让 AI 通过你愿意留下的聊天和个人采访，慢慢了解你。
+让 AI 在日常相处中了解你。
 
-- 把一段聊天交给它，挑出你自己说过、下次还想接着聊的话。也可以让它采访你，一次问一件事，聊完再选哪些留下。
+- 开启一次聊天记忆，照常聊。它会记住本人讲过的重要经历和偏好，用你的反馈完善自己的聊天习惯。
 - 新对话使用同一个本地记忆库时，AI 能按话题找回你的原话。你可以核对出处，随时纠正或移除一段记录。
 - 个人记忆存为 Markdown，可附照片、录音和视频。归档和检索使用 Python 3 标准库。
 - [开始聊天](memory-keeper/README_CN.md) · [Skill 指令](memory-keeper/SKILL.md)

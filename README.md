@@ -4,7 +4,7 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
-**memory-keeper · An AI chat companion.** Keep moments from a chat or a personal interview. When the subject comes up again, your AI can find what you said. [Get started](memory-keeper/README.md)
+**memory-keeper · An AI chat companion.** With automatic memory on, everyday chats shape your profile and the companion’s conversational habits. [Get started](memory-keeper/README.md)
 
 ## Skills at a Glance
 
@@ -29,7 +29,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
-| 20 | [**memory-keeper**](memory-keeper/README.md) | Keep chosen moments from chats and guided interviews for more personal conversations later | Python 3 for archiving and search |
+| 20 | [**memory-keeper**](memory-keeper/README.md) | Build a personal profile and an evolving companion voice through everyday chats | Python 3 for archiving and search |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -394,9 +394,9 @@ Treats a navigation instruction as a description of a 3D trajectory, not free-fo
 
 ### 20. AI chat companion (`memory-keeper`)
 
-Help your AI get to know you through the conversations and interviews you choose to keep.
+Let your AI get to know you through everyday conversation.
 
-- Bring a chat excerpt or ask the AI to interview you one question at a time. Choose which of your own words to save for later.
+- Enable chat memory once. The companion can retain experiences and preferences, and develop its style from your feedback.
 - Use the same local vault in a new chat. The AI can find what you said about a related topic, show the source and help you correct or remove the note.
 - Your memories are Markdown files with optional photos, audio and video. Archiving and search use the Python 3 standard library.
 - [Start a conversation](memory-keeper/README.md) · [Skill instructions](memory-keeper/SKILL.md)

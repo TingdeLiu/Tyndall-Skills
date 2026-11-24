@@ -24,6 +24,7 @@
 ├── INDEX.md           ← 总索引，想浏览整库时打开
 ├── TIMELINE.md        ← 时间线，由脚本按事情发生的年份生成
 ├── profile.md         ← 关于记忆库主人
+├── .chat-memory       ← 本库的日常自动记忆设置，on 或 off；缺省为尚未选择
 ├── SOUL.md            ← 主人给 AI 聊天朋友定的性格，可直接编辑
 ├── memories/          ← 一段记忆一个文件
 ├── people/            ← 一个人一个档案
@@ -85,6 +86,8 @@ tags: [童年, 暑假]
 | `mood` | 否 | 一个词：温暖、快乐、平静、怀念、遗憾、难过、骄傲、复杂 等 |
 | `tags` | 否 | 2～4 个标签。加上 `私密`（英文库用 `private`）后，INDEX 和时间线只显示标题，`search --no-private` 会排除它，详见 safety.md |
 | `interview`、`segment` | 否 | 来自采访时由脚本成对写入。对应原始转写及其中一段，段号从 1 起 |
+
+日常聊天用 `add --from-chat`：每条带 `## 原话` 或 `## Quote`。可选的 `chat_topic` 为可复用的话题，如「面试准备」；`profile_note` 写对本人的具体了解，`companion_note` 写 AI 自己形成的互动习惯。脚本写入 `chat_key` 用于识别重复原话，`observed_at` 用于同一话题的新旧排序。`profile.md` 与 `SOUL.md` 中标为 `memory-keeper:learned` 的区域只取本人、非私密的来源条目，每个话题按字段采用最新一条。两块内容以原条目为准，手改来源后运行 `index`。区块外可自由编辑。
 
 媒体引用位于记忆的 `## 原始素材`（英文 `## Original sources`）小节，使用可随库移动的相对 Markdown 链接，支持步骤编号和时间位置。该小节仅供本地回看。采访的 `session.json` 保存原文件名、原文行号范围和原件清单；确认状态以已归档记忆中的采访 id 和段号为准。操作示例见[原始素材和采访](sources.md)。
 

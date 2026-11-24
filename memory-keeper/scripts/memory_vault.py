@@ -11,6 +11,8 @@ Usage:
   python memory_vault.py read-share <shared.zip | extracted_folder> [--story s1]
   python memory_vault.py interview start|list|show --help
   python memory_vault.py chat-context [topic ...] [--vault <vault_path>]
+  python memory_vault.py chat-memory [status|on|off] [--vault <vault_path>]
+  python memory_vault.py add <draft.md | -> --from-chat [--vault <vault_path>]
   python memory_vault.py alias   <person> <alternate_name>
   python memory_vault.py remove  <id> [--vault <vault_path>]
   python memory_vault.py search  [words ...] [--mine] [--person P] [--tag T] [--type memory|person|capsule]
@@ -32,6 +34,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import json
 import os
 import re
@@ -449,8 +452,8 @@ README_ZH = """# 我的记忆
 - `exports/`：导出的书，用浏览器打开，可以打印成 PDF
 - `INDEX.md`：总索引（自动生成）
 - `TIMELINE.md`：按事情发生的年份排列的时间线（自动生成）
-- `profile.md`：关于你
-- `SOUL.md`：你希望 AI 聊天朋友有什么性格、怎么跟你说话
+- `profile.md`：关于你的画像，可以从每条聊天观察找到原话
+- `SOUL.md`：AI 朋友的性格，以及你们相处中慢慢形成的聊天习惯
 - `.trash/`：删掉的条目先放在这里，确认不要了再自己清空
 
 故事使用普通 Markdown。备份或搬家时请复制整个文件夹，让故事和原件一起走。
@@ -469,8 +472,8 @@ This is your personal memory vault. Keep experiences you want to remember here s
 - `exports/`: exported books; open in a browser and print to PDF
 - `INDEX.md`: generated index
 - `TIMELINE.md`: generated timeline, ordered by when things happened
-- `profile.md`: about you
-- `SOUL.md`: the personality and conversational style you want your AI friend to have
+- `profile.md`: your profile, with sources for observations from chat
+- `SOUL.md`: the companion’s personality and conversational habits it learns with you
 - `.trash/`: removed entries land here; empty it yourself once you are sure
 
 Stories are plain Markdown. Back up the whole folder to keep the originals with their stories.
@@ -480,6 +483,60 @@ DEFAULT_SOUL = {
     "zh": "# 我的 AI 聊天朋友\n\n温和、坦率。听我把话说完，有不同看法也可以直说。\n",
     "en": "# My AI chat companion\n\nWarm and candid. Hear me out and tell me when you see things differently.\n",
 }
+
+CHAT_BEGIN = "<!-- memory-keeper:learned -->"
+CHAT_END = "<!-- /memory-keeper:learned -->"
+
+
+def chat_mode(vault: Path) -> str:
+    path = vault / ".chat-memory"
+    if not path.exists():
+        return "unset"
+    mode = path.read_text(encoding="utf-8").strip()
+    if mode not in {"on", "off"}:
+        raise ValueError("invalid .chat-memory setting; use chat-memory on or off")
+    return mode
+
+
+def cmd_chat_memory(args) -> None:
+    vault = resolve_vault(args.vault)
+    if args.mode != "status":
+        write_file(vault / ".chat-memory", args.mode + "\n")
+    emit({"chat_memory": chat_mode(vault)})
+
+
+def chat_documents(vault, memories, language, *, persist=False):
+    """Derive the two learned sections from surviving, owner-narrated sources."""
+    notes = sorted(((str(meta.get("observed_at", "")), stem, meta) for stem, meta in memories
+                    if meta.get("chat_key") and owner_narrated(meta) and not is_private(meta)),
+                   key=lambda row: row[:2], reverse=True)
+    docs = {}
+    for filename, field, heading in (
+        ("profile.md", "profile_note", "从聊天里认识的我" if language == "zh" else "What our chats reveal about me"),
+        ("SOUL.md", "companion_note", "我和你相处的方式" if language == "zh" else "How I talk with you"),
+    ):
+        path = vault / filename
+        fallback = DEFAULT_SOUL[language] if filename == "SOUL.md" else ""
+        original = path.read_text(encoding="utf-8-sig") if path.exists() else fallback
+        by_topic = {}
+        for _, stem, meta in notes:
+            topic, note = meta.get("chat_topic"), meta.get(field)
+            if isinstance(topic, str) and isinstance(note, str) and note:
+                by_topic.setdefault(topic.casefold(), f"- {topic} · {note}  [[{stem}]]")
+        block = ""
+        if by_topic:
+            block = "\n".join([CHAT_BEGIN, "## " + heading, "", *by_topic.values(), CHAT_END])
+        if CHAT_BEGIN in original and CHAT_END in original.partition(CHAT_BEGIN)[2]:
+            before, _, rest = original.partition(CHAT_BEGIN)
+            updated = before + block + rest.partition(CHAT_END)[2]
+        elif block:
+            updated = original.rstrip("\n") + "\n\n" + block + "\n"
+        else:
+            updated = original
+        if persist and updated != original:
+            write_file(path, updated)
+        docs[filename] = updated
+    return docs
 
 
 def cmd_init(args) -> None:
@@ -519,13 +576,16 @@ def write_if_missing(path: Path, content: str) -> None:
         write_file(path, content)
 
 
-def recall_for_chat(vault: Path, topics: list[str]) -> list[dict]:
+def recall_for_chat(vault: Path, topics: list[str]) -> tuple[list, list]:
     terms = {term.strip().lower() for term in topics if term.strip()}
-    if not terms:
-        return []
     matches = []
+    observations = []
     for path, meta, body in iter_entries(vault / "memories"):
         if not owner_narrated(meta) or is_private(meta):
+            continue
+        if meta.get("chat_key"):
+            observations.append((path.stem, meta))
+        if not terms:
             continue
         lines, _ = sources.source_lines(body)
         related = related_section_bounds(lines, MEMORY_RELATED_HEADINGS)
@@ -550,18 +610,19 @@ def recall_for_chat(vault: Path, topics: list[str]) -> list[dict]:
         }
         matches.append(((coverage, len(label_hits), str(memory["recorded"]), path.name), memory))
     matches.sort(key=lambda hit: hit[0], reverse=True)
-    return [memory for _, memory in matches[:3]]
+    return [memory for _, memory in matches[:3]], observations
 
 
 def cmd_chat_context(args) -> None:
     vault = resolve_vault(args.vault)
-    soul = vault / "SOUL.md"
-    profile = vault / "profile.md"
+    matches, observations = recall_for_chat(vault, args.topics)
+    docs = chat_documents(vault, observations, vault_language(vault))
     emit({
         "vault": vault.resolve().as_posix(),
-        "companion": soul.read_text(encoding="utf-8-sig") if soul.exists() else DEFAULT_SOUL[vault_language(vault)],
-        "owner_profile": profile.read_text(encoding="utf-8-sig") if profile.exists() else "",
-        "memories": recall_for_chat(vault, args.topics),
+        "chat_memory": chat_mode(vault),
+        "companion": docs["SOUL.md"],
+        "owner_profile": docs["profile.md"],
+        "memories": matches,
     })
 
 
@@ -645,6 +706,7 @@ def build_index(vault: Path, language: str | None = None) -> dict:
     result = render_index(vault, language)
     for name in ("INDEX.md", "TIMELINE.md"):
         write_file(vault / name, result[name])
+    chat_documents(vault, result["memories"], language or vault_language(vault), persist=True)
     return result
 
 
@@ -924,6 +986,29 @@ def cmd_interview(args) -> None:
     emit(report)
 
 
+def prepare_chat_memory(vault, meta, body):
+    if chat_mode(vault) != "on":
+        raise ValueError("automatic chat memory is not enabled for this vault")
+    if meta["type"] != "memory" or not owner_narrated(meta) or is_private(meta):
+        raise ValueError("automatic capture requires a non-private memory told by its owner")
+    sections = section_texts(body)
+    quote = sections.get("原话") or sections.get("Quote", "")
+    quote = " ".join(line.lstrip().removeprefix(">").strip() for line in quote.splitlines()).strip()
+    if not quote:
+        raise ValueError("include the owner's words under ## 原话 or ## Quote")
+    if meta.get("profile_note") or meta.get("companion_note"):
+        if not isinstance(meta.get("chat_topic"), str) or not meta["chat_topic"].strip():
+            raise ValueError("learned notes need a chat_topic")
+        for field in ("chat_topic", "profile_note", "companion_note"):
+            value = meta.get(field, "")
+            if not isinstance(value, str) or CHAT_BEGIN in value or CHAT_END in value:
+                raise ValueError(f"{field} must be a line of plain text")
+    key = hashlib.sha256(" ".join(quote.split()).encode("utf-8")).hexdigest()
+    meta.update(chat_key=key, observed_at=dt.datetime.now(dt.timezone.utc).isoformat(), recorded=today())
+    return next(((stem, existing) for stem, existing in read_entries(vault / "memories")
+                 if existing.get("chat_key") == key), None)
+
+
 def cmd_add(args) -> None:
     vault = resolve_vault(args.vault)
     require_vault(vault)
@@ -963,6 +1048,25 @@ def cmd_add(args) -> None:
     missing = [k for k in REQUIRED[kind] if not meta.get(k)]
     if missing:
         sys.exit(f"error: missing required field(s): {', '.join(missing)}")
+
+    if args.from_chat:
+        if args.attach or args.interview or args.segment is not None or meta.get("interview") or meta.get("segment"):
+            raise ValueError("automatic chat capture accepts only a personal text excerpt")
+        saved = prepare_chat_memory(vault, meta, body)
+        if saved:
+            stem, existing = saved
+            if is_private(existing) or not owner_narrated(existing):
+                emit({"already_saved": True, "dry_run": args.dry_run})
+                return
+            report = {"already_saved": True, "id": stem, "written": f"memories/{stem}.md",
+                      "people_created": [], "backlinks_added": [], "dry_run": args.dry_run}
+            if not args.dry_run:
+                finish_entry(vault, stem, linked_people(existing), t, report)
+            emit(report)
+            return
+    else:
+        meta.pop("chat_key", None)
+        meta.pop("observed_at", None)
 
     files = sources.media_inputs(args.attach)
     session_id = args.interview or meta.get("interview")
@@ -1753,6 +1857,7 @@ def main() -> None:
     p_add.add_argument("draft", help="path to a draft .md with frontmatter, or - for stdin")
     p_add.add_argument("--vault")
     p_add.add_argument("--dry-run", action="store_true", help="report what would happen, write nothing")
+    p_add.add_argument("--from-chat", action="store_true", help="capture an owner's words when this vault has automatic memory on")
     p_add.add_argument("--attach", action="append", default=[], metavar="FILE", help="archive a media original (repeatable)")
     p_add.add_argument("--interview", help="source interview id")
     p_add.add_argument("--segment", type=int, help="confirmed segment number within the interview")
@@ -1808,6 +1913,11 @@ def main() -> None:
     p_chat.add_argument("topics", nargs="*", help="topic words for recall, most matching words first")
     p_chat.add_argument("--vault", help="use this vault instead of the configured one")
     p_chat.set_defaults(func=cmd_chat_context)
+
+    mode = sub.add_parser("chat-memory", help="control automatic capture of everyday chat in this vault")
+    mode.add_argument("mode", nargs="?", choices=("status", "on", "off"), default="status")
+    mode.add_argument("--vault")
+    mode.set_defaults(func=cmd_chat_memory)
 
     p_check = sub.add_parser("check", help="find missing fields, profiles, backlinks and dead links")
     p_check.add_argument("vault", nargs="?")
@@ -1874,6 +1984,7 @@ def main() -> None:
                 if getattr(args, "narrator", None):
                     args.narrator = args.aliases.get(args.narrator, args.narrator)
             changes = (args.command in {"remove", "index", "export", "card", "alias"}
+                       or (args.command == "chat-memory" and args.mode != "status")
                        or (args.command == "add" and not args.dry_run)
                        or (args.command == "check" and args.fix)
                        or (args.command == "media" and (args.files or args.reuse))
