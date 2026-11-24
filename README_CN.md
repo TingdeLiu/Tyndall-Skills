@@ -4,7 +4,7 @@
 
 [English](README.md) | 中文
 
-**独家记忆 · 让 AI 越聊越懂你。** 从聊天或一次个人采访里留下你想记住的话，换个对话也能接着聊。[开始聊天](memory-keeper/README_CN.md)
+**memory-keeper · 让 AI 越聊越懂你。** 从聊天或一次个人采访里留下你想记住的话，换个对话也能接着聊。[开始聊天](memory-keeper/README_CN.md)
 
 ## 技能一览
 
@@ -29,7 +29,7 @@
 | 17 | [**综述论文入库**](#17-综述论文入库-paper-insert)<br>`paper-insert` | 把写好的论文总结插进对应综述（VLA / VLM / 世界模型 / 空间智能），自动顺延序号并保持锚点不变 | Python 3 |
 | 18 | [**VLN 论文入库**](#18-vln-论文入库-vln-paper-insert)<br>`vln-paper-insert` | 一次把论文写进 VLN 论文列表（主篇 / 扩展篇）的正文、筛选标签、参考文献、会议表和排行榜 | Python 3 |
 | 19 | [**VLN 导航指令撰写**](#19-vln-导航指令撰写-vln-instruction)<br>`vln-instruction` | 撰写、改写、体检英文导航指令：R2R-CE / RxR-CE 路线指令对照 3D 轨迹校验，另含单目标物体指令 | Python 3 |
-| 20 | [**独家记忆**](memory-keeper/README_CN.md)<br>`memory-keeper` | 从聊天和个人采访里留住你的经历，以后按话题找回原话 | 归档和检索用 Python 3 |
+| 20 | [**memory-keeper**](memory-keeper/README_CN.md) | 从聊天和个人采访里留住你的经历，以后按话题找回原话 | 归档和检索用 Python 3 |
 
 → [我常用的第三方技能](#我常用的第三方技能) · [如何将技能添加到 Claude Code](#如何将技能添加到-claude-code)
 
@@ -392,7 +392,7 @@ flowchart TD
 - **示例：** “给 val_seen 里 1234 号 episode 写一条 R2R 风格指令”“这批指令写回数据集前帮我检查一遍。”
 - 详细说明见 [skill 文件](vln-instruction/SKILL.md)。
 
-### 20. 独家记忆（`memory-keeper`）
+### 20. memory-keeper
 
 让 AI 通过你愿意留下的聊天和个人采访，慢慢了解你。
 

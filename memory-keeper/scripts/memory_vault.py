@@ -1380,7 +1380,7 @@ BOOK_TEXT = {
         "related": {"相关", "related"},
         "sep": "、",
         "joiner": "",
-        "colophon": "本书由 「独家记忆」 根据讲述整理，只收录讲述者说过的内容。",
+        "colophon": "本书由 memory-keeper 根据讲述者的原话整理。",
         "empty": "记忆库里还没有符合条件的记忆。",
     },
     "en": {
@@ -1402,7 +1402,7 @@ BOOK_TEXT = {
         "related": {"相关", "related"},
         "sep": ", ",
         "joiner": " ",
-        "colophon": "Compiled by Memory Keeper from what was told, and nothing else.",
+        "colophon": "Compiled by memory-keeper from the narrators’ accounts.",
         "empty": "No memories match yet.",
     },
 }

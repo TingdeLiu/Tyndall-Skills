@@ -17,10 +17,10 @@ LABELS = {
 }
 READER_TEXT = {
     "zh": ("分享给你的回忆", "你想问这段往事什么？", "找相关原文",
-           "按词查找这份回忆录里的段落。想进一步聊，可以把这份 ZIP 和问题一起交给装了「独家记忆」 的 Codex。",
+           "按词查找这份回忆录里的段落。想进一步聊，可以把这份 ZIP 和问题一起交给装了 memory-keeper 的 Codex。",
            "这份回忆录里没有找到匹配的原文。", "查看本篇素材"),
     "en": ("Memories shared with you", "What would you like to ask?", "Find passages",
-           "Find matching words in these stories. For a conversation, give this ZIP and your question to Codex with Memory Keeper installed.",
+           "Find matching words in these stories. For a conversation, give this ZIP and your question to Codex with memory-keeper installed.",
            "No matching passage was found in these stories.", "See this story’s originals"),
 }
 IMAGE = set("jpg jpeg jfif png gif webp avif bmp".split())
@@ -159,7 +159,7 @@ def build_card(vault, stories, lang, selected):
     page = (f'<!doctype html>\n<html lang="{"zh-CN" if lang == "zh" else "en"}"><head>'
             f'<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{escape(title)}</title><style>{CSS}</style></head><body><main>'
-            f'<p class="meta">{"独家记忆" if lang == "zh" else "Memory Keeper"} · {kind}{marker}</p>{contents}</main>'
+            f'<p class="meta">memory-keeper · {kind}{marker}</p>{contents}</main>'
             f'<script>{reader}</script></body></html>\n')
 
     folder = vault / "exports"

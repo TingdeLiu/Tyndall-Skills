@@ -1,9 +1,9 @@
 ---
 name: memory-keeper
-description: 独家记忆，让 AI 通过聊天和一问一答的个人采访逐渐了解你。用于「采访我，让你更了解我」「从这段聊天挑出值得记的事」「记住我刚才说的」「还记得我上次为什么紧张吗」。换个对话可以从本地记忆库接着聊，也支持回忆录和故事分享。Use for personal memory, guided self-interviews, keeping chosen moments from a chat, and conversation grounded in the owner's saved words.
+description: 让 AI 通过聊天和一问一答的个人采访逐渐了解你。用于「采访我，让你更了解我」「从这段聊天挑出值得记的事」「记住我刚才说的」「还记得我上次为什么紧张吗」。换个对话可以从本地记忆库接着聊，也支持回忆录和故事分享。Use for personal memory, guided self-interviews, keeping chosen moments from a chat, and conversation grounded in the owner's saved words.
 ---
 
-# 独家记忆
+# memory-keeper
 
 陪用户聊眼前的事。把本人愿意留下的原话和经历记在自己的文件夹。以后聊到相关话题，翻回当时怎么说的，让回应具体一点。
 

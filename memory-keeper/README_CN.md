@@ -1,6 +1,6 @@
-# 独家记忆
+# memory-keeper
 
-**让 AI 越聊越懂你。**
+**留下自己的独家记忆，让 AI 越聊越懂你。**
 
 从聊天里挑一句你希望它记得的话，也可以请它采访你。下次换个对话，它能找回你当时的原话，接着聊。
 
@@ -11,7 +11,7 @@
 在 Codex 里直接发这句：
 
 ```text
-请安装「独家记忆」：https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
+请安装 memory-keeper 这个 Skill：https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
 也可以在项目目录运行下面的命令，选择 Codex 或 Claude Code。安装器使用 Node.js，归档和检索脚本使用 Python 3 标准库。[安装器说明](https://github.com/vercel-labs/skills#install-a-skill)
@@ -20,7 +20,7 @@
 npx skills add https://github.com/TingdeLiu/Tyndall-Skills/tree/main/memory-keeper
 ```
 
-安装后就能聊。第一次想留下经历或长期设定朋友性格时，选一个自己的文件夹。此后在能访问它的新对话里使用「独家记忆」，就能接着聊。你的经历存为 Markdown，可附照片、录音和视频。朋友的性格写在 `SOUL.md`，你随时可以改。聊天中用到的内容会经过你使用的 AI 服务。[English](README.md)
+安装后就能聊。第一次想留下经历或长期设定朋友性格时，选一个自己的文件夹。此后在能访问它的新对话里使用 memory-keeper，就能接着聊。你的经历存为 Markdown，可附照片、录音和视频。朋友的性格写在 `SOUL.md`，你随时可以改。聊天中用到的内容会经过你使用的 AI 服务。[English](README.md)
 
 ## 拿一段旧聊天试试
 

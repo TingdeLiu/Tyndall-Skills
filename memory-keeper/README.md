@@ -1,4 +1,4 @@
-# 独家记忆 · An AI chat companion
+# memory-keeper · An AI chat companion
 
 **Help your AI get to know you, one conversation at a time.** [中文](README_CN.md)
 

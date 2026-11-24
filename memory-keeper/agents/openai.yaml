@@ -1,4 +1,4 @@
 interface:
-  display_name: "独家记忆"
+  display_name: "memory-keeper"
   short_description: "留下聊天里你想记住的话，或让 AI 采访你。换个对话，它也能接着你的故事聊。"
   default_prompt: "用 $memory-keeper 采访我，让你更了解我。一次问我一件事。"
