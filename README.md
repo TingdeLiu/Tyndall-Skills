@@ -4,7 +4,7 @@ A curated collection of custom Claude Code skills (SKILL.md templates) and autom
 
 English | [中文](README_CN.md)
 
-**独家记忆 · An AI chat companion.** Choose your AI friend’s personality and the experiences you want it to remember. Pick up the conversation in a new chat. [Get started](memory-keeper/README.md)
+**独家记忆 · An AI chat companion.** Keep moments from a chat or a personal interview. When the subject comes up again, your AI can find what you said. [Get started](memory-keeper/README.md)
 
 ## Skills at a Glance
 
@@ -29,7 +29,7 @@ English | [中文](README_CN.md)
 | 17 | [**Survey Paper Insert**](#17-survey-paper-insert-paper-insert)<br>`paper-insert` | Files a finished paper summary into the right survey post (VLA / VLM / world models / spatial intelligence), renumbering sections while keeping anchors stable | Python 3 |
 | 18 | [**VLN Paper Insert**](#18-vln-paper-insert-vln-paper-insert)<br>`vln-paper-insert` | Adds a paper to a two-page VLN paper list in one pass: section, filter tag, reference, venue table and leaderboard rows | Python 3 |
 | 19 | [**VLN Instruction Writer**](#19-vln-instruction-writer-vln-instruction)<br>`vln-instruction` | Writes, rewrites and lints English navigation instructions — R2R-CE / RxR-CE routes checked against the 3D trajectory, plus short object-goal commands | Python 3 |
-| 20 | [**独家记忆 · AI chat companion**](memory-keeper/README.md)<br>`memory-keeper` | Choose a personality for your AI friend and revisit saved experiences in fresh chats | Python 3 for archiving and search |
+| 20 | [**独家记忆 · AI chat companion**](memory-keeper/README.md)<br>`memory-keeper` | Keep chosen moments from chats and guided interviews for more personal conversations later | Python 3 for archiving and search |
 
 → [Third-Party Skills I Use](#third-party-skills-i-use) · [How to Add Skills to Claude Code](#how-to-add-skills-to-claude-code)
 
@@ -394,18 +394,12 @@ Treats a navigation instruction as a description of a 3D trajectory, not free-fo
 
 ### 20. AI chat companion (`memory-keeper`)
 
-Save the experiences you want to revisit in later chats. Give your AI friend a name and choose how you like it to talk with you.
+Help your AI get to know you through the conversations and interviews you choose to keep.
 
-- On first use it suggests a vault folder (detecting a Documents folder redirected to OneDrive) and finds it again afterwards. One Markdown file per memory, plus people profiles, letter drafts and a generated index, cross-linked with `[[links]]` so Obsidian opens it as-is.
-- Everyday chat can draw on stories you have told. You can also interview relatives and resume work on their transcripts, with each account attributed to its teller.
-- For a family recipe or craft, link photos to individual steps and mark the relevant times in audio or video. Add originals to existing memories at any time. The printable book contains the story text.
-- Records only what was said, never padding with invented details; asks before saving and says where it saved. Notices when a story has been told before and asks whether to add to the earlier one; a family member's version of the same event is kept separately and cross-linked. Facts you mention in passing fill in your profile and people's profiles over time, without a questionnaire. Memories tagged private show only their title in the index and timeline, don't create profiles for the people in them or feed facts into profiles, and are left out of letters unless you say otherwise; the files themselves are not encrypted. Has explicit guidance for grief, self-harm signals and other sensitive moments.
-- Turns the vault into a book: a single HTML file with a cover, contents, one chapter per decade, the people in it and a list of what still needs confirming, laid out to print as an A5 booklet or PDF. Can be limited to one person's stories or one narrator's; private memories stay out unless you ask.
-- You can prepare letters and a memoir for loved ones to keep after you are gone, then entrust the copies to someone you choose.
-- A helper script files each entry (file name, people profiles, backlinks, index in one step), keeps a timeline ordered by when things happened (fuzzy dates like "second year of college" stay as told), searches by person, tag or keyword, moves deletions to a `.trash/` folder instead of erasing them, and runs a health check that finds and fixes missing profiles, backlinks and dead links.
-- Text memories can be filed by hand. Archiving media, tracking interview progress and generating indexes use the Python 3 standard library.
-- Try “Save this story about my first move”, “I’m moving again. Can we talk?” or “Put together the stories I want my daughter to have.”
-- [Start your own journal](memory-keeper/README.md) · [Skill instructions](memory-keeper/SKILL.md)
+- Bring a chat excerpt or ask the AI to interview you one question at a time. Choose which of your own words to save for later.
+- Use the same local vault in a new chat. The AI can find what you said about a related topic, show the source and help you correct or remove the note.
+- Your memories are Markdown files with optional photos, audio and video. Archiving and search use the Python 3 standard library.
+- [Start a conversation](memory-keeper/README.md) · [Skill instructions](memory-keeper/SKILL.md)
 
 ## Third-Party Skills I Use
 

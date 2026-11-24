@@ -62,6 +62,7 @@ class ArchiveTest(unittest.TestCase):
             "vault": self.vault.resolve().as_posix(),
             "companion": "# 阿栗\n说话直一点。\n",
             "owner_profile": "# 我叫小棠\n",
+            "memories": [],
         })
         old_soul = second / "SOUL.md"
         old_soul.unlink()
@@ -86,6 +87,37 @@ class ArchiveTest(unittest.TestCase):
                          {my_story, english, private})
         self.assertIn(interview, {r["id"] for r in self.cli("search", "搬家", "--person", "我")["results"]})
         self.assertEqual(self.cli("search", "--type", "person", "--mine")["count"], 0)
+
+    def test_chat_recall_uses_saved_interview_words_and_respects_later_edits(self):
+        quote = "上次面试前，朋友陪我练了第一句。开了口就好了。"
+        transcript = self.root / "采访.txt"
+        transcript.write_text("哪次面试感觉好一点？\n" + quote, encoding="utf-8")
+        session = self.cli("interview", "start", transcript)
+        def draft(title, summary, body, narrator="我", tags="聊天", date="2026-02-01"):
+            return (f"---\ntype: memory\ntitle: {title}\nsummary: {summary}\nnarrator: {narrator}\n"
+                    f"tags: [{tags}]\nrecorded: {date}\n---\n\n## 原话\n\n> {body}\n")
+
+        saved = self.cli("add", "-", "--interview", session["id"], "--segment", 1,
+                         draft=draft("面试的第一句", "朋友陪我练过开场。", quote, tags="本人采访"))
+        for n in range(3):
+            self.cli("add", "-", draft=draft(f"路过面试地点{n}", "下车买水。", "随便走了走。", date="2026-03-01"))
+        self.cli("add", "-", draft=draft("私下那场面试", "开场", "私密原话", tags="私密"))
+        self.cli("add", "-", draft=draft("别人的面试", "开场", "妈妈的经历", narrator="妈妈"))
+
+        results = self.cli("chat-context", "面试", "开场", "紧张")["memories"]
+        self.assertEqual(len(results), 3)
+        self.assertEqual(results[0]["path"], saved["written"])
+        self.assertIn(quote, results[0]["excerpt"])
+        self.assertNotIn("transcript.txt", results[0]["excerpt"])
+        self.assertTrue(all("路过" in result["title"] for result in results[1:]))
+        self.assertEqual(self.cli("search", "--mine", "--tag", "本人采访")["results"][0]["id"], saved["id"])
+        self.assertEqual(self.cli("chat-context", "滑雪")["memories"], [])
+        self.assertEqual(self.cli("chat-context", session["id"])["memories"], [])
+        path = self.vault / saved["written"]
+        path.write_text(path.read_text(encoding="utf-8").replace(quote, "这次我想自己练开场。"), encoding="utf-8")
+        self.assertIn("自己练开场", self.cli("chat-context", "开场")["memories"][0]["excerpt"])
+        self.cli("remove", saved["id"])
+        self.assertEqual(self.cli("chat-context", "开场")["memories"], [])
 
     def test_attach_originals_to_new_and_old_memory(self):
         files = [self.fixture("原声.m4a", b"voice"), self.fixture("折叶[1].heic", b"photo"),

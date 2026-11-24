@@ -10,6 +10,7 @@ Usage:
   python memory_vault.py card    <memory_id> [more_ids ...] [--media media/path]... [--include-private]
   python memory_vault.py read-share <shared.zip | extracted_folder> [--story s1]
   python memory_vault.py interview start|list|show --help
+  python memory_vault.py chat-context [topic ...] [--vault <vault_path>]
   python memory_vault.py alias   <person> <alternate_name>
   python memory_vault.py remove  <id> [--vault <vault_path>]
   python memory_vault.py search  [words ...] [--mine] [--person P] [--tag T] [--type memory|person|capsule]
@@ -214,18 +215,18 @@ def dump_frontmatter(meta: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
-def read_entries(folder: Path) -> list[tuple[str, dict]]:
-    entries = []
-    if not folder.is_dir():
-        return entries
+def iter_entries(folder: Path):
     for path in sorted(folder.glob("*.md")):
         try:
-            meta = parse_frontmatter(path.read_text(encoding="utf-8"))
+            meta, body = split_frontmatter(path.read_text(encoding="utf-8"))
         except (OSError, UnicodeDecodeError) as exc:
             print(f"warning: skip {path.name}: {exc}", file=sys.stderr)
             continue
-        entries.append((path.stem, meta))
-    return entries
+        yield path, meta, body
+
+
+def read_entries(folder: Path) -> list[tuple[str, dict]]:
+    return [(path.stem, meta) for path, meta, _ in iter_entries(folder)]
 
 
 def as_list(value) -> list[str]:
@@ -301,6 +302,11 @@ def event_year(meta: dict) -> int | None:
 
 def is_self(name: str) -> bool:
     return str(name).strip().lower() in SELF_NARRATORS
+
+
+def owner_narrated(meta: dict) -> bool:
+    name = meta.get("narrator", "")
+    return isinstance(name, str) and bool(name.strip()) and is_self(name)
 
 
 def mentions_self(meta: dict) -> bool:
@@ -513,6 +519,40 @@ def write_if_missing(path: Path, content: str) -> None:
         write_file(path, content)
 
 
+def recall_for_chat(vault: Path, topics: list[str]) -> list[dict]:
+    terms = {term.strip().lower() for term in topics if term.strip()}
+    if not terms:
+        return []
+    matches = []
+    for path, meta, body in iter_entries(vault / "memories"):
+        if not owner_narrated(meta) or is_private(meta):
+            continue
+        lines, _ = sources.source_lines(body)
+        related = related_section_bounds(lines, MEMORY_RELATED_HEADINGS)
+        if related:
+            del lines[related[0]:related[1]]
+        text = " ".join(" ".join(lines).split())
+        labels = " ".join(str(value) for key in ("title", "summary", "tags", "people", "places")
+                          for value in as_list(meta.get(key))).lower()
+        label_hits = {term for term in terms if term in labels}
+        lower_text = text.lower()
+        body_hits = {term: lower_text.index(term) for term in terms if term in lower_text}
+        coverage = len(label_hits.union(body_hits))
+        if not coverage:
+            continue
+        start = max(0, min(body_hits.values(), default=0) - 36)
+        memory = {
+            "path": path.relative_to(vault).as_posix(),
+            "title": meta.get("title") or path.stem,
+            "recorded": meta.get("recorded", ""),
+            "summary": meta.get("summary", ""),
+            "excerpt": text[start:start + 180],
+        }
+        matches.append(((coverage, len(label_hits), str(memory["recorded"]), path.name), memory))
+    matches.sort(key=lambda hit: hit[0], reverse=True)
+    return [memory for _, memory in matches[:3]]
+
+
 def cmd_chat_context(args) -> None:
     vault = resolve_vault(args.vault)
     soul = vault / "SOUL.md"
@@ -521,6 +561,7 @@ def cmd_chat_context(args) -> None:
         "vault": vault.resolve().as_posix(),
         "companion": soul.read_text(encoding="utf-8-sig") if soul.exists() else DEFAULT_SOUL[vault_language(vault)],
         "owner_profile": profile.read_text(encoding="utf-8-sig") if profile.exists() else "",
+        "memories": recall_for_chat(vault, args.topics),
     })
 
 
@@ -1061,7 +1102,7 @@ def cmd_search(args) -> None:
             except (OSError, UnicodeDecodeError):
                 continue
             meta, body = split_frontmatter(text)
-            if args.mine and not (meta.get("narrator") and is_self(meta["narrator"])):
+            if args.mine and not owner_narrated(meta):
                 continue
             if args.person:
                 meta = canonical_people(meta, args.aliases)
@@ -1763,7 +1804,8 @@ def main() -> None:
     p_search.add_argument("--vault")
     p_search.set_defaults(func=cmd_search)
 
-    p_chat = sub.add_parser("chat-context", help="read the companion style and owner profile for a personal chat")
+    p_chat = sub.add_parser("chat-context", help="read the chat profile and up to three relevant memories of the owner")
+    p_chat.add_argument("topics", nargs="*", help="topic words for recall, most matching words first")
     p_chat.add_argument("--vault", help="use this vault instead of the configured one")
     p_chat.set_defaults(func=cmd_chat_context)
 
